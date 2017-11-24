@@ -1,0 +1,103 @@
+fu! vim#fold_text() abort "{{{1
+    let indent = repeat(' ', (v:foldlevel-1)*3)
+    let title  = substitute(getline(v:foldstart), '\v^\s*"\s*|\s*"?\{\{\{\d?', '', 'g')
+    let title  = substitute(title, '\v^\s*fu%[nction]! %(.*%(#|s:))?(.{-})\(.*\).*', '\1', '')
+
+    if get(b:, 'my_title_full', 0)
+        let foldsize  = (v:foldend - v:foldstart)
+        let linecount = '['.foldsize.']'.repeat(' ', 4 - strchars(foldsize))
+        return indent.' '.linecount.' '.title
+    else
+        return indent.' '.title
+    endif
+endfu
+
+fu! vim#ref_if(line1,line2) abort "{{{1
+    call search('let\|return', 'cW', a:line2)
+    let kwd = matchstr(getline('.'), 'let\|return')
+    let expr = matchstr(getline('.'), '\v%(let|return)\s+\zs\S+')
+    if empty(expr)
+        return
+    endif
+
+    let tests = s:ref_if_get_tests_or_values(a:line1, a:line2,
+    \                                        '\v<if>',
+    \                                        '\v<if>\s+\zs.*',
+    \                                        '\v<%(else|elseif)>',
+    \                                        '\v<%(else|elseif)>\s+\zs.*')
+
+    let values = s:ref_if_get_tests_or_values(a:line1, a:line2,
+    \                                         '\v<'.kwd.'>',
+    \                                         '\v<'.kwd.'>\s+'.(kwd ==# 'let' ? '.{-}\=\s*' : '').'\zs.*',
+    \                                         '\v<'.kwd.'>',
+    \                                         '\v<'.kwd.'>\s+'.(kwd ==# 'let' ? '.{-}\=\s*' : '').'\zs.*')
+
+    if tests == [''] || values == [''] || len(tests) > len(values)
+        return
+    endif
+
+    let indent_kwd = matchstr(getline(a:line1), '^\s*')
+    let indent_val = repeat(' ', strchars(matchstr(getline(a:line1+1),
+    \                                              '\v^\s*'.kwd.(kwd ==# 'let' ? '.{-}\=\s?' : '\s'))
+    \                                     , 1)
+    \                            -strlen(indent_kwd)
+    \                            -2)
+    let indent_test = repeat(' ', len(indent_val)-&sw)
+    let assignment  = [ indent_kwd.kwd.' '.(kwd ==# 'let' ? expr.' = ' : '') ]
+
+    for i in range(1, len(tests))
+        let assignment += i == len(tests)
+        \                 ?    [ repeat(' ', &sw).values[i-1] ]
+        \
+        \                 :    [ tests[i-1] ]
+        \                    + [ "\n".indent_kwd.'\?'.indent_val.values[i-1] ]
+        \                    + [ "\n".indent_kwd.'\:'.indent_test ]
+    endfor
+
+    let assignment = join(assignment, '')
+    sil exe a:line1.','.a:line2.'d_'
+    sil -put =assignment
+endfu
+
+fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{{1
+    exe a:line1
+    let expressions = [ matchstr(getline(search(a:pat1, 'cW', a:line2)), a:pat2) ]
+    let guard = 0
+    while search(a:pat3, 'W', a:line2) && guard <= 30
+        let expressions += [ matchstr(getline('.'), a:pat4) ]
+        let guard += 1
+    endwhile
+    return expressions
+endfu
+
+fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
+    let range     = a:lnum1.','.a:lnum2
+    let modifiers = 'keepj keepp '
+    let view      = winsaveview()
+
+    let substitutions = {
+    \                     'au':    { 'pat': '^\s*\zsau%[tocmd]',          'rep': 'au'     },
+    \                     'com':   { 'pat': '^\s*\zscom%[mand]!? ',       'rep': 'com! '  },
+    \                     'fu':    { 'pat': '^\s*\zsfu%[nction]!? ',      'rep': 'fu! '   },
+    \                     'endfu': { 'pat': '^\s*\zsendfu%[nction]\s*$',  'rep': 'endfu'  },
+    \                     'exe':   { 'pat': 'exe%[cute] ',                'rep': 'exe '   },
+    \                     'sil':   { 'pat': '\<@<!sil%[ent](!| )',        'rep': ' sil\1' },
+    \                     'setl':  { 'pat': 'setl%[ocal] ',               'rep': 'setl '  },
+    \                     'keepj': { 'pat': 'keepj%[umps] ',              'rep': 'keepj ' },
+    \                     'keepp': { 'pat': 'keepp%[atterns] ',           'rep': 'keepp ' },
+    \                     'nno':   { 'pat': '(n|v|x|o|i|c)no%[remap] ',   'rep': '\1no '  },
+    \                     'norm':  { 'pat': 'normal!',                    'rep': 'norm!'  },
+    \
+    \                     'abort': { 'pat': '^%(.*\)\s*abort)@!\s*fu%[nction]!?.*\)\zs\ze(\s*"\{\{\{\d*)?',
+    \                                'rep': ' abort' },
+    \                   }
+
+    sil! exe modifiers.'norm! '.a:lnum1.'G='.a:lnum2.'G'
+    for sbs in values(substitutions)
+        sil! exe modifiers.range.'s/\v'.sbs.pat.'/'.sbs.rep.'/g'.(a:confirm ? 'c' : '')
+    endfor
+
+    norm! gg=G
+
+    call winrestview(view)
+endfu

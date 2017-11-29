@@ -72,8 +72,8 @@ endfu
 
 fu! vim#ref_v_val() abort "{{{1
     let l:Sub = { s -> substitute(substitute(substitute(substitute(substitute(s, 'v:val', 'v', 'g'),
-    \                                                              "''", "'", 'g'),
-    \                                                   'v:key', 'k', 'g'),
+                \                                                  'v:key', 'k', 'g'),
+    \                                                   "''", "'", 'g'),
     \                                        '"', "'", 'g'),
     \                             '\\\\', '\\', 'g')
     \           }

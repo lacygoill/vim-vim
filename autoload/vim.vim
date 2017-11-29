@@ -72,14 +72,14 @@ endfu
 
 fu! vim#ref_v_val() abort "{{{1
     " replace:
-    "         v:val                 →  v
-    "         v:key                 →  k
-    "         \ or " (not escaped)  →  '
-    "         \"                    →  "
-    "         \\                    →  \
+    "         v:val                  →  v
+    "         v:key                  →  k
+    "         '' or " (not escaped)  →  '
+    "         \"                     →  "
+    "         \\                     →  \
     let l:Sub = { s -> substitute(substitute(substitute(substitute(substitute(s, 'v:val', 'v', 'g'),
     \                                                              'v:key', 'k', 'g'),
-    \                                                   "''\\|\\\\@<!\"", "'", 'g'),
+    \                                                   "''\\|\\\\\\@<!\"", "'", 'g'),
     \                                        '\\"', '"', 'g'),
     \                             '\\\\', '\\', 'g')
     \           }

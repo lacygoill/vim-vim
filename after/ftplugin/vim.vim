@@ -3,9 +3,9 @@
 
 com! -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
 
-cnorea <expr> <buffer> refactor getcmdtype() ==# ':' && getcmdline() ==# 'refactor'
-\                               ?    'Refactor'
-\                               :    'refactor'
+cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refactor'
+\                                ?    'Refactor'
+\                                :    'refactor'
 
 " RefIf {{{2
 " Usage: {{{3
@@ -36,11 +36,17 @@ cnorea <expr> <buffer> refactor getcmdtype() ==# ':' && getcmdline() ==# 'refact
 
 " Command {{{3
 
-com! -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
+com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
 
-cnorea <expr> <buffer> refif getcmdtype() ==# ':' && getcmdline() ==# 'refif'
-\                            ?    'RefIf'
-\                            :    'refif'
+cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
+\                             ?    'RefIf'
+\                             :    'refif'
+
+com! -bar -buffer -range RefVval call vim#ref_v_val()
+
+cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvval'
+\                               ?    'RefVval'
+\                               :    'refvval'
 
 " Mappings {{{1
 
@@ -186,6 +192,8 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                         | exe 'nunmap <buffer> ]M'
 \                         | exe 'cuna   <buffer> refactor'
 \                         | exe 'cuna   <buffer> refif'
-\                         | delc Refactor
+\                         | exe 'cuna   <buffer> refvval'
 \                         | delc RefIf
+\                         | delc RefVval
+\                         | delc Refactor
 \                       "

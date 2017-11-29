@@ -70,6 +70,38 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
     return expressions
 endfu
 
+fu! vim#ref_v_val() abort "{{{1
+    let l:Sub = { x -> substitute(substitute(substitute(x, 'v:val', 'v', 'g'),
+    \                                        "''", "'", 'g'),
+    \                             'v:key', 'k', 'g') }
+    let l:Rep = {   -> '{ k,v -> '.l:Sub(submatch(1)).' }' }
+
+    "     ┌ first character in selection
+    "     │              ┌ last character in selection
+    "     │              │
+    s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
+    "            └────┤
+    "                 └ the character just before the last one in the selection
+
+    " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
+    "
+    " We could write this:
+    "
+    "         .\%'>.
+    "
+    " … but it's not reliable with a linewise selection.
+    "
+    " Watch:
+    "     V
+    "     : C-u echo getpos("'>")[3]
+    "
+    "             2147483647
+    "
+    " It  probably doesn't  matter here,  because this  function should  only be
+    " invoked on a characterwise selection, but I prefer to stay consistent.
+    "}}}
+endfu
+
 fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
     let range     = a:lnum1.','.a:lnum2
     let modifiers = 'keepj keepp '

@@ -71,32 +71,37 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
 endfu
 
 fu! vim#ref_v_val() abort "{{{1
-    let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
+    try
+        let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
 
-    "     ┌ first character in selection
-    "     │              ┌ last character in selection
-    "     │              │
-    s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
-    "            └────┤
-    "                 └ the character just before the last one in the selection
+        "                 ┌ first character in selection
+        "                 │              ┌ last character in selection
+        "                 │              │
+        keepj keepp s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
+        "            └────┤
+        "                 └ the character just before the last one in the selection
 
-    " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
-    "
-    " We could write this:
-    "
-    "         .\%'>.
-    "
-    " … but it's not reliable with a linewise selection.
-    "
-    " Watch:
-    "     V
-    "     : C-u echo getpos("'>")[3]
-    "
-    "             2147483647
-    "
-    " It  probably doesn't  matter here,  because this  function should  only be
-    " invoked on a characterwise selection, but I prefer to stay consistent.
-    "}}}
+        " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
+        "
+        " We could write this:
+        "
+        "         .\%'>.
+        "
+        " … but it's not reliable with a linewise selection.
+        "
+        " Watch:
+        "     V
+        "     : C-u echo getpos("'>")[3]
+        "
+        "             2147483647
+        "
+        " It  probably doesn't  matter here,  because this  function should  only be
+        " invoked on a characterwise selection, but I prefer to stay consistent.
+        "}}}
+    catch
+        return 'echoerr '.string(v:exception)
+    endtry
+    return ''
 endfu
 
 fu! s:ref_v_val_rep(captured_text) abort "{{{1
@@ -107,24 +112,20 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     "         " (not escaped)        →  '
     "         \"                     →  "
     "         \\                     →  \
-    "         '.                     →  ∅
-    "         .'                     →  ∅
 
     let pat2rep = {
     \               'v:val'      : 'v' ,
     \               'v:key'      : 'k' ,
     \               "''"         : "'" ,
     \               '\\\@<!"'    : "'" ,
-    \               '\\"'        : '"' ,
     \               '\\\\'       : '\\',
-    \               '''\.\|\.''' : ''  ,
     \             }
 
     let transformed_text = a:captured_text
     for [ pat, rep ] in items(pat2rep)
         let transformed_text = substitute(transformed_text, pat, rep, 'g')
     endfor
-    return transformed_text
+    return substitute(transformed_text, '\\"', '"', 'g')
 endfu
 
 fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1

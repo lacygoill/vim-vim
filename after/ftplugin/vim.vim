@@ -42,7 +42,7 @@ cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
 \                             ?    'RefIf'
 \                             :    'refif'
 
-com! -bar -buffer -range RefVval call vim#ref_v_val()
+com! -bar -buffer -range RefVval exe vim#ref_v_val()
 
 cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvval'
 \                               ?    'RefVval'

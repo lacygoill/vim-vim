@@ -186,6 +186,6 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                         | exe 'nunmap <buffer> ]M'
 \                         | exe 'cuna   <buffer> refactor'
 \                         | exe 'cuna   <buffer> refif'
-\                         | delcommand Refactor
-\                         | delcommand RefIf
+\                         | delc Refactor
+\                         | delc RefIf
 \                       "

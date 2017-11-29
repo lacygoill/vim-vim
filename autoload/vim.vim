@@ -74,6 +74,7 @@ fu! vim#ref_v_val() abort "{{{1
     let l:Sub = { x -> substitute(substitute(substitute(x, 'v:val', 'v', 'g'),
     \                                        "''", "'", 'g'),
     \                             'v:key', 'k', 'g') }
+
     let l:Rep = {   -> '{ k,v -> '.l:Sub(submatch(1)).' }' }
 
     "     ┌ first character in selection

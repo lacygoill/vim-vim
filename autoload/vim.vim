@@ -71,20 +71,7 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
 endfu
 
 fu! vim#ref_v_val() abort "{{{1
-    " replace:
-    "         v:val                  →  v
-    "         v:key                  →  k
-    "         '' or " (not escaped)  →  '
-    "         \"                     →  "
-    "         \\                     →  \
-    let l:Sub = { s -> substitute(substitute(substitute(substitute(substitute(s, 'v:val', 'v', 'g'),
-    \                                                              'v:key', 'k', 'g'),
-    \                                                   "''\\|\\\\\\@<!\"", "'", 'g'),
-    \                                        '\\"', '"', 'g'),
-    \                             '\\\\', '\\', 'g')
-    \           }
-
-    let l:Rep = {   -> '{ k,v -> '.l:Sub(submatch(1)).' }' }
+    let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
 
     "     ┌ first character in selection
     "     │              ┌ last character in selection
@@ -110,6 +97,34 @@ fu! vim#ref_v_val() abort "{{{1
     " It  probably doesn't  matter here,  because this  function should  only be
     " invoked on a characterwise selection, but I prefer to stay consistent.
     "}}}
+endfu
+
+fu! s:ref_v_val_rep(captured_text) abort "{{{1
+    " replace:
+    "         v:val                  →  v
+    "         v:key                  →  k
+    "         ''                     →  '
+    "         " (not escaped)        →  '
+    "         \"                     →  "
+    "         \\                     →  \
+    "         '.                     →  ∅
+    "         .'                     →  ∅
+
+    let pat2rep = {
+    \               'v:val'      : 'v' ,
+    \               'v:key'      : 'k' ,
+    \               "''"         : "'" ,
+    \               '\\\@<!"'    : "'" ,
+    \               '\\"'        : '"' ,
+    \               '\\\\'       : '\\',
+    \               '''\.\|\.''' : ''  ,
+    \             }
+
+    let transformed_text = a:captured_text
+    for [ pat, rep ] in items(pat2rep)
+        let transformed_text = substitute(transformed_text, pat, rep, 'g')
+    endfor
+    return transformed_text
 endfu
 
 fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1

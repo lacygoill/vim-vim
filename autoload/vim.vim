@@ -71,9 +71,12 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
 endfu
 
 fu! vim#ref_v_val() abort "{{{1
-    let l:Sub = { x -> substitute(substitute(substitute(x, 'v:val', 'v', 'g'),
-    \                                        "''", "'", 'g'),
-    \                             'v:key', 'k', 'g') }
+    let l:Sub = { x -> substitute(substitute(substitute(substitute(substitute(x, 'v:val', 'v', 'g'),
+    \                                                              "''", "'", 'g'),
+    \                                                   'v:key', 'k', 'g'),
+    \                                        '"', "'", 'g'),
+    \                             '\\\\', '\\', 'g')
+    \           }
 
     let l:Rep = {   -> '{ k,v -> '.l:Sub(submatch(1)).' }' }
 

@@ -117,7 +117,6 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     \               'v:val'      : 'v' ,
     \               'v:key'      : 'k' ,
     \               "''"         : "'" ,
-    \               '\\\@<!"'    : "'" ,
     \               '\\\\'       : '\\',
     \             }
 
@@ -125,7 +124,7 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     for [ pat, rep ] in items(pat2rep)
         let transformed_text = substitute(transformed_text, pat, rep, 'g')
     endfor
-    return substitute(transformed_text, '\\"', '"', 'g')
+    return substitute(substitute(transformed_text, '\\\@<!"', "'", 'g'), '\\"', '"', 'g')
 endfu
 
 fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1

@@ -109,8 +109,6 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     "         v:val                  →  v
     "         v:key                  →  k
     "         ''                     →  '
-    "         " (not escaped)        →  '
-    "         \"                     →  "
     "         \\                     →  \
 
     let pat2rep = {
@@ -124,6 +122,13 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     for [ pat, rep ] in items(pat2rep)
         let transformed_text = substitute(transformed_text, pat, rep, 'g')
     endfor
+
+    " The  last 2  transformations  must  be done  after,  because of  undesired
+    " interactions.
+    "
+    " replace:
+    "         " (not escaped)  →  '
+    "         \"               →  "
     return substitute(substitute(transformed_text, '\\\@<!"', "'", 'g'), '\\"', '"', 'g')
 endfu
 

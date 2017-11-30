@@ -86,6 +86,13 @@ nno <buffer> <nowait> <silent> [M   :<C-U>let g:motion_to_repeat = '[M'
 nno <buffer> <nowait> <silent> ]M   :<C-U>let g:motion_to_repeat = ']M'
                                     \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
+xno <buffer> <nowait> <silent> \ri  :<c-u>RefIf<cr>
+xno <buffer> <nowait> <silent> \rv  :<c-u>RefVval<cr>
+"                              │││
+"                              ││└ v:Val
+"                              │└ Refactor
+"                              └ prefix for filetype-specific mappings
+
 " Options {{{1
 " window-local {{{2
 augroup my_vim
@@ -190,6 +197,8 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                         | exe 'nunmap <buffer> ]m'
 \                         | exe 'nunmap <buffer> [M'
 \                         | exe 'nunmap <buffer> ]M'
+\                         | exe 'xunmap <buffer> \ri'
+\                         | exe 'xunmap <buffer> \rv'
 \                         | exe 'cuna   <buffer> refactor'
 \                         | exe 'cuna   <buffer> refif'
 \                         | exe 'cuna   <buffer> refvval'

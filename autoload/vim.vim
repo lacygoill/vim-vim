@@ -81,7 +81,9 @@ fu! vim#ref_v_val() abort "{{{1
         let [ line1, line2 ] = [ line("'<"), line("'>") ]
         let [ col1, col2 ]   = [ col("'<"), col("'>") ]
         let [ char1, char2 ] = [ matchstr(getline(line1), '\%'.col1.'c.'),
-        \                        matchstr(getline(line2), '\%'.col1.'c.') ]
+        \                        matchstr(getline(line2), '\%'.col2.'c.') ]
+        let g:char1 = char1
+        let g:char2 = char2
         if  index(["'", '"'], char1) < 0 || index(["'", '"', ')'], char2) < 0
             return ''
         endif

@@ -176,7 +176,5 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
         sil! exe modifiers.range.'s/\v'.sbs.pat.'/'.sbs.rep.'/g'.(a:confirm ? 'c' : '')
     endfor
 
-    norm! gg=G
-
     call winrestview(view)
 endfu

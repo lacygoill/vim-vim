@@ -72,6 +72,20 @@ endfu
 
 fu! vim#ref_v_val() abort "{{{1
     try
+        " Make sure the visual selection contains an expression we can refactor.
+        " It must begin with a quote, and end with a quote or a closed parenthesis.
+        " Why a closed parenthesis? Watch:
+        "
+        "         map(…, '…'.string(…))
+        "                            ^
+        let [ line1, line2 ] = [ line("'<"), line("'>") ]
+        let [ col1, col2 ]   = [ col("'<"), col("'>") ]
+        let [ char1, char2 ] = [ matchstr(getline(line1), '\%'.col1.'c.'),
+        \                        matchstr(getline(line2), '\%'.col1.'c.') ]
+        if  index(["'", '"'], char1) < 0 || index(["'", '"', ')'], char2) < 0
+            return ''
+        endif
+
         let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
 
         "                 ┌ first character in selection
@@ -106,16 +120,18 @@ endfu
 
 fu! s:ref_v_val_rep(captured_text) abort "{{{1
     " replace:
-    "         v:val                  →  v
-    "         v:key                  →  k
-    "         ''                     →  '
-    "         \\                     →  \
+    "         v:val      →  v
+    "         v:key      →  k
+    "         ''         →  '
+    "         \\         →  \
+    "         '.string(  →  ∅
 
     let pat2rep = {
-    \               'v:val'      : 'v' ,
-    \               'v:key'      : 'k' ,
-    \               "''"         : "'" ,
-    \               '\\\\'       : '\\',
+    \               'v:val'              : 'v' ,
+    \               'v:key'              : 'k' ,
+    \               "''"                 : "'" ,
+    \               '\\\\'               : '\\',
+    \               '''\s*\.\s*string('  : '',
     \             }
 
     let transformed_text = a:captured_text

@@ -75,11 +75,6 @@ fu! vim#ref_v_val() abort "{{{1
         " Make sure the visual selection contains an expression we can refactor.
         " It must begin with a quote, and end with a quote or a closed parenthesis.
         "
-        " Why a `p`? Watch:
-        "
-        "         map(…, printf(…))
-        "                ^
-        "
         " Why a closed parenthesis? Watch:
         "
         "         map(…, '…'.string(…))
@@ -88,11 +83,10 @@ fu! vim#ref_v_val() abort "{{{1
         let [ col1, col2 ]   = [ col("'<"), col("'>") ]
         let [ char1, char2 ] = [ matchstr(getline(line1), '\%'.col1.'c.'),
         \                        matchstr(getline(line2), '\%'.col2.'c.') ]
-        if  index(["'", '"', 'p'], char1) < 0 || index(["'", '"', ')'], char2) < 0
+        if  index(["'", '"'], char1) < 0 || index(["'", '"', ')'], char2) < 0
             return ''
         endif
 
-        let cur_line = line('.')
         let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
 
         "                     ┌ first character in selection
@@ -101,10 +95,6 @@ fu! vim#ref_v_val() abort "{{{1
         sil keepj keepp s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
         "                 └───┤
         "                     └ the character just before the last one in the selection
-
-        " We may have deleted the `p` in a possible `printf()`.
-        " Restore it.
-        sil exe 'keepj keepp '.cur_line.'s/\ze\<rintf\>/p/e'
 
         " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
         "

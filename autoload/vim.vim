@@ -87,7 +87,7 @@ fu! vim#ref_v_val() abort "{{{1
             return ''
         endif
 
-        let l:Rep = {   -> '{ k,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
+        let l:Rep = {   -> '{ i,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
 
         "                     ┌ first character in selection
         "                     │              ┌ last character in selection

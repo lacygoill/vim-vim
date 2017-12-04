@@ -63,10 +63,15 @@ cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvva
 "         • no_plugin_maps    (all ftplugin mappings)
 "
 " Unfortunately, the Vim ftplugin doesn't check the existence of these
-" variables, contrary to others like `$VIMRUNTIME/ftplugin/mail.vim`.
+" variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.
 
-nunmap <buffer> ["
-nunmap <buffer> ]"
+sil! nunmap <buffer> ["
+sil! nunmap <buffer> ]"
+"  │
+"  └ If we change the filetype from  `vim` to `python`, then from `python` back to `vim`,
+"    we have an error, because `set ft=vim` only loads our ftplugin. It doesn't load the one
+"    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
+"    So, the mappings are not installed again.
 
 nno <buffer> <nowait> <silent> [[   :<C-U>let g:motion_to_repeat = '[['
                                     \ <Bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>

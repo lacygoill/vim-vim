@@ -67,6 +67,8 @@ cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvva
 
 sil! nunmap <buffer> ["
 sil! nunmap <buffer> ]"
+sil! vunmap <buffer> ["
+sil! vunmap <buffer> ]"
 "  │
 "  └ If we change the filetype from  `vim` to `python`, then from `python` back to `vim`,
 "    we have an error, because `set ft=vim` only loads our ftplugin. It doesn't load the one

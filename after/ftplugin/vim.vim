@@ -65,36 +65,36 @@ cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvva
 " Unfortunately, the Vim ftplugin doesn't check the existence of these
 " variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.
 
-sil! nunmap <buffer> ["
-sil! nunmap <buffer> ]"
-sil! vunmap <buffer> ["
-sil! vunmap <buffer> ]"
+sil! nunmap  <buffer>  ["
+sil! nunmap  <buffer>  ]"
+sil! vunmap  <buffer>  ["
+sil! vunmap  <buffer>  ]"
 "  │
 "  └ If we change the filetype from  `vim` to `python`, then from `python` back to `vim`,
 "    we have an error, because `set ft=vim` only loads our ftplugin. It doesn't load the one
 "    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
 "    So, the mappings are not installed again.
 
-nno <buffer> <nowait> <silent> [[   :<C-U>let g:motion_to_repeat = '[['
+nno  <buffer><nowait><silent>  [[   :<C-U>let g:motion_to_repeat = '[['
                                     \ <Bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>
 
-nno <buffer> <nowait> <silent> ]]   :<C-U>let g:motion_to_repeat = ']]'
+nno  <buffer><nowait><silent>  ]]   :<C-U>let g:motion_to_repeat = ']]'
                                     \ <Bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 1)<cr>
 
-nno <buffer> <nowait> <silent> [m   :<C-U>let g:motion_to_repeat = '[m'
+nno  <buffer><nowait><silent>  [m   :<C-U>let g:motion_to_repeat = '[m'
                                     \ <Bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
 
-nno <buffer> <nowait> <silent> ]m   :<C-U>let g:motion_to_repeat = ']m'
+nno  <buffer><nowait><silent>  ]m   :<C-U>let g:motion_to_repeat = ']m'
                                     \ <Bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
 
-nno <buffer> <nowait> <silent> [M   :<C-U>let g:motion_to_repeat = '[M'
+nno  <buffer><nowait><silent>  [M   :<C-U>let g:motion_to_repeat = '[M'
                                     \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
 
-nno <buffer> <nowait> <silent> ]M   :<C-U>let g:motion_to_repeat = ']M'
+nno  <buffer><nowait><silent>  ]M   :<C-U>let g:motion_to_repeat = ']M'
                                     \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
-xno <buffer> <nowait> <silent> \ri  :<c-u>RefIf<cr>
-xno <buffer> <nowait> <silent> \rv  :<c-u>RefVval<cr>
+xno  <buffer><nowait><silent>  \ri  :<c-u>RefIf<cr>
+xno  <buffer><nowait><silent>  \rv  :<c-u>RefVval<cr>
 "                              │││
 "                              ││└ v:Val
 "                              │└ Refactor

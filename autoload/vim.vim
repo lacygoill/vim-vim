@@ -114,9 +114,8 @@ fu! vim#ref_v_val() abort "{{{1
         " invoked on a characterwise selection, but I prefer to stay consistent.
         "}}}
     catch
-        return 'echoerr '.string(v:exception)
+        call my_lib#catch_error()
     endtry
-    return ''
 endfu
 
 fu! s:ref_v_val_rep(captured_text) abort "{{{1

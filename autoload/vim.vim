@@ -1,8 +1,3 @@
-if exists('g:autoloaded_vim')
-    finish
-endif
-let g:autoloaded_vim = 1
-
 fu! vim#fold_text() abort "{{{1
     let indent = repeat(' ', (v:foldlevel-1)*3)
     let title  = substitute(getline(v:foldstart), '\v^\s*"\s*|\s*"?\{\{\{\d?', '', 'g')

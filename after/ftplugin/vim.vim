@@ -48,6 +48,12 @@ cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvva
 \                               ?    'RefVval'
 \                               :    'refvval'
 
+com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gc
+
+cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refquotes'
+\                                ?    'Refquotes'
+\                                :    'refquotes'
+
 " Mappings {{{1
 
 " The default Vim ftplugin:
@@ -94,6 +100,8 @@ nno  <buffer><nowait><silent>  ]M   :<C-U>let g:motion_to_repeat = ']M'
                                     \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
 xno  <buffer><nowait><silent>  \ri  :<c-u>RefIf<cr>
+nno  <buffer><nowait><silent>  \rq  :<c-u>RefQuotes<cr>
+xno  <buffer><nowait><silent>  \rq  :RefQuotes<cr>
 xno  <buffer><nowait><silent>  \rv  :<c-u>RefVval<cr>
 "                              │││
 "                              ││└ v:Val
@@ -205,11 +213,15 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                         | exe 'nunmap <buffer> [M'
 \                         | exe 'nunmap <buffer> ]M'
 \                         | exe 'xunmap <buffer> <bslash>ri'
+\                         | exe 'nunmap <buffer> <bslash>rq'
+\                         | exe 'xunmap <buffer> <bslash>rq'
 \                         | exe 'xunmap <buffer> <bslash>rv'
 \                         | exe 'cuna   <buffer> refactor'
 \                         | exe 'cuna   <buffer> refif'
+\                         | exe 'cuna   <buffer> refquotes'
 \                         | exe 'cuna   <buffer> refvval'
 \                         | delc RefIf
+\                         | delc RefQuotes
 \                         | delc RefVval
 \                         | delc Refactor
 \                       "

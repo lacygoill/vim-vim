@@ -7,6 +7,13 @@ cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refac
 \                                ?    'Refactor'
 \                                :    'refactor'
 
+" RefDots {{{2
+com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gc
+
+cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdots'
+\                                ?    'Refdots'
+\                                :    'refdots'
+
 " RefIf {{{2
 " Usage  {{{3
 " select an if / else(if) / endif construct, and execute `:RefIf`.
@@ -36,23 +43,21 @@ cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refac
 
 " Code  {{{3
 
-com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gc
-
-cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdots'
-\                                ?    'Refdots'
-\                                :    'refdots'
-
 com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
 
 cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
 \                             ?    'RefIf'
 \                             :    'refif'
 
+" RefQuotes {{{2
+
 com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gc
 
 cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refquotes'
 \                                ?    'Refquotes'
 \                                :    'refquotes'
+
+" RefVval {{{2
 
 com! -bar -buffer -range RefVval call vim#ref_v_val()
 

@@ -181,9 +181,10 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
     " format the arguments of a mapping, so that there's no space between them,
     " and they are sorted
     let pat_map = '%(no%[remap]|nn%[oremap]|vn%[oremap]|xn%[oremap]|snor%[emap]|ono%[remap]|no%[remap]!|ino%[remap]|ln%[oremap]|cno%[remap]|tno%[remap]|map|nm%[ap]|vm%[ap]|xm%[ap]|smap|om%[ap]|map!|im%[ap]|lm%[ap]|cm%[ap]|tma%[p])'
-    let pat = '\v'.pat_map.'\s+\zs(\<(buffer|expr|nowait|silent|unique)\>\s?)+'
-    let Rep = {-> join(sort(split(submatch(0), '\s\+\|>\zs\ze<')), '').' '}
+    let pat = '\v'.pat_map.'\zs\s+(\<(buffer|expr|nowait|silent|unique)\>\s*)+'
+    let Rep = {-> '  '.join(sort(split(submatch(0), '\s\+\|>\zs\ze<')), '').'  '}
     exe '%s/'.pat.'/\=Rep()/ge'
+    exe '%s/'.pat.'\S+\zs\s+/  /ge'
 
     " make sure all buffer-local mappings use `<nowait>`
     exe '%s/\v'.pat_map.'\s+\<buffer\>%(\<expr\>)?\zs%(%(\<expr\>)?\<nowait\>)@!/<nowait>/ge'

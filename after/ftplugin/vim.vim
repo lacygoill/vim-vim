@@ -8,7 +8,7 @@ cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refac
 \                                :    'refactor'
 
 " RefIf {{{2
-" Usage: {{{3
+" Usage  {{{3
 " select an if / else(if) / endif construct, and execute `:RefIf`.
 " It will perform this conversion:
 
@@ -34,7 +34,13 @@ cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refac
 " \?         a:mode.'unmap'
 " \:         a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
 
-" Command {{{3
+" Code  {{{3
+
+com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gc
+
+cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdots'
+\                                ?    'Refdots'
+\                                :    'refdots'
 
 com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
 
@@ -42,17 +48,17 @@ cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
 \                             ?    'RefIf'
 \                             :    'refif'
 
-com! -bar -buffer -range RefVval call vim#ref_v_val()
-
-cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvval'
-\                               ?    'RefVval'
-\                               :    'refvval'
-
 com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gc
 
 cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refquotes'
 \                                ?    'Refquotes'
 \                                :    'refquotes'
+
+com! -bar -buffer -range RefVval call vim#ref_v_val()
+
+cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvval'
+\                               ?    'RefVval'
+\                               :    'refvval'
 
 " Mappings {{{1
 
@@ -99,9 +105,14 @@ nno  <buffer><nowait><silent>  [M   :<C-U>let g:motion_to_repeat = '[M'
 nno  <buffer><nowait><silent>  ]M   :<C-U>let g:motion_to_repeat = ']M'
                                     \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
+nno  <buffer><nowait><silent>  \rd  :<c-u>RefDots<cr>
+xno  <buffer><nowait><silent>  \rd  :RefDots<cr>
+
 xno  <buffer><nowait><silent>  \ri  :<c-u>RefIf<cr>
+
 nno  <buffer><nowait><silent>  \rq  :<c-u>RefQuotes<cr>
 xno  <buffer><nowait><silent>  \rq  :RefQuotes<cr>
+
 xno  <buffer><nowait><silent>  \rv  :<c-u>RefVval<cr>
 "                              │││
 "                              ││└ v:Val
@@ -212,14 +223,18 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                         | exe 'nunmap <buffer> ]m'
 \                         | exe 'nunmap <buffer> [M'
 \                         | exe 'nunmap <buffer> ]M'
-\                         | exe 'xunmap <buffer> <bslash>ri'
+\                         | exe 'nunmap <buffer> <bslash>rd'
 \                         | exe 'nunmap <buffer> <bslash>rq'
+\                         | exe 'xunmap <buffer> <bslash>rd'
+\                         | exe 'xunmap <buffer> <bslash>ri'
 \                         | exe 'xunmap <buffer> <bslash>rq'
 \                         | exe 'xunmap <buffer> <bslash>rv'
 \                         | exe 'cuna   <buffer> refactor'
+\                         | exe 'cuna   <buffer> refdots'
 \                         | exe 'cuna   <buffer> refif'
 \                         | exe 'cuna   <buffer> refquotes'
 \                         | exe 'cuna   <buffer> refvval'
+\                         | delc RefDots
 \                         | delc RefIf
 \                         | delc RefQuotes
 \                         | delc RefVval

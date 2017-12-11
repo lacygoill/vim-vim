@@ -155,7 +155,9 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
 
     let substitutions = {
     \                     'au':    { 'pat': '^\s*\zsau%[tocmd]',          'rep': 'au'     },
+    \                     'C-x':   { 'pat': '\C\<\zsC\ze-\a\>',           'rep': 'c'      },
     \                     'com':   { 'pat': '^\s*\zscom%[mand]!? ',       'rep': 'com! '  },
+    \                     'cr':    { 'pat': '\C\<CR\>',                   'rep': '<cr>'   },
     \                     'fu':    { 'pat': '^\s*\zsfu%[nction]!? ',      'rep': 'fu! '   },
     \                     'endfu': { 'pat': '^\s*\zsendfu%[nction]\s*$',  'rep': 'endfu'  },
     \                     'exe':   { 'pat': 'exe%[cute] ',                'rep': 'exe '   },
@@ -165,6 +167,7 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
     \                     'keepp': { 'pat': 'keepp%[atterns] ',           'rep': 'keepp ' },
     \                     'nno':   { 'pat': '(n|v|x|o|i|c)no%[remap] ',   'rep': '\1no '  },
     \                     'norm':  { 'pat': 'normal!',                    'rep': 'norm!'  },
+    \                     'plug':  { 'pat': '\C\<Plug\>',                 'rep': '<plug>' },
     \
     \                     'abort': { 'pat': '^%(.*\)\s*abort)@!\s*fu%[nction]!?.*\)\zs\ze(\s*"\{\{\{\d*)?',
     \                                'rep': ' abort' },
@@ -172,7 +175,7 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
 
     sil! exe modifiers.'norm! '.a:lnum1.'G='.a:lnum2.'G'
     for sbs in values(substitutions)
-        sil! exe modifiers.range.'s/\v'.sbs.pat.'/'.sbs.rep.'/g'.(a:confirm ? 'c' : '')
+        exe modifiers.range.'s/\v'.sbs.pat.'/'.sbs.rep.'/ge'.(a:confirm ? 'c' : '')
     endfor
 
     call winrestview(view)

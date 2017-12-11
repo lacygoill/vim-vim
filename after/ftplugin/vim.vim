@@ -113,12 +113,12 @@ nno  <buffer><nowait><silent>  ]M   :<C-U>let g:motion_to_repeat = ']M'
 nno  <buffer><nowait><silent>  \rd  :<c-u>RefDots<cr>
 xno  <buffer><nowait><silent>  \rd  :RefDots<cr>
 
-xno  <buffer><nowait><silent>  \ri  :<c-u>RefIf<cr>
+xno  <buffer><nowait><silent>  \ri  :RefIf<cr>
 
 nno  <buffer><nowait><silent>  \rq  :<c-u>RefQuotes<cr>
 xno  <buffer><nowait><silent>  \rq  :RefQuotes<cr>
 
-xno  <buffer><nowait><silent>  \rv  :<c-u>RefVval<cr>
+xno  <buffer><nowait><silent>  \rv  :RefVval<cr>
 "                              │││
 "                              ││└ v:Val
 "                              │└ Refactor

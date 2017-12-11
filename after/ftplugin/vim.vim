@@ -8,7 +8,7 @@ cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refac
 \                                :    'refactor'
 
 " RefDots {{{2
-com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gc
+com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gce
 
 cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdots'
 \                                ?    'Refdots'
@@ -51,7 +51,7 @@ cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
 
 " RefQuotes {{{2
 
-com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gc
+com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
 cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refquotes'
 \                                ?    'Refquotes'

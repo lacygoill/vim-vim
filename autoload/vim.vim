@@ -1,17 +1,3 @@
-fu! vim#fold_text() abort "{{{1
-    let indent = repeat(' ', (v:foldlevel-1)*3)
-    let title  = substitute(getline(v:foldstart), '\v^\s*"\s*|\s*"?\{\{\{\d?', '', 'g')
-    let title  = substitute(title, '\v^\s*fu%[nction]! %(.*%(#|s:))?(.{-})\(.*\).*', '\1', '')
-
-    if get(b:, 'my_title_full', 0)
-        let foldsize  = (v:foldend - v:foldstart)
-        let linecount = '['.foldsize.']'.repeat(' ', 4 - strchars(foldsize))
-        return indent.' '.linecount.' '.title
-    else
-        return indent.' '.title
-    endif
-endfu
-
 fu! vim#ref_if(line1,line2) abort "{{{1
     call search('let\|return', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')

@@ -100,7 +100,7 @@ fu! vim#ref_v_val() abort "{{{1
         " invoked on a characterwise selection, but I prefer to stay consistent.
         "}}}
     catch
-        return my_lib#catch_error()
+        return lg#catch_error()
     endtry
 endfu
 

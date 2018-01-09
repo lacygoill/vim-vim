@@ -101,15 +101,16 @@ nno  <buffer><nowait><silent>  ]m   :<c-u>call myfuncs#sections_custom('^\s*fu\%
 nno  <buffer><nowait><silent>  [M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
 nno  <buffer><nowait><silent>  ]M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
-if exists(':MakeMotionsRepeatable') == 2
-    MakeMotionsRepeatable { 'mode': 'n',
+if exists('*lg#motions#main#make_repeatable')
+    call lg#motions#main#make_repeatable(
+    \                     { 'mode': 'n',
     \                       'buffer': 1,
     \                       'motions': [
     \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1,  'r': 0},
     \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1,  'r': 0},
     \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1,  'r': 0},
     \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1,  'r': 0},
-    \                                  ]}
+    \                                  ]})
 endif
 
 nno  <buffer><nowait><silent>  \rd  :<c-u>RefDots<cr>

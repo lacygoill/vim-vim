@@ -92,23 +92,25 @@ sil! vunmap  <buffer>  ]"
 "    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
 "    So, the mappings are not installed again.
 
-nno  <buffer><nowait><silent>  [[   :<C-U>let g:motion_to_repeat = '[['
-                                    \ <Bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>
+nno  <buffer><nowait><silent>  [[   :<c-u>call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>
+nno  <buffer><nowait><silent>  ]]   :<c-u>call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 1)<cr>
 
-nno  <buffer><nowait><silent>  ]]   :<C-U>let g:motion_to_repeat = ']]'
-                                    \ <Bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 1)<cr>
+nno  <buffer><nowait><silent>  [m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
+nno  <buffer><nowait><silent>  ]m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
 
-nno  <buffer><nowait><silent>  [m   :<C-U>let g:motion_to_repeat = '[m'
-                                    \ <Bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
+nno  <buffer><nowait><silent>  [M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
+nno  <buffer><nowait><silent>  ]M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
 
-nno  <buffer><nowait><silent>  ]m   :<C-U>let g:motion_to_repeat = ']m'
-                                    \ <Bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
-
-nno  <buffer><nowait><silent>  [M   :<C-U>let g:motion_to_repeat = '[M'
-                                    \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
-
-nno  <buffer><nowait><silent>  ]M   :<C-U>let g:motion_to_repeat = ']M'
-                                    \ <Bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
+if exists(':MakeMotionsRepeatable') == 2
+    MakeMotionsRepeatable { 'mode': 'n',
+    \                       'buffer': 1,
+    \                       'motions': [
+    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1,  'r': 0},
+    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1,  'r': 0},
+    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1,  'r': 0},
+    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1,  'r': 0},
+    \                                  ]}
+endif
 
 nno  <buffer><nowait><silent>  \rd  :<c-u>RefDots<cr>
 xno  <buffer><nowait><silent>  \rd  :RefDots<cr>

@@ -106,10 +106,10 @@ if exists('*lg#motions#main#make_repeatable')
     \                     { 'mode': 'n',
     \                       'buffer': 1,
     \                       'motions': [
-    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1,  'r': 0},
-    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1,  'r': 0},
-    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1,  'r': 0},
-    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1,  'r': 0},
+    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
+    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
+    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
+    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1 },
     \                                  ]})
 endif
 

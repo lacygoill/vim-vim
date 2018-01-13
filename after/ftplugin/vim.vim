@@ -122,6 +122,8 @@ try
     \                     {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
     \                   ]
     \ })
+catch
+    call lg#catch_error()
 endtry
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>

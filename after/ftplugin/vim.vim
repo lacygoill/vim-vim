@@ -70,7 +70,7 @@ cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvva
 " The default Vim ftplugin:
 "         $VIMRUNTIME/ftplugin/vim.vim
 "
-" … defines the buffer-local `["`, `]"` mappings. I don't want them, because
+" … defines the buffer-local  ["  ]"  mappings. I don't want them, because
 " I use other global mappings (same keys), which are more powerful (support
 " more filetypes).
 "
@@ -92,107 +92,16 @@ sil! vunmap  <buffer>  ]"
 "    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
 "    So, the mappings are not installed again.
 
-nno  <buffer><nowait><silent>  [[   :<c-u>call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>
-nno  <buffer><nowait><silent>  ]]   :<c-u>call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 1)<cr>
+noremap  <buffer><expr><nowait><silent>  [[  lg#motion#section#rhs(0,'{{')
+noremap  <buffer><expr><nowait><silent>  ]]  lg#motion#section#rhs(1,'{{')
 
-xno  <buffer><nowait><silent>  [[   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 0)<cr>
-xno  <buffer><nowait><silent>  ]]   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('\v\{{3}%(\d+)?\s*$', 1)<cr>
+noremap  <buffer><expr><nowait><silent>  [m  lg#motion#section#rhs(0,'fu')
+noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#section#rhs(1,'fu')
 
+noremap  <buffer><expr><nowait><silent>  [M  lg#motion#section#rhs(0,'endfu')
+noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs(1,'endfu')
 
-nno  <buffer><nowait><silent>  [m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
-nno  <buffer><nowait><silent>  ]m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
-
-xno  <buffer><nowait><silent>  [m   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
-xno  <buffer><nowait><silent>  ]m   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
-
-ono  <buffer><nowait><silent>  [m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 0)<cr>
-ono  <buffer><nowait><silent>  ]m   :<c-u>call myfuncs#sections_custom('^\s*fu\%[nction]!\s\+', 1)<cr>
-
-
-nno  <buffer><nowait><silent>  [M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
-nno  <buffer><nowait><silent>  ]M   :<c-u>call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
-
-xno  <buffer><nowait><silent>  [M   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 0)<cr>
-xno  <buffer><nowait><silent>  ]M   :<c-u>exe 'norm! gv' <bar> call myfuncs#sections_custom('^\s*endfu\%[nction]\s*$', 1)<cr>
-
-try
-    " FIXME:
-    " Change the name of the function, the last part (after the last #), so that
-    " it doesn't match the right one.
-    " Then restart Vim.
-    " Suddenly, `g;` doesn't work anymore. Why? It doesn't have anything to do
-    " with these motions.
-    "
-    " Update:
-    " The issue is fixed once we add a guard in the repeatable motion plugin file.
-    " Try to understand how the issue is fixed.
-    " Then, ask yourself whether we should add a guard in ALL autoload files.
-    "
-    " Update:
-    " Here's what I think happens:
-    "
-    "     1. The function name is wrong and thus doesn't match any existing function.
-    "
-    "     2. Vim looks for this undefined function
-    "            in a file `main`,
-    "            inside a directory `motions`,
-    "            inside a directory `lg`,
-    "            inside a directory in the rtp
-    "
-    "     3. It resources the file which makes motions repeatable.
-    "        The latter contains some mappings, assignments, and calls to functions.
-    "        Doing those things several times is probably the cause of the error here.
-    "
-    "        More generally,  we should never  initialize the state of  a plugin
-    "        nor change its interface more than once.
-    "        So, you should probably add a guard in all autoload files, where there's
-    "        some interface or where we initialize a plugin state via:
-    "
-    "            • an assignment      ex: let s:myvar = 123
-    "            • a function call    ex: call s:init()
-    "
-    "         Note  that  in general  there  should  be no  interface  (autocmd,
-    "         command, mapping) in an autoloaded file.
-
-    " TODO:
-    " Try to merge the 2 motions in all modes in 2 mappings using `:noremap`.
-    "  This  will  allow  us  to  repeat   them  with  a  single  invocation  of
-    " `lg#motions#main#make_repeatable()`.
-    "
-    " Example:{{{
-    "
-    "                                        ┌ necessary to get the full name of the mode,
-    "                                        │ otherwise in operator-pending mode,
-    "                                        │ we would get 'n' instead of 'no'
-    "                                        │
-    "     noremap  <expr>  <down>  Func(mode(1),1)
-    "     noremap  <expr>  <up>    Func(mode(1),0)
-    "
-    "     fu! Func(mode, is_fwd) abort
-    "         let plug_dir = a:is_fwd ? 'fwd' : 'bwd'
-    "         let seq = index(['v', 'V', "\<c-v>"], a:mode) >= 0
-    "         \?            "\<plug>(return-visual-".plug_dir.')'
-    "         \:        a:mode ==# 'no'
-    "         \?            "\<plug>(return-op-".plug_dir.')'
-    "         \:            "\<plug>(return-normal-".plug_dir.')'
-    "         call feedkeys(seq, 'i')
-    "         return ''
-    "     endfu
-    "
-    "     nno  <silent>  <plug>(return-normal-bwd)  :<c-u>call search('^\s*return\>', 'bW')<cr>
-    "     xno  <silent>  <plug>(return-visual-bwd)  :<c-u>exe 'norm! gv' <bar> call search('^\s*return\>', 'bW')<cr>
-    "                                                     └────────────┤
-    "                                                                  └ necessary for the search to be done
-    "                                                                    in visual mode
-    "
-    "     ono  <silent>  <plug>(return-op-bwd)      :<c-u>call search('^\s*return\>', 'bW')<cr>
-    "
-    "     nno  <silent>  <plug>(return-normal-fwd)  :<c-u>call search('^\s*return\>', 'W')<cr>
-    "     xno  <silent>  <plug>(return-visual-fwd)  :<c-u>exe 'norm! gv' <bar> call search('^\s*return\>', 'W')<cr>
-    "     ono  <silent>  <plug>(return-op-fwd)      :<c-u>call search('^\s*return\>', 'W')<cr>
-    "}}}
-
-
+if exists('*lg#motion#main#make_repeatable')
     " TODO:
     " Visit other filetype plugins, and clean their code regarding motions.
     "
@@ -200,42 +109,20 @@ try
     "
     "         • make the code as less verbose as possible (:noremap vs :nno + :xno + :ono)
     "
-    "         • update/Check `b:undo_ftplugin`
-    call lg#motions#main#make_repeatable(
-    \                     { 'mode': 'n',
-    \                       'buffer': 1,
-    \                       'motions': [
-    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
-    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
-    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
-    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1 },
-    \                                  ]})
+    "         • update/check `b:undo_ftplugin`
+    "
+    " markdown, vim, help, man, …
 
-    call lg#motions#main#make_repeatable(
-    \                     { 'mode': 'x',
-    \                       'buffer': 1,
-    \                       'motions': [
-    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
-    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
-    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
-    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1 },
-    \                                  ]})
-
-    call lg#motions#main#make_repeatable(
-    \                     { 'mode': 'o',
-    \                       'buffer': 1,
-    \                       'motions': [
-    \                                    {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
-    \                                    {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
-    \                                    {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
-    \                                    {'bwd': '[]',  'fwd': '][',  'axis': 1 },
-    \                                  ]})
-
-    " Why making `[]` and `][` repeatable? They don't exist in this file!
-    " True. But they are defined in $VIMRUNTIME/ftplugin/vim.vim
-catch
-    call lg#catch_error()
-endtry
+    call lg#motion#main#make_repeatable({
+    \        'mode': '',
+    \        'buffer': 1,
+    \        'motions': [
+    \                     {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
+    \                     {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
+    \                     {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
+    \                   ]
+    \ })
+endif
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>
 xno  <buffer><nowait><silent>  =rd  :RefDots<cr>
@@ -349,18 +236,12 @@ let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                           setl cocu< cole< comments< fdm< fdt< kp< omnifunc<
 \                         | unlet! b:match_words b:match_ignorecase
 \                         | exe 'au!  my_vim * <buffer>'
-\                         | exe 'nunmap <buffer> [['
-\                         | exe 'nunmap <buffer> ]]'
-\                         | exe 'nunmap <buffer> [m'
-\                         | exe 'nunmap <buffer> ]m'
-\                         | exe 'nunmap <buffer> [M'
-\                         | exe 'nunmap <buffer> ]M'
-\                         | exe 'xunmap <buffer> [['
-\                         | exe 'xunmap <buffer> ]]'
-\                         | exe 'xunmap <buffer> [m'
-\                         | exe 'xunmap <buffer> ]m'
-\                         | exe 'xunmap <buffer> [M'
-\                         | exe 'xunmap <buffer> ]M'
+\                         | exe ' unmap <buffer> [['
+\                         | exe ' unmap <buffer> ]]'
+\                         | exe ' unmap <buffer> [m'
+\                         | exe ' unmap <buffer> ]m'
+\                         | exe ' unmap <buffer> [M'
+\                         | exe ' unmap <buffer> ]M'
 \                         | exe 'nunmap <buffer> =rd'
 \                         | exe 'nunmap <buffer> =rq'
 \                         | exe 'xunmap <buffer> =rd'

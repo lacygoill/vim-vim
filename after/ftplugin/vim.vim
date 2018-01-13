@@ -101,7 +101,7 @@ noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#section#rhs(1,'fu')
 noremap  <buffer><expr><nowait><silent>  [M  lg#motion#section#rhs(0,'endfu')
 noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs(1,'endfu')
 
-if exists('*lg#motion#main#make_repeatable')
+try
     " TODO:
     " Visit other filetype plugins, and clean their code regarding motions.
     "
@@ -122,7 +122,7 @@ if exists('*lg#motion#main#make_repeatable')
     \                     {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
     \                   ]
     \ })
-endif
+endtry
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>
 xno  <buffer><nowait><silent>  =rd  :RefDots<cr>

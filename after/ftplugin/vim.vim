@@ -123,7 +123,19 @@ try
     \                   ]
     \ })
 catch
-    call lg#catch_error()
+    " Why `:unsilent`?{{{
+    "
+    " When a filetype plugin is sourced, it seems we can't echo anything.
+    " If we  need to call a  function in a  filetype plugin, which may  raise an
+    " error, this will prevent `:echom` from working.
+    " Watch:
+    "
+    "                                  ┌ file containing an `:echo[m]` statement
+    "                                  │
+    "     au FileType    potion source some_file  (silent)
+    "     au BufWinEnter *      source some_file  (not silent)
+    "}}}
+    unsilent call lg#catch_error()
 endtry
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>

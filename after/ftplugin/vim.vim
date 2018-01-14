@@ -101,18 +101,39 @@ noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#section#rhs(1,'fu')
 noremap  <buffer><expr><nowait><silent>  [M  lg#motion#section#rhs(0,'endfu')
 noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs(1,'endfu')
 
-try
-    " TODO:
-    " Visit other filetype plugins, and clean their code regarding motions.
-    "
-    "         • define motions in the 3 main modes, nvo
-    "
-    "         • make the code as less verbose as possible (:noremap vs :nno + :xno + :ono)
-    "
-    "         • update/check `b:undo_ftplugin`
-    "
-    " markdown, vim, help, man, …
+" Why this check?{{{
+"
+" We're going to call a function installed by `vim-lg-lib`.
+" The latter could be disabled if we're debugging.
+"}}}
+" Alternative:{{{
+"
+"     try
+"         call lg#motion#main#make_repeatable(…)
+"     catch
+"         " Why `:unsilent`?{{{
+"         "
+"         " When a filetype plugin is sourced, it seems we can't echo anything.
+"         " If we  need to call a  function in a  filetype plugin, which may  raise an
+"         " error, this will prevent `:echom` from working.
+"         " Watch:
+"         "
+"         "                                  ┌ file containing an `:echo[m]` statement
+"         "                                  │
+"         "     au FileType    potion source some_file  (silent)
+"         "     au BufWinEnter *      source some_file  (not silent)
+"        "}}}
+"         unsilent call lg#catch_error()
+"     endtry
+"}}}
+" Why don't use the alternative?{{{
+"
+" In   this   case,   calling    `lg#catch_error()`   is   wrong,   because   if
+" `lg#motion#main#make_repeatable()`  doesn't   exist,  then  `lg#catch_error()`
+" won't either.
+"}}}
 
+if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
     call lg#motion#main#make_repeatable({
     \        'mode': '',
     \        'buffer': 1,
@@ -122,21 +143,7 @@ try
     \                     {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
     \                   ]
     \ })
-catch
-    " Why `:unsilent`?{{{
-    "
-    " When a filetype plugin is sourced, it seems we can't echo anything.
-    " If we  need to call a  function in a  filetype plugin, which may  raise an
-    " error, this will prevent `:echom` from working.
-    " Watch:
-    "
-    "                                  ┌ file containing an `:echo[m]` statement
-    "                                  │
-    "     au FileType    potion source some_file  (silent)
-    "     au BufWinEnter *      source some_file  (not silent)
-    "}}}
-    unsilent call lg#catch_error()
-endtry
+endif
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>
 xno  <buffer><nowait><silent>  =rd  :RefDots<cr>

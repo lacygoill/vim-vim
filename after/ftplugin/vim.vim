@@ -132,7 +132,11 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs(1,'endfu')
 " `lg#motion#main#make_repeatable()`  doesn't   exist,  then  `lg#catch_error()`
 " won't either.
 "}}}
-
+" Why not checking the existence of the function?{{{
+"
+" Not reliable, because it's an autoloaded function.
+" Maybe it hasn't be sourced, and thus doesn't exist, but can be.
+"}}}
 if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
     call lg#motion#main#make_repeatable({
     \        'mode': '',

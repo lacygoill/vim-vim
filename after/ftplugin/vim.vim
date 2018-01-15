@@ -139,8 +139,9 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs(1,'endfu')
 "}}}
 if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
     call lg#motion#main#make_repeatable({
-    \        'mode': '',
-    \        'buffer': 1,
+    \        'mode':    '',
+    \        'buffer':  1,
+    \        'from':    expand('<sfile>:p'),
     \        'motions': [
     \                     {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
     \                     {'bwd': '[M',  'fwd': ']M',  'axis': 1 },

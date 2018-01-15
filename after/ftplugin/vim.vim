@@ -109,7 +109,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs('endfu',1)
 " Alternative:{{{
 "
 "     try
-"         call lg#motion#main#make_repeatable(…)
+"         call lg#motion#repeatable#main#make_repeatable(…)
 "     catch
 "         " Why `:unsilent`?{{{
 "         "
@@ -128,9 +128,9 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs('endfu',1)
 "}}}
 " Why don't use the alternative?{{{
 "
-" In   this   case,   calling    `lg#catch_error()`   is   wrong,   because   if
-" `lg#motion#main#make_repeatable()`  doesn't   exist,  then  `lg#catch_error()`
-" won't either.
+" In    this    case,    calling   `lg#catch_error()`    is    wrong,    because
+" if    `lg#motion#repeatable#main#make_repeatable()`   doesn't    exist,   then
+" `lg#catch_error()` won't either.
 "}}}
 " Why not checking the existence of the function?{{{
 "
@@ -138,7 +138,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs('endfu',1)
 " Maybe it hasn't be sourced, and thus doesn't exist, but can be.
 "}}}
 if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
-    call lg#motion#main#make_repeatable({
+    call lg#motion#repeatable#main#make_repeatable({
     \        'mode':    '',
     \        'buffer':  1,
     \        'from':    expand('<sfile>:p').':'.expand('<slnum>'),

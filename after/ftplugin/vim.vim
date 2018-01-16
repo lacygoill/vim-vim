@@ -105,6 +105,31 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 "
 " We're going to call a function installed by `vim-lg-lib`.
 " The latter could be disabled if we're debugging.
+" So, we need:
+"
+"     has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
+"
+" Also, we may source this file manually.
+" For example, in `vim-toggle-settings`, we have a mapping to edit
+" help files. When we press it the 1st time, the file becomes editable.
+" When, we press it a 2nd time, it gets back UNeditable.
+" But to do so, we source all `after/ftplugin/help.vim` files in the rtp:
+"
+"     runtime! after/ftplugin/help.vim
+"
+" When that happens, Vim hasn't removed the local motions, because:
+"
+"     • the 1st time we pressed the mapping, we have't removed any local motion
+"
+"     • the 2nd time, `:runtime!` hasn't fired `FileType`,
+"       so `b:undo_ftplugin`  hasn't been executed
+"
+" Bottome Line:
+" This file may be sourced, while the local motions are already repeatable.
+" We must avoid trying to make local motions repeatable, if they already are.
+" How do we know they already are repeatable?
+"
+"     exists('b:repeatable_motions') == 1
 "}}}
 " Alternative:{{{
 "
@@ -137,7 +162,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 " Not reliable, because it's an autoloaded function.
 " Maybe it hasn't be sourced, and thus doesn't exist, but can be.
 "}}}
-if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
+if has_key(get(g:, 'plugs', {}), 'vim-lg-lib') && !exists('b:repeatable_motions')
     call lg#motion#repeatable#main#make_repeatable({
     \        'mode':    '',
     \        'buffer':  1,

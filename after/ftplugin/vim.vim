@@ -92,14 +92,14 @@ sil! vunmap  <buffer>  ]"
 "    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
 "    So, the mappings are not installed again.
 
-noremap  <buffer><expr><nowait><silent>  [[  lg#motion#section#rhs('{{',0)
-noremap  <buffer><expr><nowait><silent>  ]]  lg#motion#section#rhs('{{',1)
+noremap  <buffer><expr><nowait><silent>  [[  lg#motion#regex#rhs('{{',0)
+noremap  <buffer><expr><nowait><silent>  ]]  lg#motion#regex#rhs('{{',1)
 
-noremap  <buffer><expr><nowait><silent>  [m  lg#motion#section#rhs('fu',0)
-noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#section#rhs('fu',1)
+noremap  <buffer><expr><nowait><silent>  [m  lg#motion#regex#rhs('fu',0)
+noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#regex#rhs('fu',1)
 
-noremap  <buffer><expr><nowait><silent>  [M  lg#motion#section#rhs('endfu',0)
-noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#section#rhs('endfu',1)
+noremap  <buffer><expr><nowait><silent>  [M  lg#motion#regex#rhs('endfu',0)
+noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 
 " Why this check?{{{
 "

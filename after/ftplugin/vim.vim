@@ -134,7 +134,9 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 " Alternative:{{{
 "
 "     try
-"         call lg#motion#repeatable#main#make_repeatable(…)
+"         if !exists('b:repeatable_motions')
+"             call lg#motion#repeatable#main#make_repeatable(…)
+"         endif
 "     catch
 "         " Why `:unsilent`?{{{
 "         "

@@ -61,7 +61,7 @@ fu! vim#ref_v_val() abort "{{{1
         " Make sure the visual selection contains an expression we can refactor.
         " It must begin with a quote, and end with a quote or a closed parenthesis.
         "
-        " Why a closed parenthesis? Watch:
+        " Why a closed parenthesis? MWE:
         "
         "         map(…, '…'.string(…))
         "                            ^
@@ -90,7 +90,7 @@ fu! vim#ref_v_val() abort "{{{1
         "
         " … but it's not reliable with a linewise selection.
         "
-        " Watch:
+        " MWE:
         "     V
         "     : C-u echo getpos("'>")[3]
         "

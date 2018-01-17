@@ -143,7 +143,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 "         " When a filetype plugin is sourced, it seems we can't echo anything.
 "         " If we  need to call a  function in a  filetype plugin, which may  raise an
 "         " error, this will prevent `:echom` from working.
-"         " Watch:
+"         " MWE:
 "         "
 "         "                                  ┌ file containing an `:echo[m]` statement
 "         "                                  │

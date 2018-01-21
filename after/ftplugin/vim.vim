@@ -168,11 +168,12 @@ if has_key(get(g:, 'plugs', {}), 'vim-lg-lib') && !exists('b:repeatable_motions'
     call lg#motion#repeatable#main#make_repeatable({
     \        'mode':    '',
     \        'buffer':  1,
+    \        'axis':  [',', ';'],
     \        'from':    expand('<sfile>:p').':'.expand('<slnum>'),
     \        'motions': [
-    \                     {'bwd': '[m',  'fwd': ']m',  'axis': 1 },
-    \                     {'bwd': '[M',  'fwd': ']M',  'axis': 1 },
-    \                     {'bwd': '[[',  'fwd': ']]',  'axis': 1 },
+    \                     {'bwd': '[m',  'fwd': ']m', },
+    \                     {'bwd': '[M',  'fwd': ']M', },
+    \                     {'bwd': '[[',  'fwd': ']]', },
     \                   ]
     \ })
 endif

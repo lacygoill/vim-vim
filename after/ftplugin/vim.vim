@@ -164,7 +164,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 " Not reliable, because it's an autoloaded function.
 " Maybe it hasn't be sourced, and thus doesn't exist, but can be.
 "}}}
-if has_key(get(g:, 'plugs', {}), 'vim-lg-lib') && !exists('b:repeatable_motions')
+if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
     call lg#motion#repeatable#make#all({
     \        'mode':   '',
     \        'buffer': 1,

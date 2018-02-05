@@ -1,5 +1,5 @@
 fu! vim#ref_if(line1,line2) abort "{{{1
-    call search('let\|return', 'cW', a:line2)
+    call search('\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')
     let expr = matchstr(getline('.'), '\v%(let|return)\s+\zs\S+')
     if empty(expr)

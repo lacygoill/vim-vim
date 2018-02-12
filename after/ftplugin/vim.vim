@@ -3,14 +3,14 @@
 
 com! -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
 
-cnorea <expr> <buffer> refactor  getcmdtype() ==# ':' && getcmdline() ==# 'refactor'
+cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdline() is# 'refactor'
 \                                ?    'Refactor'
 \                                :    'refactor'
 
 " RefDots {{{2
 com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gce
 
-cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdots'
+cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdline() is# 'refdots'
 \                                ?    'Refdots'
 \                                :    'refdots'
 
@@ -45,7 +45,7 @@ cnorea <expr> <buffer> refdots  getcmdtype() ==# ':' && getcmdline() ==# 'refdot
 
 com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
 
-cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
+cnorea <expr> <buffer> refif  getcmdtype() is# ':' && getcmdline() is# 'refif'
 \                             ?    'RefIf'
 \                             :    'refif'
 
@@ -53,7 +53,7 @@ cnorea <expr> <buffer> refif  getcmdtype() ==# ':' && getcmdline() ==# 'refif'
 
 com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
-cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refquotes'
+cnorea <expr> <buffer> refquotes  getcmdtype() is# ':' && getcmdline() is# 'refquotes'
 \                                ?    'Refquotes'
 \                                :    'refquotes'
 
@@ -61,7 +61,7 @@ cnorea <expr> <buffer> refquotes  getcmdtype() ==# ':' && getcmdline() ==# 'refq
 
 com! -bar -buffer -range RefVval call vim#ref_v_val()
 
-cnorea <expr> <buffer> refvval  getcmdtype() ==# ':' && getcmdline() ==# 'refvval'
+cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdline() is# 'refvval'
 \                               ?    'RefVval'
 \                               :    'refvval'
 

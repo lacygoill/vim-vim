@@ -14,9 +14,9 @@ fu! vim#ref_if(line1,line2) abort "{{{1
 
     let values = s:ref_if_get_tests_or_values(a:line1, a:line2,
     \                                         '\v<'.kwd.'>',
-    \                                         '\v<'.kwd.'>\s+'.(kwd ==# 'let' ? '.{-}\=\s*' : '').'\zs.*',
+    \                                         '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*',
     \                                         '\v<'.kwd.'>',
-    \                                         '\v<'.kwd.'>\s+'.(kwd ==# 'let' ? '.{-}\=\s*' : '').'\zs.*')
+    \                                         '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*')
 
     if tests == [''] || values == [''] || len(tests) > len(values)
         return
@@ -24,12 +24,12 @@ fu! vim#ref_if(line1,line2) abort "{{{1
 
     let indent_kwd = matchstr(getline(a:line1), '^\s*')
     let indent_val = repeat(' ', strchars(matchstr(getline(a:line1+1),
-    \                                              '\v^\s*'.kwd.(kwd ==# 'let' ? '.{-}\=\s?' : '\s'))
+    \                                              '\v^\s*'.kwd.(kwd is# 'let' ? '.{-}\=\s?' : '\s'))
     \                                     , 1)
     \                            -strlen(indent_kwd)
     \                            -2)
     let indent_test = repeat(' ', len(indent_val)-&sw)
-    let assignment  = [ indent_kwd.kwd.' '.(kwd ==# 'let' ? expr.' = ' : '') ]
+    let assignment  = [ indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '') ]
 
     for i in range(1, len(tests))
         let assignment += i == len(tests)

@@ -19,11 +19,11 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdline() is# 'refdot
 " select an if / else(if) / endif construct, and execute `:RefIf`.
 " It will perform this conversion:
 
-"         if var == 1                 let val = var == 1
-"             let val = 'foo'         \?            'foo'
-"         elseif var == 2             \:        var == 2
-"             let val = 'bar'    →    \?            'bar'
-"         else                        \:            'baz'
+"         if var ==# 1                 let val = var ==# 1
+"             let val = 'foo'          \?            'foo'
+"         elseif var ==# 2             \:        var ==# 2
+"             let val = 'bar'    →     \?            'bar'
+"         else                         \:            'baz'
 "             let val = 'baz'
 "         endif
 "
@@ -129,7 +129,7 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 " We must avoid trying to make local motions repeatable, if they already are.
 " How do we know they already are repeatable?
 "
-"     exists('b:repeatable_motions') == 1
+"     exists('b:repeatable_motions') ==# 1
 "}}}
 " Alternative:{{{
 "

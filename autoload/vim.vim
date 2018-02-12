@@ -18,7 +18,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     \                                         '\v<'.kwd.'>',
     \                                         '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*')
 
-    if tests == [''] || values == [''] || len(tests) > len(values)
+    if tests ==# [''] || values ==# [''] || len(tests) > len(values)
         return
     endif
 
@@ -32,7 +32,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     let assignment  = [ indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '') ]
 
     for i in range(1, len(tests))
-        let assignment += i == len(tests)
+        let assignment += i ==# len(tests)
         \                 ?    [ repeat(' ', &sw).values[i-1] ]
         \
         \                 :    [ tests[i-1] ]

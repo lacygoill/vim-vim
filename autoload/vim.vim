@@ -36,8 +36,8 @@ fu! vim#ref_if(line1,line2) abort "{{{1
         \                 ?    [ repeat(' ', &sw).values[i-1] ]
         \
         \                 :    [ tests[i-1] ]
-        \                    + [ "\n".indent_kwd.'\?'.indent_val.values[i-1] ]
-        \                    + [ "\n".indent_kwd.'\:'.indent_test ]
+        \                    + [ "\n".indent_kwd.'\ ?'.indent_val.values[i-1] ]
+        \                    + [ "\n".indent_kwd.'\ :'.indent_test ]
     endfor
 
     let assignment = join(assignment, '')

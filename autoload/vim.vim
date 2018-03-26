@@ -27,7 +27,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     \                                              '\v^\s*'.kwd.(kwd is# 'let' ? '.{-}\=\s?' : '\s'))
     \                                     , 1)
     \                            -strlen(indent_kwd)
-    \                            -2)
+    \                            -3)
     let indent_test = repeat(' ', len(indent_val)-&sw)
     let assignment  = [ indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '') ]
 

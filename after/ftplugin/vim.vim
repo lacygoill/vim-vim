@@ -20,10 +20,10 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdline() is# 'refdot
 " It will perform this conversion:
 
 "         if var ==# 1                 let val = var ==# 1
-"             let val = 'foo'          \?            'foo'
-"         elseif var ==# 2             \:        var ==# 2
-"             let val = 'bar'    →     \?            'bar'
-"         else                         \:            'baz'
+"             let val = 'foo'                \ ?     'foo'
+"         elseif var ==# 2                   \ : var ==# 2
+"             let val = 'bar'    →           \ ?     'bar'
+"         else                               \ :     'baz'
 "             let val = 'baz'
 "         endif
 "
@@ -38,8 +38,8 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdline() is# 'refdot
 "         →
 "
 " return s:has_flag_p(a:flags, 'u')
-" \?         a:mode.'unmap'
-" \:         a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
+"    \ ?     a:mode.'unmap'
+"    \ :     a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
 
 " Code  {{{3
 

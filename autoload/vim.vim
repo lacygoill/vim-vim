@@ -1,5 +1,9 @@
 fu! vim#jump_to_tag() abort "{{{1
     let isk_save = &l:isk
+    " Some tags may contain a colon (ex: `s:some_function()`).
+    "                                      ^
+    " When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
+    " characters inside 'isk'.
     setl isk+=:
     try
         exe "norm! \<c-]>"

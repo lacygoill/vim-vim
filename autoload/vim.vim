@@ -5,9 +5,7 @@ fu! vim#jump_to_tag() abort "{{{1
         exe "norm! \<c-]>"
         norm! zvzz
     catch
-        echohl ErrorMsg
-        echo v:exception
-        echohl NONE
+        return lg#catch_error()
     finally
         let &l:isk = isk_save
     endtry

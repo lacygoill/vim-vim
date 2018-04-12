@@ -1,3 +1,18 @@
+fu! vim#jump_to_tag() abort "{{{1
+    let isk_save = &l:isk
+    setl isk+=:
+    try
+        exe "norm! \<c-]>"
+        norm! zvzz
+    catch
+        echohl ErrorMsg
+        echo v:exception
+        echohl NONE
+    finally
+        let &l:isk = isk_save
+    endtry
+endfu
+
 fu! vim#ref_if(line1,line2) abort "{{{1
     call search('\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')

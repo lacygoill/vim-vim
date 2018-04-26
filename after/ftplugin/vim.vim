@@ -297,12 +297,18 @@ let b:match_ignorecase = 0
 "
 " We put  'keyp', 'tags', 'ulti' afterwards,  in this order, because  the latter
 " matches the frequency with which I suspect I'll need those methods.
+"
+" Finally, we add 'dict' and 'c-p' because they can still be useful from time to
+" time. We put them  at the very end because their  suggestions are often noisy,
+" i.e. contain a lot of garbage.
 "}}}
 let b:mc_chain = [
 \     'file',
 \     'keyp',
 \     'tags',
 \     'ulti',
+\     'dict',
+\     'c-p',
 \ ]
 
 " Teardown {{{1

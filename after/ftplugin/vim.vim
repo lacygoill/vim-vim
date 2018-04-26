@@ -284,13 +284,34 @@ let b:match_ignorecase = 0
 " The default ftplugin adds `(:)` which is superfluous, because it's already in
 " 'mps', and `matchit` includes in its search all the tokens inside 'mps'.
 
+" Rationale:{{{
+" We  want as  little  methods as  possible  and  we don't  use  `C-p`, to  have
+" suggestions as  relevant as  possible, and  review all of  them as  quickly as
+" possible.
+" The presently used methods are, imo, the bare minimum.
+"
+" We put 'file' in first position because we know how to detect whether the text
+" before the cursor matches a filepath.
+" OTOH,  we   can't  be  sure   that  the  text  matches   a  tags  name   or  a
+" tab_trigger. Therefore, we must give the priority to 'file'.
+"
+" We put  'keyp', 'tags', 'ulti' afterwards,  in this order, because  the latter
+" matches the frequency with which I suspect I'll need those methods.
+"}}}
+let b:mc_chain = [
+\     'file',
+\     'keyp',
+\     'tags',
+\     'ulti',
+\ ]
+
 " Teardown {{{1
 
 let b:undo_ftplugin =          get(b:, 'undo_ftplugin', '')
 \                     . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
 \                     . "
 \                           setl cocu< cole< comments< fdm< fdt< kp< omnifunc<
-\                         | unlet! b:match_words b:match_ignorecase
+\                         | unlet! b:match_words b:match_ignorecase b:mc_chain
 \                         | exe 'au!  my_vim * <buffer>'
 \                         | exe ' unmap <buffer> [['
 \                         | exe ' unmap <buffer> ]]'

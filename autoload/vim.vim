@@ -74,7 +74,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
 endfu
 
 fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{{1
-    exe a:line1
+    call cursor(a:line1, 1)
     let expressions = [ matchstr(getline(search(a:pat1, 'cW', a:line2)), a:pat2) ]
     let guard = 0
     while search(a:pat3, 'W', a:line2) && guard <= 30

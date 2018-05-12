@@ -16,7 +16,6 @@ fu! vim#jump_to_tag() abort "{{{1
 endfu
 
 fu! vim#ref_if(line1,line2) abort "{{{1
-    call cursor(line('.'), 1)
     call search('\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')
     let expr = matchstr(getline('.'), '\v%(let|return)\s+\zs\S+')

@@ -36,8 +36,6 @@ syn cluster vimContains contains=vimComment,
                                 \vimLineComment,
                                 \vimMtchComment,
 
-"                            ┌ get rid of it once we've concealed comment leaders
-"                          ┌─┤
 syn match vimFoldMarkers  /"\?\s*{{{\d*\s*\ze\n/  conceal cchar=❭  containedin=@vimContainedin
 syn match vimFoldMarkers  /"\?\s*}}}\d*\s*\ze\n/  conceal cchar=❬  containedin=@vimContainedin
 

@@ -67,7 +67,7 @@ cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdline() is# 'refvva
 
 " Mappings {{{1
 
-nno  <silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
+nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 
 " The default Vim ftplugin:
 "         $VIMRUNTIME/ftplugin/vim.vim

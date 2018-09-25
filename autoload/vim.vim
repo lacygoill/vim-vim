@@ -46,17 +46,17 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     \                            -strlen(indent_kwd)
     \                            -3)
     let indent_test = repeat(' ', len(indent_val)-&sw)
-    let assignment  = [ indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '') ]
+    let assignment  = [indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '')]
 
     for i in range(1, len(tests))
         let assignment += i ==# len(tests)
-        \                 ?    [ repeat(' ', &sw).values[i-1] ]
+        \                 ?    [repeat(' ', &sw).values[i-1]]
         \
-        \                 :    [ tests[i-1] ]
-        \                    + [ "\n".indent_kwd.'\ ?'.indent_val.values[i-1] ]
-        \                    + [ "\n".indent_kwd.'\ :'.indent_test ]
-        "                                          │
-        "                                          └ don't forget the space!{{{
+        \                 :    [tests[i-1]]
+        \                    + ["\n".indent_kwd.'\ ?'.indent_val.values[i-1]]
+        \                    + ["\n".indent_kwd.'\ :'.indent_test]
+        "                                         │
+        "                                         └ don't forget the space!{{{
         " Without the space, you may have an error.
         " MWE:
         "
@@ -74,10 +74,10 @@ endfu
 
 fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{{1
     call cursor(a:line1, 1)
-    let expressions = [ matchstr(getline(search(a:pat1, 'cW', a:line2)), a:pat2) ]
+    let expressions = [matchstr(getline(search(a:pat1, 'cW', a:line2)), a:pat2)]
     let guard = 0
     while search(a:pat3, 'W', a:line2) && guard <= 30
-        let expressions += [ matchstr(getline('.'), a:pat4) ]
+        let expressions += [matchstr(getline('.'), a:pat4)]
         let guard += 1
     endwhile
     return expressions
@@ -92,10 +92,10 @@ fu! vim#ref_v_val() abort "{{{1
         "
         "         map(…, '…'.string(…))
         "                            ^
-        let [ line1, line2 ] = [ line("'<"), line("'>") ]
-        let [ col1, col2 ]   = [ col("'<"), col("'>") ]
-        let [ char1, char2 ] = [ matchstr(getline(line1), '\%'.col1.'c.'),
-        \                        matchstr(getline(line2), '\%'.col2.'c.') ]
+        let [line1, line2] = [line("'<"), line("'>")]
+        let [col1, col2]   = [col("'<"), col("'>")]
+        let [char1, char2] = [matchstr(getline(line1), '\%'.col1.'c.'),
+                            \ matchstr(getline(line2), '\%'.col2.'c.')]
         if  index(["'", '"'], char1) < 0 || index(["'", '"', ')'], char2) < 0
             return ''
         endif
@@ -148,7 +148,7 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     \             }
 
     let transformed_text = a:captured_text
-    for [ pat, rep ] in items(pat2rep)
+    for [pat, rep] in items(pat2rep)
         let transformed_text = substitute(transformed_text, pat, rep, 'g')
     endfor
 

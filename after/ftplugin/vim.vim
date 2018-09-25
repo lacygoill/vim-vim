@@ -168,16 +168,15 @@ noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 "}}}
 if has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
     call lg#motion#repeatable#make#all({
-    \        'mode':   '',
-    \        'buffer': 1,
-    \        'axis':   {'bwd': ',', 'fwd': ';'},
-    \        'from':   expand('<sfile>:p').':'.expand('<slnum>'),
-    \        'motions': [
-    \                     {'bwd': '[m',  'fwd': ']m', },
-    \                     {'bwd': '[M',  'fwd': ']M', },
-    \                     {'bwd': '[[',  'fwd': ']]', },
-    \                   ]
-    \ })
+        \ 'mode': '',
+        \ 'buffer': 1,
+        \ 'axis': {'bwd': ',', 'fwd': ';'},
+        \ 'from': expand('<sfile>:p').':'.expand('<slnum>'),
+        \ 'motions': [
+        \     {'bwd': '[m',  'fwd': ']m'},
+        \     {'bwd': '[M',  'fwd': ']M'},
+        \     {'bwd': '[[',  'fwd': ']]'},
+        \ ]})
 endif
 
 nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>
@@ -303,13 +302,13 @@ let b:match_ignorecase = 0
 " i.e. contain a lot of garbage.
 "}}}
 let b:mc_chain = [
-\     'file',
-\     'keyp',
-\     'tags',
-\     'ulti',
-\     'dict',
-\     'c-p',
-\ ]
+    \ 'file',
+    \ 'keyp',
+    \ 'tags',
+    \ 'ulti',
+    \ 'dict',
+    \ 'c-p',
+    \ ]
 
 " Teardown {{{1
 

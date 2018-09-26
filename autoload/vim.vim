@@ -16,9 +16,12 @@ fu! vim#jump_to_tag() abort "{{{1
 endfu
 
 fu! vim#ref_if(line1,line2) abort "{{{1
-    call search('\<\%(let\|return\)\>', 'cW', a:line2)
+    call search('^\s*\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')
-    let expr = matchstr(getline('.'), '\m\%(let\|return\)\s\+\zs.\{-}\ze\s*=')
+    let expr = matchstr(getline('.'),
+        \ kwd is# 'let'
+        \ ? '\mlet\s\+\zs.\{-}\ze\s*='
+        \ : '\mreturn\s\+\zs.*')
     if empty(expr)
         return
     endif
@@ -35,35 +38,56 @@ fu! vim#ref_if(line1,line2) abort "{{{1
         \ '\v<'.kwd.'>',
         \ '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*')
 
-    if tests ==# [''] || values ==# [''] || len(tests) > len(values)
+    if empty(tests) || tests ==# [''] || values ==# [''] || len(tests) > len(values)
         return
     endif
 
-    let indent_kwd = matchstr(getline(a:line1), '^\s*')
-    let assignment  = [indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '')]
+    let assignment = [kwd.' '.(kwd is# 'let' ? expr.' = ' : '')]
+    let assignment[0] .= tests[0]
 
-    for i in range(1, len(tests))
-        let assignment += i ==# len(tests)
-            \             ?    [values[i-1]]
-            \
-            \             :    [tests[i-1]]
-            \                + ["\n".indent_kwd.'    \ ? '.values[i-1]]
-            \                + ["\n".indent_kwd.'    \ : ']
-            "                                         │
-            "                                         └ don't forget the space!{{{
-            " Without the space, you may have an error.
-            " MWE:
-            "
-            "         echo map(['foo'], {i,v -> 1
-            "         \?                         v
-            "         \:                         v
-            "         \ })
-            "}}}
+    " The function should not operate on something like this:{{{
+    "
+    "     if condition1
+    "         let var = 1
+    "     elseif condition2
+    "         let var = 2
+    "     endif
+    "
+    " A conditional operator `?:` operate on ALL possible cases.
+    " Same thing for a combination of multiple `?:`.
+    " So, you can't express the previous `if` block with `?:`
+    " Because the latter does NOT cover ALL cases.
+    " It doesn't cover the cases where condition1 and condition2
+    " are false.
+    "}}}
+    let n_values = len(values)
+    let n_tests = len(tests)
+    if n_tests == n_values
+        return
+    endif
+
+    for i in range(1, n_tests-1)
+        let assignment += ['    \ ? '.values[i-1]]
+                      \ + ['    \ : '.tests[i]]
     endfor
+    let assignment += ['    \ ? '.values[-2],
+                     \ '    \ : '.values[-1]]
+    " Don't forget the space between `\` and `?`, as well as `\` and `:`!{{{
+    " Without the space, you may have an error.
+    " MWE:
+    "
+    "         echo map(['foo'], {i,v -> 1
+    "         \?                         v
+    "         \:                         v
+    "         \ })
+            "}}}
 
-    let assignment = join(assignment, '')
+    " make sure our new block is indented like the original one
+    let indent_block = matchstr(getline(a:line1), '^\s*')
+    call map(assignment, {i,v -> indent_block.v})
+
     sil exe a:line1.','.a:line2.'d_'
-    sil -put =assignment
+    call append(line('.')-1, assignment)
 endfu
 
 fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{{1
@@ -74,7 +98,7 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
         let expressions += [matchstr(getline('.'), a:pat4)]
         let guard += 1
     endwhile
-    return expressions
+    return filter(expressions, {i,v -> v isnot# ''})
 endfu
 
 fu! vim#ref_v_val() abort "{{{1
@@ -94,7 +118,7 @@ fu! vim#ref_v_val() abort "{{{1
             return ''
         endif
 
-        let l:Rep = {   -> '{ i,v -> '.s:ref_v_val_rep(submatch(1)).' }' }
+        let l:Rep = {   -> '{i,v -> '.s:ref_v_val_rep(submatch(1)).'}' }
 
         "                     ┌ first character in selection
         "                     │              ┌ last character in selection
@@ -134,12 +158,12 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     "         '.string(  →  ∅
 
     let pat2rep = {
-    \               'v:val'              : 'v' ,
-    \               'v:key'              : 'k' ,
-    \               "''"                 : "'" ,
-    \               '\\\\'               : '\\',
-    \               '''\s*\.\s*string('  : '',
-    \             }
+        \ 'v:val':             'v' ,
+        \ 'v:key':             'k' ,
+        \ "''":                "'" ,
+        \ '\\\\':              '\\',
+        \ '''\s*\.\s*string(': '',
+        \ }
 
     let transformed_text = a:captured_text
     for [pat, rep] in items(pat2rep)
@@ -161,24 +185,25 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
     let view      = winsaveview()
 
     let substitutions = {
-    \                     'au':    { 'pat': '^\s*\zsau%[tocmd]',          'rep': 'au'     },
-    \                     'C-x':   { 'pat': '\C\<\zsC\ze-\a\>',           'rep': 'c'      },
-    \                     'com':   { 'pat': '^\s*\zscom%[mand]!? ',       'rep': 'com! '  },
-    \                     'cr':    { 'pat': '\C\<CR\>',                   'rep': '<cr>'   },
-    \                     'fu':    { 'pat': '^\s*\zsfu%[nction]!? ',      'rep': 'fu! '   },
-    \                     'endfu': { 'pat': '^\s*\zsendfu%[nction]\s*$',  'rep': 'endfu'  },
-    \                     'exe':   { 'pat': 'exe%[cute] ',                'rep': 'exe '   },
-    \                     'sil':   { 'pat': '\<@<!sil%[ent](!| )',        'rep': ' sil\1' },
-    \                     'setl':  { 'pat': 'setl%[ocal] ',               'rep': 'setl '  },
-    \                     'keepj': { 'pat': 'keepj%[umps] ',              'rep': 'keepj ' },
-    \                     'keepp': { 'pat': 'keepp%[atterns] ',           'rep': 'keepp ' },
-    \                     'nno':   { 'pat': '(n|v|x|o|i|c)no%[remap] ',   'rep': '\1no '  },
-    \                     'norm':  { 'pat': 'normal!',                    'rep': 'norm!'  },
-    \                     'plug':  { 'pat': '\C\<Plug\>',                 'rep': '<plug>' },
-    \
-    \                     'abort': { 'pat': '^%(.*\)\s*abort)@!\s*fu%[nction]!?.*\)\zs\ze(\s*"\{\{\{\d*)?',
-    \                                'rep': ' abort' },
-    \                   }
+        \ 'au':    {'pat': '^\s*\zsau%[tocmd]',          'rep': 'au'    },
+        \ 'C-x':   {'pat': '\C\<\zsC\ze-\a\>',           'rep': 'c'     },
+        \ 'com':   {'pat': '^\s*\zscom%[mand]!? ',       'rep': 'com! ' },
+        \ 'cr':    {'pat': '\C\<CR\>',                   'rep': '<cr>'  },
+        \ 'fu':    {'pat': '^\s*\zsfu%[nction]!? ',      'rep': 'fu! '  },
+        \ 'endfu': {'pat': '^\s*\zsendfu%[nction]\s*$',  'rep': 'endfu' },
+        \ 'exe':   {'pat': 'exe%[cute] ',                'rep': 'exe '  },
+        \ 'sil':   {'pat': '\<@<!sil%[ent](!| )',        'rep': ' sil\1'},
+        \ 'setl':  {'pat': 'setl%[ocal] ',               'rep': 'setl ' },
+        \ 'keepj': {'pat': 'keepj%[umps] ',              'rep': 'keepj '},
+        \ 'keepp': {'pat': 'keepp%[atterns] ',           'rep': 'keepp '},
+        \ 'nno':   {'pat': '(n|v|x|o|i|c)no%[remap] ',   'rep': '\1no ' },
+        \ 'norm':  {'pat': 'normal!',                    'rep': 'norm!' },
+        \ 'plug':  {'pat': '\C\<Plug\>',                 'rep': '<plug>'},
+        \
+        \ 'abort': { 'pat': '^%(.*\)\s*abort)@!\s*fu%[nction]!?.*\)'
+        \                  .'\zs\ze(\s*"\{\{\{\d*)?',
+        \            'rep': ' abort' },
+        \ }
 
     sil! exe modifiers.'norm! '.a:lnum1.'G='.a:lnum2.'G'
     for sbs in values(substitutions)
@@ -202,3 +227,4 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
 
     call winrestview(view)
 endfu
+

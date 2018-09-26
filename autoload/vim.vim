@@ -18,53 +18,47 @@ endfu
 fu! vim#ref_if(line1,line2) abort "{{{1
     call search('\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')
-    let expr = matchstr(getline('.'), '\v%(let|return)\s+\zs\S+')
+    let expr = matchstr(getline('.'), '\m\%(let\|return\)\s\+\zs.\{-}\ze\s*=')
     if empty(expr)
         return
     endif
 
     let tests = s:ref_if_get_tests_or_values(a:line1, a:line2,
-    \                                        '\v<if>',
-    \                                        '\v<if>\s+\zs.*',
-    \                                        '\v<%(else|elseif)>',
-    \                                        '\v<%(else|elseif)>\s+\zs.*')
+        \ '\v<if>',
+        \ '\v<if>\s+\zs.*',
+        \ '\v<%(else|elseif)>',
+        \ '\v<%(else|elseif)>\s+\zs.*')
 
     let values = s:ref_if_get_tests_or_values(a:line1, a:line2,
-    \                                         '\v<'.kwd.'>',
-    \                                         '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*',
-    \                                         '\v<'.kwd.'>',
-    \                                         '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*')
+        \ '\v<'.kwd.'>',
+        \ '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*',
+        \ '\v<'.kwd.'>',
+        \ '\v<'.kwd.'>\s+'.(kwd is# 'let' ? '.{-}\=\s*' : '').'\zs.*')
 
     if tests ==# [''] || values ==# [''] || len(tests) > len(values)
         return
     endif
 
     let indent_kwd = matchstr(getline(a:line1), '^\s*')
-    let indent_val = repeat(' ', strchars(matchstr(getline(a:line1+1),
-    \                                              '\v^\s*'.kwd.(kwd is# 'let' ? '.{-}\=\s?' : '\s'))
-    \                                     , 1)
-    \                            -strlen(indent_kwd)
-    \                            -3)
-    let indent_test = repeat(' ', len(indent_val)-&sw)
     let assignment  = [indent_kwd.kwd.' '.(kwd is# 'let' ? expr.' = ' : '')]
 
     for i in range(1, len(tests))
         let assignment += i ==# len(tests)
-        \                 ?    [repeat(' ', &sw).values[i-1]]
-        \
-        \                 :    [tests[i-1]]
-        \                    + ["\n".indent_kwd.'\ ?'.indent_val.values[i-1]]
-        \                    + ["\n".indent_kwd.'\ :'.indent_test]
-        "                                         │
-        "                                         └ don't forget the space!{{{
-        " Without the space, you may have an error.
-        " MWE:
-        "
-        "         echo map(['foo'], {i,v -> 1
-        "         \?                         v
-        "         \:                         v
-        "         \ })
-        "}}}
+            \             ?    [values[i-1]]
+            \
+            \             :    [tests[i-1]]
+            \                + ["\n".indent_kwd.'    \ ? '.values[i-1]]
+            \                + ["\n".indent_kwd.'    \ : ']
+            "                                         │
+            "                                         └ don't forget the space!{{{
+            " Without the space, you may have an error.
+            " MWE:
+            "
+            "         echo map(['foo'], {i,v -> 1
+            "         \?                         v
+            "         \:                         v
+            "         \ })
+            "}}}
     endfor
 
     let assignment = join(assignment, '')

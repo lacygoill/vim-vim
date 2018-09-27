@@ -67,11 +67,11 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     endif
 
     for i in range(1, n_tests-1)
-        let assignment += ['    \ ? '.values[i-1]]
+        let assignment += ['    \ ?     '.values[i-1]]
                       \ + ['    \ : '.tests[i]]
     endfor
-    let assignment += ['    \ ? '.values[-2],
-                     \ '    \ : '.values[-1]]
+    let assignment += ['    \ ?     '.values[-2],
+                     \ '    \ :     '.values[-1]]
     " Don't forget the space between `\` and `?`, as well as `\` and `:`!{{{
     " Without the space, you may have an error.
     " MWE:

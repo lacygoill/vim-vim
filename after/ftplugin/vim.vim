@@ -103,69 +103,6 @@ noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#regex#rhs('fu',1)
 noremap  <buffer><expr><nowait><silent>  [M  lg#motion#regex#rhs('endfu',0)
 noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
 
-" Why this check?{{{
-"
-" We're going to call a function installed by `vim-lg-lib`.
-" The latter could be disabled if we're debugging.
-" So, we need:
-"
-"     has_key(get(g:, 'plugs', {}), 'vim-lg-lib')
-"
-" Also, we may source this file manually.
-" For example, in `vim-toggle-settings`, we have a mapping to edit
-" help files. When we press it the 1st time, the file becomes editable.
-" When, we press it a 2nd time, it gets back UNeditable.
-" But to do so, we source all `after/ftplugin/help.vim` files in the rtp:
-"
-"     runtime! after/ftplugin/help.vim
-"
-" When that happens, Vim hasn't removed the local motions, because:
-"
-"     • the 1st time we pressed the mapping, we have't removed any local motion
-"
-"     • the 2nd time, `:runtime!` hasn't fired `FileType`,
-"       so `b:undo_ftplugin`  hasn't been executed
-"
-" Bottome Line:
-" This file may be sourced, while the local motions are already repeatable.
-" We must avoid trying to make local motions repeatable, if they already are.
-" How do we know they already are repeatable?
-"
-"     exists('b:repeatable_motions') ==# 1
-"}}}
-" Alternative:{{{
-"
-"     try
-"         if !exists('b:repeatable_motions')
-"             call lg#motion#repeatable#make#all(…)
-"         endif
-"     catch
-"         " Why `:unsilent`?{{{
-"         "
-"         " When a filetype plugin is sourced, it seems we can't echo anything.
-"         " If we  need to call a  function in a  filetype plugin, which may  raise an
-"         " error, this will prevent `:echom` from working.
-"         " MWE:
-"         "
-"         "                                  ┌ file containing an `:echo[m]` statement
-"         "                                  │
-"         "     au FileType    potion source some_file  (silent)
-"         "     au BufWinEnter *      source some_file  (not silent)
-"        "}}}
-"         unsilent call lg#catch_error()
-"     endtry
-"}}}
-" Why don't use the alternative?{{{
-"
-" In   this   case,   calling    `lg#catch_error()`   is   wrong,   because   if
-" `lg#motion#repeatable#make#all()`  doesn't   exist,  then  `lg#catch_error()`
-" won't either.
-"}}}
-" Why not checking the existence of the function?{{{
-"
-" Not reliable, because it's an autoloaded function.
-" Maybe it hasn't be sourced, and thus doesn't exist, but can be.
-"}}}
 if match(&rtp, 'vim-lg-lib') >= 0
     call lg#motion#repeatable#make#all({
         \ 'mode': '',

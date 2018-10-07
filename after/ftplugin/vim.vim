@@ -244,6 +244,7 @@ let b:mc_chain = [
     \ 'tags',
     \ 'ulti',
     \ 'dict',
+    \ 'abbr',
     \ 'c-p',
     \ ]
 

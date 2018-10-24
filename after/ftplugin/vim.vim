@@ -252,34 +252,36 @@ let b:mc_chain = [
 
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
     \ . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
-    \ . 'setl cocu< cole< comments< fdm< fdt< kp< omnifunc<'
-    \ . '| unlet! b:match_words b:match_ignorecase b:mc_chain'
-    \ . '| exe "au! my_vim * <buffer>"'
+    \ . "
+    \ setl cocu< cole< comments< fdm< fdt< kp< omnifunc<
+    \|unlet! b:match_words b:match_ignorecase b:mc_chain
+    \|exe 'au! my_vim * <buffer>'
     \
-    \ . '| unmap <buffer> [['
-    \ . '| unmap <buffer> ]]'
-    \ . '| unmap <buffer> [m'
-    \ . '| unmap <buffer> ]m'
-    \ . '| unmap <buffer> [M'
-    \ . '| unmap <buffer> ]M'
+    \|unmap <buffer> [[
+    \|unmap <buffer> ]]
+    \|unmap <buffer> [m
+    \|unmap <buffer> ]m
+    \|unmap <buffer> [M
+    \|unmap <buffer> ]M
     \
-    \ . '| nunmap <buffer> =rd'
-    \ . '| nunmap <buffer> =rq'
+    \|nunmap <buffer> =rd
+    \|nunmap <buffer> =rq
     \
-    \ . '| xunmap <buffer> =rd'
-    \ . '| xunmap <buffer> =ri'
-    \ . '| xunmap <buffer> =rq'
-    \ . '| xunmap <buffer> =rv'
+    \|xunmap <buffer> =rd
+    \|xunmap <buffer> =ri
+    \|xunmap <buffer> =rq
+    \|xunmap <buffer> =rv
     \
-    \ . '| cuna <buffer> refactor'
-    \ . '| cuna <buffer> refdots'
-    \ . '| cuna <buffer> refif'
-    \ . '| cuna <buffer> refquotes'
-    \ . '| cuna <buffer> refvval'
+    \|cuna <buffer> refactor
+    \|cuna <buffer> refdots
+    \|cuna <buffer> refif
+    \|cuna <buffer> refquotes
+    \|cuna <buffer> refvval
     \
-    \ . '| delc RefDots'
-    \ . '| delc RefIf'
-    \ . '| delc RefQuotes'
-    \ . '| delc RefVval'
-    \ . '| delc Refactor'
+    \|delc RefDots
+    \|delc RefIf
+    \|delc RefQuotes
+    \|delc RefVval
+    \|delc Refactor
+    \"
 

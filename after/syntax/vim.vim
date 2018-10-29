@@ -36,8 +36,8 @@ syn cluster vimContains contains=vimComment,
                                 \vimLineComment,
                                 \vimMtchComment,
 
-exe 'syn match vimFoldMarkers  /"\?\s*{'.'{{\d*\s*\ze\n/  conceal cchar=❭  containedin=@vimContainedin'
-exe 'syn match vimFoldMarkers  /"\?\s*}'.'}}\d*\s*\ze\n/  conceal cchar=❬  containedin=@vimContainedin'
+exe 'syn match vimFoldMarkers  /"\=\s*{'.'{{\d*\s*\ze\n/  conceal cchar=❭  containedin=@vimContainedin'
+exe 'syn match vimFoldMarkers  /"\=\s*}'.'}}\d*\s*\ze\n/  conceal cchar=❬  containedin=@vimContainedin'
 
 " syn match vimCommentCode '^\s*"@.*' containedin=vimComment,vimLineComment contains=vimCommentCodeAt
 " syn match vimCommentCodeAt '^\s*"\zs@' conceal

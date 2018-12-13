@@ -1,47 +1,44 @@
-" Make Vim color the custom commands `:Aab` and `Lnorea`, and their arguments,
-" (lhs, rhs) like it would with a default Ex command.
+" Make Vim color the custom commands `:Pab` and `:Aab` as builtin Ex commands.
+" How did you find the syntax for this line of code?{{{
 "
-" I found the skeleton of this command in $VIMRUNTIME/syntax/vim.vim
-" after searching for 'ino' (only 5 matches).
-
-syn keyword vimMap Aab Pab skipwhite nextgroup=vimMapBang,vimMapMod,vimMapLhs
-
-" replace noisy/ugly markers, used in folds, with ❭ and ❬
-
-" We want to be sure that the folding markers will be concealed no matter
-" the type of comments they are in.
-" We can't use the value ALL for the `containedin` argument, because it would
-" display several consecutive concealed markers, instead of a single one.
-" So, we use a comma-separated list of syntax groups.
-" We found it by typing:
+"     :e /tmp/vim.vim
+"     :put ='inorea'
+"     /inorea
+"     !s
+"         → vimAbb
 "
-"         :syn list vim*comment* C-d
+"     :e $VIMRUNTIME/syntax/vim.vim
+"     /vimAbb
+"}}}
+syn keyword vimAbb Aab Pab skipwhite nextgroup=vimMapMod,vimMapLhs
+
+" TODO: Comment how `skipwhite` and `nextgroup` work.{{{
 "
-" It lists all syntax groups, used in Vim files, containing the keyword `comment`.
+" Read `:h syn-nextgroup`.
+" Test this code:
+"
+"     syn clear
+"     hi clear
 
-syn cluster vimContainedin contains=vimComment,
-                                   \vimCommentString,
-                                   \vimCommentTitle,
-                                   \vimCommentTitleLeader,
-                                   \vimLineComment,
-                                   \vimMtchComment,
-                                   \vimMyComments
+"     syn match  xFoobar  'Foo.\{-}Bar'   contains=xFoo
+"     syn match  xFoo     'Foo'	    contained nextgroup=xFiller
+"     syn region xFiller  start='.'  matchgroup=xBar  end='Bar'  contained
 
-syn cluster vimContains contains=vimComment,
-                                \vimCommentCode,
-                                \vimCommentCodeAt,
-                                \vimCommentString,
-                                \vimCommentTitle,
-                                \vimCommentTitleLeader,
-                                \vimLineComment,
-                                \vimMtchComment,
+"     hi link xFoobar  DiffAdd
+"     hi link xFoo     DiffChange
+"     hi link xFiller  DiffDelete
+"     hi link xBar     DiffText
 
-exe 'syn match vimFoldMarkers  /"\=\s*{'.'{{\d*\s*\ze\n/  conceal cchar=❭  containedin=@vimContainedin'
-exe 'syn match vimFoldMarkers  /"\=\s*}'.'}}\d*\s*\ze\n/  conceal cchar=❬  containedin=@vimContainedin'
+"     " ( one ( two ( three ( four ) five ) six ) seven )
 
-" syn match vimCommentCode '^\s*"@.*' containedin=vimComment,vimLineComment contains=vimCommentCodeAt
-" syn match vimCommentCodeAt '^\s*"\zs@' conceal
-" hi link vimCommentCode Number
+"     " syn region par1 matchgroup=par1 start='(' end=')' contains=par2
+"     " syn region par2 matchgroup=par2 start='(' end=')' contains=par3 contained
+"     " syn region par3 matchgroup=par3 start='(' end=')' contains=par1 contained
+"     " hi par1 ctermfg=red guifg=red
+"     " hi par2 ctermfg=blue guifg=blue
+"     " hi par3 ctermfg=darkgreen guifg=darkgreen
 
-" syn region vimMyComments oneline matchgroup=Comment start=/^\s*\zs"\s\?/ end=/$/ concealends contains=@vimContains,@vimCommentGroup
-" hi link vimMyComments Comment
+" On this text:
+"
+"     Foo hello Bar xxxx Foo world Bar xxxx
+"}}}

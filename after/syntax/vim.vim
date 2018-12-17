@@ -18,10 +18,9 @@ syn keyword vimAbb Aab Pab skipwhite nextgroup=vimMapMod,vimMapLhs
 " Test this code:
 "
 "     syn clear
-"     hi clear
 
-"     syn match  xFoobar  'Foo.\{-}Bar'   contains=xFoo
-"     syn match  xFoo     'Foo'	    contained nextgroup=xFiller
+"     syn match  xFoobar  'Foo.\{-}Bar'  contains=xFoo
+"     syn match  xFoo     'Foo'	     contained nextgroup=xFiller
 "     syn region xFiller  start='.'  matchgroup=xBar  end='Bar'  contained
 
 "     hi link xFoobar  DiffAdd

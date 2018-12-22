@@ -253,7 +253,8 @@ let b:mc_chain = [
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
     \ . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
     \ . "
-    \   setl cocu< cole< comments< fdm< fdt< kp< omnifunc<
+    \   setl cocu< cole< comments< fdm< fdt< omnifunc<
+    \ | set kp<
     \ | unlet! b:match_words b:match_ignorecase b:mc_chain
     \ | exe 'au! my_vim * <buffer>'
     \

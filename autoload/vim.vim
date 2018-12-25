@@ -176,7 +176,7 @@ fu! s:ref_v_val_rep(captured_text) abort "{{{1
     " replace:
     "         " (not escaped)  →  '
     "         \"               →  "
-    return substitute(substitute(transformed_text, '\\\@<!"', "'", 'g'), '\\"', '"', 'g')
+    return substitute(substitute(transformed_text, '\\\@1<!"', "'", 'g'), '\\"', '"', 'g')
 endfu
 
 fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1

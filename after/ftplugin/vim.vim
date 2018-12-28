@@ -151,29 +151,6 @@ let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+•])\s+'
 "                                  └────┤
 "                                       └ recognize unordered lists
 
-" kp {{{2
-"
-" Default program to call when hitting K on a word
-setl keywordprg=:help
-
-" If you end up using a complex command, then use a level of indirection.
-"
-" First define a custom command, then assign it to the option.
-"
-" https://gist.github.com/romainl/8d3b73428b4366f75a19be2dad2f0987
-" This mechanism wouldn't work for other '*prg' options, like:
-"
-"     • 'cscopeprg'
-"     • 'csprg'
-"     • 'equalprg'
-"     • 'formatprg'
-"     • 'grepprg'
-"     • 'makeprg'
-"
-" …  because  they  all  interpret   their  values  as  an  external  program.
-" 'keywordprg'  too. But it  can also  interpret it  as a  Vim command,  if it's
-" prefixed with a colon.
-
 " ofu {{{2
 "
 " Set the function invoked when we press `C-x C-o`.
@@ -254,7 +231,6 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
     \ . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
     \ . "
     \   setl cocu< cole< comments< fdm< fdt< omnifunc<
-    \ | set kp<
     \ | unlet! b:match_words b:match_ignorecase b:mc_chain
     \ | exe 'au! my_vim * <buffer>'
     \

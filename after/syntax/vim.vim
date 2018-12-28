@@ -12,4 +12,4 @@
 "}}}
 syn keyword vimAbb Aab Pab skipwhite nextgroup=vimMapMod,vimMapLhs
 
-" TODO: Comment how `skipwhite` and `nextgroup` work.{{{
+" TODO: Comment how `skipwhite` and `nextgroup` work.

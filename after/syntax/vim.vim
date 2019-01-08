@@ -5,7 +5,7 @@
 "     :put ='inorea'
 "     /inorea
 "     !s
-"         → vimAbb
+"     vimAbb~
 "
 "     :e $VIMRUNTIME/syntax/vim.vim
 "     /vimAbb

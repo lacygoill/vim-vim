@@ -64,7 +64,7 @@ com! -bar -buffer -range RefVval call vim#ref_v_val()
 cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdpos() ==# 8
 \                               ?    'RefVval'
 \                               :    'refvval'
-
+"}}}1
 " Mappings {{{1
 
 nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
@@ -131,18 +131,6 @@ xno  <buffer><nowait><silent>  =rv  :RefVval<cr>
 "                              └ fix
 
 " Options {{{1
-" window-local {{{2
-augroup my_vim
-    au! *            <buffer>
-    au  BufWinEnter  <buffer>  setl fdm=marker
-                           \ | setl fdt=fold#fdt#get()
-                           \ | setl cocu=nc
-                           \ | setl cole=3
-                           " We've included markers, the ones used in folds, inside syntax elements using
-                           " the `conceal` argument, to hide them. But for this to work, we also have to set
-                           " 'concealcursor' and 'conceallevel' properly.
-augroup END
-
 " flp {{{2
 "
 "                                ┌ recognize numbered lists
@@ -159,7 +147,7 @@ let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+•])\s+'
 "             │  Defined here:  /usr/share/vim/vim74/autoload/syntaxcomplete.vim
 "             │
 setl omnifunc=syntaxcomplete#Complete
-
+" }}}1
 " Variables {{{1
 
 " The matchit plugin uses these 3 patterns to make `%` cycle through the
@@ -230,9 +218,8 @@ let b:mc_chain = [
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
     \ . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
     \ . "
-    \   setl cocu< cole< comments< fdm< fdt< omnifunc<
+    \   setl comments< omnifunc<
     \ | unlet! b:match_words b:match_ignorecase b:mc_chain
-    \ | exe 'au! my_vim * <buffer>'
     \
     \ | exe 'unmap <buffer> [['
     \ | exe 'unmap <buffer> ]]'

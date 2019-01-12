@@ -4,6 +4,7 @@ fu! vim#jump_to_tag() abort "{{{1
     "                                      ^
     " When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
     " characters inside 'isk'.
+    let bufnr = bufnr('%')
     setl isk+=:
     try
         exe "norm! \<c-]>"
@@ -11,7 +12,11 @@ fu! vim#jump_to_tag() abort "{{{1
     catch
         return lg#catch_error()
     finally
-        let &l:isk = isk_save
+        " Why not simply `let &l:isk = isk_save`?{{{
+        "
+        " We may have jumped to another buffer.
+        "}}}
+        call setbufvar(bufnr, '&isk', isk_save)
     endtry
 endfu
 

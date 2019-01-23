@@ -78,8 +78,8 @@ nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 "
 " In theory, we could disable these mappings by setting one of the variable:
 "
-"         • no_vim_maps       (only vim ftplugin mappings)
-"         • no_plugin_maps    (all ftplugin mappings)
+"         - no_vim_maps       (only vim ftplugin mappings)
+"         - no_plugin_maps    (all ftplugin mappings)
 "
 " Unfortunately, the Vim ftplugin doesn't check the existence of these
 " variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.
@@ -135,9 +135,9 @@ xno  <buffer><nowait><silent>  =rv  :RefVval<cr>
 "
 "                                ┌ recognize numbered lists
 "                          ┌─────┤
-let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+•])\s+'
-"                                  └────┤
-"                                       └ recognize unordered lists
+let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+])\s+'
+"                                  └───┤
+"                                      └ recognize unordered lists
 
 " ofu {{{2
 "

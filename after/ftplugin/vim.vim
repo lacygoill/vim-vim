@@ -107,7 +107,6 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
     call lg#motion#repeatable#make#all({
         \ 'mode': '',
         \ 'buffer': 1,
-        \ 'axis': {'bwd': ',', 'fwd': ';'},
         \ 'from': expand('<sfile>:p').':'.expand('<slnum>'),
         \ 'motions': [
         \     {'bwd': '[m',  'fwd': ']m'},

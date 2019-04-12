@@ -67,6 +67,8 @@ cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdpos() ==# 8
 "}}}1
 " Mappings {{{1
 
+nno <buffer><nowait><silent> K :<c-u>exe 'help ' . vim#helptopic()<cr>
+
 nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 
 " The default Vim ftplugin:
@@ -214,10 +216,9 @@ let b:mc_chain = [
 
 " Teardown {{{1
 
-let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
-    \ . (empty(get(b:, 'undo_ftplugin', '')) ? '' : '|')
+let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ . "
-    \   setl comments< omnifunc<
+    \ | setl comments< omnifunc<
     \ | unlet! b:match_words b:match_ignorecase b:mc_chain
     \
     \ | exe 'unmap <buffer> [['
@@ -227,6 +228,7 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', '')
     \ | exe 'unmap <buffer> [M'
     \ | exe 'unmap <buffer> ]M'
     \
+    \ | exe 'nunmap <buffer> K'
     \ | exe 'nunmap <buffer> =rd'
     \ | exe 'nunmap <buffer> =rq'
     \

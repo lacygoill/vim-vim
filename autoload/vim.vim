@@ -60,6 +60,47 @@ fu! vim#jump_to_tag() abort "{{{1
     endtry
 endfu
 
+fu! vim#ref_dots(line1,line2) abort "{{{1
+    let pat = [
+        "\ outside a single-quoted string
+        \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<=',
+        "\ outside a double-quoted string
+        \ '\%(^\%("[^"]*"\|[^"]\)*\)\@<=',
+        "\ not on a commented line
+        \ '\%(^\s*".*\)\@<!',
+        "\ a dot not followed or preceded by another dot
+        \ '\%(\s*\.\@<!\.\.\@!\s*',
+        "\ or two dots surrounded by spaces
+        \ '\|\s\+\.\.\s\+\)',
+        \ ]
+    let pat = join(pat, '')
+    " Warning: The pattern could find false positives.{{{
+    "
+    " MWE:
+    "
+    "     echo '
+    "     \ a . b
+    "     \ '
+    "
+    " Which is why we pass the `c` flag to `:s`.
+    "}}}
+    " Warning: The pattern could miss some dots.{{{
+    "
+    " Because of the part of the pattern which ignores dots inside strings:
+    "
+    "     echo 'a
+    "     \ ' . 'b . c'
+    "
+    " But I think this kind of snippets are rare.
+    " And I  prefer failing to double  some dots, rather than  wrongly doubling some
+    " dots which I shouldn't  in a regex string for example  (could happen even with
+    " the `c` flag of `:s` when there are many matches and you're tired).
+    "}}}
+
+    let range = a:line1..','..a:line2
+    exe range..'s/'..pat..'/../gce'
+endfu
+
 fu! vim#ref_if(line1,line2) abort "{{{1
     call search('^\s*\<\%(let\|return\)\>', 'cW', a:line2)
     let kwd = matchstr(getline('.'), 'let\|return')

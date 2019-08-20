@@ -8,7 +8,14 @@ cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() ==# 9
 \                                :    'refactor'
 
 " RefDots {{{2
-com! -bar -buffer -range=% RefDots <line1>,<line2>s/ \. /./gce
+
+" Refactor dot concatenation operator:{{{
+"
+"     a . b   →  a..b
+"     a.b     →  a..b
+"     a .. b  →  a..b
+"}}}
+com! -bar -buffer -range=% RefDots call vim#ref_dots(<line1>,<line2>)
 
 cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() ==# 8
 \                                ?    'Refdots'

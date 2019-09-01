@@ -10,7 +10,7 @@ fu! vim#helptopic() abort "{{{1
     let post = matchstr(line, pat_post)
 
     let syntax_item = get(reverse(map(synstack(line('.'), col('.')),
-        \ {i,v -> synIDattr(v,'name')})), 0, '')
+        \ {_,v -> synIDattr(v,'name')})), 0, '')
     let cword = expand('<cword>')
 
     if syntax_item is# 'vimFuncName'
@@ -162,7 +162,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     " Without the space, you may have an error.
     " MWE:
     "
-    "         echo map(['foo'], {i,v -> 1
+    "         echo map(['foo'], {_,v -> 1
     "         \?                         v
     "         \:                         v
     "         \ })
@@ -170,7 +170,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
 
     " make sure our new block is indented like the original one
     let indent_block = matchstr(getline(a:line1), '^\s*')
-    call map(assignment, {i,v -> indent_block.v})
+    call map(assignment, {_,v -> indent_block.v})
 
     sil exe a:line1.','.a:line2.'d_'
     call append(line('.')-1, assignment)
@@ -184,7 +184,7 @@ fu! s:ref_if_get_tests_or_values(line1, line2, pat1, pat2, pat3, pat4) abort "{{
         let expressions += [matchstr(getline('.'), a:pat4)]
         let guard += 1
     endwhile
-    return filter(expressions, {i,v -> v isnot# ''})
+    return filter(expressions, {_,v -> v isnot# ''})
 endfu
 
 fu! vim#ref_v_val() abort "{{{1
@@ -210,8 +210,8 @@ fu! vim#ref_v_val() abort "{{{1
         "                     │              ┌ last character in selection
         "                     │              │
         sil keepj keepp s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
-        "                 └───┤
-        "                     └ the character just before the last one in the selection
+        "                 ├───┘
+        "                 └ the character just before the last one in the selection
 
         " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
         "

@@ -79,7 +79,8 @@ nno <buffer><nowait><silent> K :<c-u>exe 'help ' . vim#helptopic()<cr>
 nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 
 " The default Vim ftplugin:
-"         $VIMRUNTIME/ftplugin/vim.vim
+"
+"     $VIMRUNTIME/ftplugin/vim.vim
 "
 " … defines the buffer-local  ["  ]"  mappings. I don't want them, because
 " I use other global mappings (same keys), which are more powerful (support
@@ -87,8 +88,8 @@ nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 "
 " In theory, we could disable these mappings by setting one of the variable:
 "
-"         - no_vim_maps       (only vim ftplugin mappings)
-"         - no_plugin_maps    (all ftplugin mappings)
+"    - no_vim_maps       (only vim ftplugin mappings)
+"    - no_plugin_maps    (all ftplugin mappings)
 "
 " Unfortunately, the Vim ftplugin doesn't check the existence of these
 " variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.

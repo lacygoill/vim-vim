@@ -305,11 +305,10 @@ fu! vim#refactor(lnum1,lnum2, confirm) abort "{{{1
 
     " make sure all buffer-local mappings use `<nowait>`
     sil exe '%s/\v'.pat_map.'\s+\<buffer\>%(\<expr\>)?\zs%(%(\<expr\>)?\<nowait\>)@!/<nowait>/ge'
-    "                           └────────────────────┤   └─────────────────────────┤
-    "                                                │                             └ but not followed by `<nowait>`
-    "                                                │                               neither by `<expr><nowait>`
-    "                                                │
-    "                                                └ look for `<buffer>` may be followed by `<expr>`
+    "                           ├────────────────────┘   ├─────────────────────────┘
+    "                           │                        └ but not followed by `<nowait>`
+    "                           │                          neither by `<expr><nowait>`
+    "                           └ look for `<buffer>` may be followed by `<expr>`
 
     call winrestview(view)
 endfu

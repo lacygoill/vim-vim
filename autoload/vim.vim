@@ -68,8 +68,8 @@ fu! vim#ref_dots(line1,line2) abort "{{{1
         \ '\%(^\%("[^"]*"\|[^"]\)*\)\@<=',
         "\ not on a commented line
         \ '\%(^\s*".*\)\@<!',
-        "\ a dot not followed or preceded by another dot
-        \ '\%(\s*\.\@<!\.\.\@!\s*',
+        "\ a dot not preceded by another dot, nor followed by another dot/equal sign (`.=` assignment operator)
+        \ '\%(\s*\.\@<!\.[.=]\@!\s*',
         "\ or two dots surrounded by spaces
         \ '\|\s\+\.\.\s\+\)',
         \ ]

@@ -39,12 +39,11 @@ fu! vim#helptopic() abort "{{{1
 endfu
 
 fu! vim#jump_to_tag() abort "{{{1
-    let isk_save = &l:isk
+    let [isk_save, bufnr] = [&l:isk, bufnr('%')]
     " Some tags may contain a colon (ex: `s:some_function()`).
     "                                      ^
     " When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
     " characters inside 'isk'.
-    let bufnr = bufnr('%')
     setl isk+=:
     try
         exe "norm! \<c-]>"

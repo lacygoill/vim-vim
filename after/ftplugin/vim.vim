@@ -142,18 +142,18 @@ xno  <buffer><nowait><silent>  =rv  :RefVval<cr>
 " Options {{{1
 " flp {{{2
 "
-"                                ┌ recognize numbered lists
-"                          ┌─────┤
+"                          ┌ recognize numbered lists
+"                          ├─────┐
 let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+])\s+'
-"                                  └───┤
-"                                      └ recognize unordered lists
+"                                  ├───┘
+"                                  └ recognize unordered lists
 
 " ofu {{{2
 "
 " Set the function invoked when we press `C-x C-o`.
 
-"             ┌─ Found here:    http://vim.wikia.com/wiki/Omni_completion
-"             │  Defined here:  /usr/share/vim/vim74/autoload/syntaxcomplete.vim
+"             ┌ Found here:    http://vim.wikia.com/wiki/Omni_completion
+"             │ Defined here:  /usr/share/vim/vim74/autoload/syntaxcomplete.vim
 "             │
 setl omnifunc=syntaxcomplete#Complete
 " }}}1
@@ -175,7 +175,7 @@ setl omnifunc=syntaxcomplete#Complete
 "
 "         \<fu\%[nction]\>    →    \<fu\%[nction]\>(@!
 "                                                  │
-"                                                  └─ no open parenthesis at the end
+"                                                  └ no open parenthesis at the end
 
 let b:match_words =
 \                   '\<fu\%[nction]\>(\@!:\<retu\%[rn]\>:\<endf\%[unction]\>,'

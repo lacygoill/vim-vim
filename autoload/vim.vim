@@ -69,6 +69,8 @@ fu! vim#ref_dots(line1,line2) abort "{{{1
         \ '\%(^\s*".*\)\@<!',
         "\ a dot not preceded by another dot, nor followed by another dot/equal sign (`.=` assignment operator)
         \ '\%(\s*\.\@<!\.[.=]\@!\s*',
+        "\ `.=` assignment → `..=`
+        \ '\|\.\@<!\.\ze=',
         "\ or two dots surrounded by spaces
         \ '\|\s\+\.\.\s\+\)',
         \ ]
@@ -128,7 +130,7 @@ fu! vim#ref_if(line1,line2) abort "{{{1
     endif
 
     let assignment = [kwd.' '.(kwd is# 'let' ? expr.' = ' : '')]
-    let assignment[0] .= tests[0]
+    let assignment[0] ..= tests[0]
 
     " The function should not operate on something like this:{{{
     "

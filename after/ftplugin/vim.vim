@@ -3,7 +3,7 @@
 
 com! -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
 
-cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() ==# 9
+cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() == 9
 \                                ?    'Refactor'
 \                                :    'refactor'
 
@@ -17,7 +17,7 @@ cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() ==# 9
 "}}}
 com! -bar -buffer -range=% RefDots call vim#ref_dots(<line1>,<line2>)
 
-cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() ==# 8
+cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() == 8
 \                                ?    'Refdots'
 \                                :    'refdots'
 
@@ -26,11 +26,11 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() ==# 8
 " select an if / else(if) / endif construct, and execute `:RefIf`.
 " It will perform this conversion:
 
-"         if var ==# 1                 let val = var ==# 1
-"             let val = 'foo'                \ ?     'foo'
-"         elseif var ==# 2                   \ : var ==# 2
-"             let val = 'bar'    →           \ ?     'bar'
-"         else                               \ :     'baz'
+"         if var == 1                 let val = var == 1
+"             let val = 'foo'               \ ?     'foo'
+"         elseif var == 2                   \ : var == 2
+"             let val = 'bar'    →          \ ?     'bar'
+"         else                              \ :     'baz'
 "             let val = 'baz'
 "         endif
 "
@@ -52,7 +52,7 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() ==# 8
 
 com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
 
-cnorea <expr> <buffer> refif  getcmdtype() is# ':' && getcmdpos() ==# 6
+cnorea <expr> <buffer> refif  getcmdtype() is# ':' && getcmdpos() == 6
 \                             ?    'RefIf'
 \                             :    'refif'
 
@@ -60,7 +60,7 @@ cnorea <expr> <buffer> refif  getcmdtype() is# ':' && getcmdpos() ==# 6
 
 com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
-cnorea <expr> <buffer> refquotes  getcmdtype() is# ':' && getcmdpos() ==# 10
+cnorea <expr> <buffer> refquotes  getcmdtype() is# ':' && getcmdpos() == 10
 \                                ?    'Refquotes'
 \                                :    'refquotes'
 
@@ -68,7 +68,7 @@ cnorea <expr> <buffer> refquotes  getcmdtype() is# ':' && getcmdpos() ==# 10
 
 com! -bar -buffer -range RefVval call vim#ref_v_val()
 
-cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdpos() ==# 8
+cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdpos() == 8
 \                               ?    'RefVval'
 \                               :    'refvval'
 "}}}1

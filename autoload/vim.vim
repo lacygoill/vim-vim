@@ -67,8 +67,8 @@ fu! vim#ref_dots(line1,line2) abort "{{{1
         \ '\%(^\%("[^"]*"\|[^"]\)*\)\@<=',
         "\ not on a commented line
         \ '\%(^\s*".*\)\@<!',
-        "\ a dot not preceded by another dot, nor followed by another dot/equal sign (`.=` assignment operator)
-        \ '\%(\s*\.\@<!\.[.=]\@!\s*',
+        "\ a dot not preceded by another dot, nor followed by another dot/equal sign
+        \ '\%(\%(^\s*\\\)\@<!\s*\.\@<!\.[.=]\@!\s*',
         "\ `.=` assignment → `..=`
         \ '\|\.\@<!\.\ze=',
         "\ or two dots surrounded by spaces
@@ -205,7 +205,7 @@ fu! vim#ref_v_val() abort "{{{1
             return ''
         endif
 
-        let l:Rep = {   -> '{i,v -> '.s:ref_v_val_rep(submatch(1)).'}' }
+        let l:Rep = {-> '{i,v -> '.s:ref_v_val_rep(submatch(1)).'}'}
 
         "                     ┌ first character in selection
         "                     │              ┌ last character in selection

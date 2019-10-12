@@ -1,11 +1,7 @@
 " Commands {{{1
 " Refactor {{{2
 
-com! -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
-
-cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() == 9
-\                                ?    'Refactor'
-\                                :    'refactor'
+com -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
 
 " RefDots {{{2
 
@@ -15,11 +11,11 @@ cnorea <expr> <buffer> refactor  getcmdtype() is# ':' && getcmdpos() == 9
 "     a.b     →  a..b
 "     a .. b  →  a..b
 "}}}
-com! -bar -buffer -range=% RefDots call vim#ref_dots(<line1>,<line2>)
+com -bar -buffer -range=% RefDots call vim#ref_dots(<line1>,<line2>)
 
-cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() == 8
-\                                ?    'Refdots'
-\                                :    'refdots'
+" RefHeredoc {{{2
+
+com -bar -buffer RefHeredoc exe vim#ref_heredoc()
 
 " RefIf {{{2
 " Usage  {{{3
@@ -50,27 +46,15 @@ cnorea <expr> <buffer> refdots  getcmdtype() is# ':' && getcmdpos() == 8
 
 " Code  {{{3
 
-com! -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
-
-cnorea <expr> <buffer> refif  getcmdtype() is# ':' && getcmdpos() == 6
-\                             ?    'RefIf'
-\                             :    'refif'
-
+com -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
+"}}}2
 " RefQuotes {{{2
 
-com! -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
-
-cnorea <expr> <buffer> refquotes  getcmdtype() is# ':' && getcmdpos() == 10
-\                                ?    'Refquotes'
-\                                :    'refquotes'
+com -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
 " RefVval {{{2
 
-com! -bar -buffer -range RefVval call vim#ref_v_val()
-
-cnorea <expr> <buffer> refvval  getcmdtype() is# ':' && getcmdpos() == 8
-\                               ?    'RefVval'
-\                               :    'refvval'
+com -bar -buffer -range RefVval call vim#ref_v_val()
 "}}}1
 " Mappings {{{1
 
@@ -167,7 +151,7 @@ setl omnifunc=syntaxcomplete#Complete
 " It doesn't work as expected in a function which contains a funcref produced
 " by the `function()` function:
 "
-"         fu! MyFunc() abort
+"         fu MyFunc() abort
 "             let myfuncref = function('Foo')
 "         endfu
 "
@@ -195,32 +179,31 @@ let b:match_ignorecase = 0
 " 'mps', and `matchit` includes in its search all the tokens inside 'mps'.
 
 " Rationale:{{{
-" We  want as  little  methods as  possible  and  we don't  use  `C-p`, to  have
-" suggestions as  relevant as  possible, and  review all of  them as  quickly as
-" possible.
+" We want  as little  methods as  possible, to have  suggestions as  relevant as
+" possible, and review all of them as quickly as possible.
 " The presently used methods are, imo, the bare minimum.
 "
-" We put 'file' in first position because we know how to detect whether the text
+" We put `file` in first position because we know how to detect whether the text
 " before the cursor matches a filepath.
-" OTOH,  we   can't  be  sure   that  the  text  matches   a  tags  name   or  a
-" tab_trigger. Therefore, we must give the priority to 'file'.
+" OTOH,  we  can't  be  sure  that  the  text matches  a  tags  name  or  a  tab
+" trigger. Therefore, we must give the priority to `file`.
 "
-" We put  'keyp', 'tags', 'ulti' afterwards,  in this order, because  the latter
+" We put  `keyn`, `tags`, `ulti` afterwards,  in this order, because  the latter
 " matches the frequency with which I suspect I'll need those methods.
 "
-" Finally, we add 'dict' and 'c-p' because they can still be useful from time to
+" Finally, we add `dict` and `c-n` because they can still be useful from time to
 " time. We put them  at the very end because their  suggestions are often noisy,
 " i.e. contain a lot of garbage.
 "}}}
-let b:mc_chain = [
-    \ 'file',
-    \ 'keyp',
-    \ 'tags',
-    \ 'ulti',
-    \ 'dict',
-    \ 'abbr',
-    \ 'c-p',
-    \ ]
+const b:mc_chain =<< trim END
+    file
+    keyn
+    tags
+    ulti
+    dict
+    abbr
+    c-n
+END
 
 " Teardown {{{1
 
@@ -244,12 +227,6 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ | exe 'xunmap <buffer> =ri'
     \ | exe 'xunmap <buffer> =rq'
     \ | exe 'xunmap <buffer> =rv'
-    \
-    \ | exe 'cuna <buffer> refactor'
-    \ | exe 'cuna <buffer> refdots'
-    \ | exe 'cuna <buffer> refif'
-    \ | exe 'cuna <buffer> refquotes'
-    \ | exe 'cuna <buffer> refvval'
     \
     \ | delc RefDots
     \ | delc RefIf

@@ -1,9 +1,9 @@
 " Commands {{{1
 " Refactor {{{2
 
-com -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <bang>0)
+com -bar -bang -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
 
-" RefDots {{{2
+" RefDot {{{2
 
 " Refactor dot concatenation operator:{{{
 "
@@ -11,11 +11,12 @@ com -bar -bang -buffer -range=% Refactor call vim#refactor(<line1>,<line2>, <ban
 "     a.b     →  a..b
 "     a .. b  →  a..b
 "}}}
-com -bar -buffer -range=% RefDots call vim#ref_dots(<line1>,<line2>)
+com -bar -buffer -range=% RefDot call vim#refactor#dot#main(<line1>,<line2>)
 
 " RefHeredoc {{{2
 
-com -bar -buffer RefHeredoc exe vim#ref_heredoc()
+com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
+\ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
 
 " RefIf {{{2
 " Usage  {{{3
@@ -40,27 +41,27 @@ com -bar -buffer RefHeredoc exe vim#ref_heredoc()
 "
 "         →
 "
-" return s:has_flag_p(a:flags, 'u')
-"    \ ?     a:mode.'unmap'
-"    \ :     a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
+"     return s:has_flag_p(a:flags, 'u')
+"        \ ?     a:mode.'unmap'
+"        \ :     a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
 
 " Code  {{{3
 
-com -bar -buffer -range RefIf call vim#ref_if(<line1>,<line2>)
+com -bar -buffer -range RefIf call vim#refactor#if#main(<line1>,<line2>)
 "}}}2
-" RefQuotes {{{2
+" RefQuote {{{2
 
-com -bar -buffer -range=% RefQuotes <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
+com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
 " RefVval {{{2
 
-com -bar -buffer -range RefVval call vim#ref_v_val()
+com -bar -buffer -range RefVval call vim#refactor#vval#main()
 "}}}1
 " Mappings {{{1
 
 nno <buffer><nowait><silent> K :<c-u>exe 'help ' . vim#helptopic()<cr>
 
-nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
+nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
 
 " The default Vim ftplugin:
 "
@@ -78,24 +79,24 @@ nno  <buffer><nowait><silent>  <c-]>  :<c-u>call vim#jump_to_tag()<cr>
 " Unfortunately, the Vim ftplugin doesn't check the existence of these
 " variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.
 
-sil! nunmap  <buffer>  ["
-sil! nunmap  <buffer>  ]"
-sil! vunmap  <buffer>  ["
-sil! vunmap  <buffer>  ]"
+sil! nunmap <buffer> ["
+sil! nunmap <buffer> ]"
+sil! vunmap <buffer> ["
+sil! vunmap <buffer> ]"
 "  │
 "  └ If we change the filetype from  `vim` to `python`, then from `python` back to `vim`,
 "    we have an error, because `set ft=vim` only loads our ftplugin. It doesn't load the one
 "    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
 "    So, the mappings are not installed again.
 
-noremap  <buffer><expr><nowait><silent>  [[  lg#motion#regex#rhs('{{',0)
-noremap  <buffer><expr><nowait><silent>  ]]  lg#motion#regex#rhs('{{',1)
+noremap <buffer><expr><nowait><silent> [[ lg#motion#regex#rhs('{{',0)
+noremap <buffer><expr><nowait><silent> ]] lg#motion#regex#rhs('{{',1)
 
-noremap  <buffer><expr><nowait><silent>  [m  lg#motion#regex#rhs('fu',0)
-noremap  <buffer><expr><nowait><silent>  ]m  lg#motion#regex#rhs('fu',1)
+noremap <buffer><expr><nowait><silent> [m lg#motion#regex#rhs('fu',0)
+noremap <buffer><expr><nowait><silent> ]m lg#motion#regex#rhs('fu',1)
 
-noremap  <buffer><expr><nowait><silent>  [M  lg#motion#regex#rhs('endfu',0)
-noremap  <buffer><expr><nowait><silent>  ]M  lg#motion#regex#rhs('endfu',1)
+noremap <buffer><expr><nowait><silent> [M lg#motion#regex#rhs('endfu',0)
+noremap <buffer><expr><nowait><silent> ]M lg#motion#regex#rhs('endfu',1)
 
 if stridx(&rtp, 'vim-lg-lib') >= 0
     call lg#motion#repeatable#make#all({
@@ -109,19 +110,21 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
         \ ]})
 endif
 
-nno  <buffer><nowait><silent>  =rd  :<c-u>RefDots<cr>
-xno  <buffer><nowait><silent>  =rd  :RefDots<cr>
+nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
+xno <buffer><nowait><silent> =rd :RefDot<cr>
 
-xno  <buffer><nowait><silent>  =ri  :RefIf<cr>
+nno <buffer><nowait><silent> =rh :<c-u>set opfunc=vim#refactor#heredoc#main<cr>g@l
 
-nno  <buffer><nowait><silent>  =rq  :<c-u>RefQuotes<cr>
-xno  <buffer><nowait><silent>  =rq  :RefQuotes<cr>
+xno <buffer><nowait><silent> =ri :RefIf<cr>
 
-xno  <buffer><nowait><silent>  =rv  :RefVval<cr>
-"                              │││
-"                              ││└ v:Val
-"                              │└ Refactor
-"                              └ fix
+nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
+xno <buffer><nowait><silent> =rq :RefQuote<cr>
+
+xno <buffer><nowait><silent> =rv :RefVval<cr>
+"                            │││
+"                            ││└ v:Val
+"                            │└ Refactor
+"                            └ fix
 
 " Options {{{1
 " flp {{{2
@@ -196,42 +199,43 @@ let b:match_ignorecase = 0
 " i.e. contain a lot of garbage.
 "}}}
 const b:mc_chain =<< trim END
-    file
-    keyn
-    tags
-    ulti
-    dict
-    abbr
-    c-n
+file
+keyn
+tags
+ulti
+dict
+abbr
+c-n
 END
 
 " Teardown {{{1
 
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
-    \ . "
+    \ ..'
     \ | setl comments< omnifunc<
     \ | unlet! b:match_words b:match_ignorecase b:mc_chain
     \
-    \ | exe 'unmap <buffer> [['
-    \ | exe 'unmap <buffer> ]]'
-    \ | exe 'unmap <buffer> [m'
-    \ | exe 'unmap <buffer> ]m'
-    \ | exe 'unmap <buffer> [M'
-    \ | exe 'unmap <buffer> ]M'
+    \ | exe "unmap <buffer> [["
+    \ | exe "unmap <buffer> ]]"
+    \ | exe "unmap <buffer> [m"
+    \ | exe "unmap <buffer> ]m"
+    \ | exe "unmap <buffer> [M"
+    \ | exe "unmap <buffer> ]M"
     \
-    \ | exe 'nunmap <buffer> K'
-    \ | exe 'nunmap <buffer> =rd'
-    \ | exe 'nunmap <buffer> =rq'
+    \ | exe "nunmap <buffer> K"
+    \ | exe "nunmap <buffer> =rd"
+    \ | exe "nunmap <buffer> =rq"
     \
-    \ | exe 'xunmap <buffer> =rd'
-    \ | exe 'xunmap <buffer> =ri'
-    \ | exe 'xunmap <buffer> =rq'
-    \ | exe 'xunmap <buffer> =rv'
+    \ | exe "xunmap <buffer> =rd"
+    \ | exe "xunmap <buffer> =ri"
+    \ | exe "xunmap <buffer> =rq"
+    \ | exe "xunmap <buffer> =rv"
     \
-    \ | delc RefDots
+    \ | delc RefDot
+    \ | delc RefHeredoc
     \ | delc RefIf
-    \ | delc RefQuotes
+    \ | delc RefQuote
     \ | delc RefVval
     \ | delc Refactor
-    \ "
+    \ '
 

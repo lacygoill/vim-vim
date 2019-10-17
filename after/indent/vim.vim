@@ -20,4 +20,4 @@ let g:vim_indent_cont = 0
 " teardown {{{1
 
 let b:undo_indent = get(b:, 'undo_indent', 'exe')
-    \ . ' | setl indk<'
+    \ ..' | setl indk<'

@@ -3,6 +3,10 @@
 
 com -bar -bang -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
 
+" RefBar {{{2
+
+com -bar -buffer RefBreakBar call vim#refactor#break_bar#main()
+
 " RefDot {{{2
 
 " Refactor dot concatenation operator:{{{
@@ -109,6 +113,8 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
         \     {'bwd': '[[',  'fwd': ']]'},
         \ ]})
 endif
+
+nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#break_bar#main<cr>g@l
 
 nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
 xno <buffer><nowait><silent> =rd :RefDot<cr>
@@ -223,6 +229,7 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ | exe "unmap <buffer> ]M"
     \
     \ | exe "nunmap <buffer> K"
+    \ | exe "nunmap <buffer> =rb"
     \ | exe "nunmap <buffer> =rd"
     \ | exe "nunmap <buffer> =rq"
     \
@@ -231,6 +238,7 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ | exe "xunmap <buffer> =rq"
     \ | exe "xunmap <buffer> =rv"
     \
+    \ | delc RefBreakBar
     \ | delc RefDot
     \ | delc RefHeredoc
     \ | delc RefIf

@@ -46,19 +46,19 @@ endfu
 " Core {{{1
 fu s:print_help() abort "{{{2
     let help =<< trim END
-    Usage: RefHeredoc[!] [-help] [-notrim] [marker]
-    Refactor current list assignment into a heredoc (see `:h :let-heredoc`).
+        Usage: RefHeredoc[!] [-help] [-notrim] [marker]
+        Refactor current list assignment into a heredoc (see `:h :let-heredoc`).
 
-      -help    print this help
-      -notrim  do not write the optional trim argument
-      !        refactor without asking for confirmation
+          -help    print this help
+          -notrim  do not write the optional trim argument
+          !        refactor without asking for confirmation
 
-    Examples:
+        Examples:
 
-      RefHeredoc
-      RefHeredoc -notrim
-      RefHeredoc MyCustomMarker
-      RefHeredoc! -notrim MyCustomMarker
+          RefHeredoc
+          RefHeredoc -notrim
+          RefHeredoc MyCustomMarker
+          RefHeredoc! -notrim MyCustomMarker
     END
     echo join(help, "\n")
 endfu
@@ -164,7 +164,7 @@ fu s:get_items(lnum1, lnum3) abort "{{{2
     let items = []
     let l:Item = {m -> m[1] is# "'"
     \ ? substitute(m[0], "''", "'", 'g')
-    \ : substitute(m[0], '\\"', '"', 'g')
+    \ : eval('"'..m[0]..'"')
     \ }
     let l:Rep = {m -> add(items, l:Item(m))[0]}
     call substitute(list_value, pat, l:Rep, 'g')
@@ -188,16 +188,14 @@ endfu
 fu s:put(...) abort "{{{2
     let [new_assignment, lnum2, col2, lnum3, col3] = a:000
     let [cb_save, sel_save] = [&cb, &sel]
-    let reg_save = [getreg('"'), getregtype('"')]
+    let reg_save = ['"', getreg('"'), getregtype('"')]
     try
-        set cb-=unnamed cb-=unnamedplus
-        set sel=inclusive
+        set cb-=unnamed cb-=unnamedplus sel=inclusive
         let @" = join(new_assignment, "\n")
         exe 'norm! '..lnum2..'G'..col2..'|v'..lnum3..'G'..col3..'|p'
     finally
-        let &cb = cb_save
-        let &sel = sel_save
-        call setreg('"', reg_save[0], reg_save[1])
+        let [&cb, &sel] = [cb_save, sel_save]
+        call call('setreg', reg_save)
     endtry
 endfu
 

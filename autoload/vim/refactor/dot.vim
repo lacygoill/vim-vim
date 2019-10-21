@@ -7,9 +7,9 @@ fu vim#refactor#dot#main(lnum1,lnum2) abort
         "\ not on a commented line
         \ '\%(^\s*".*\)\@<!',
         "\ a dot not preceded by another dot, nor followed by another dot/equal sign
-        \ '\%(\%(^\s*\\\)\@<!\s*\.\@<!\.[.=]\@!\s*',
+        \ '\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*',
         "\ `.=` assignment → `..=`
-        \ '\|\.\@<!\.\ze=',
+        \ '\|\.\@1<!\.\ze=',
         "\ or two dots surrounded by spaces
         \ '\|\s\+\.\.\s\+\)',
         \ ]

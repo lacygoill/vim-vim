@@ -3,9 +3,10 @@
 
 com -bar -bang -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
 
-" RefBar {{{2
+" RefIf {{{2
 
-com -bar -buffer RefBreakBar call vim#refactor#break_bar#main()
+com -bar -buffer -complete=custom,vim#refactor#if#complete -nargs=1
+\ RefIf call vim#refactor#if#main('ex', <q-args>)
 
 " RefDot {{{2
 
@@ -22,9 +23,13 @@ com -bar -buffer -range=% RefDot call vim#refactor#dot#main(<line1>,<line2>)
 com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
 \ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
 
-" RefIf {{{2
+" RefQuote {{{2
+
+com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
+
+" RefTernary {{{2
 " Usage  {{{3
-" select an if / else(if) / endif construct, and execute `:RefIf`.
+" select an if / else(if) / endif construct, and execute `:RefTernary`.
 " It will perform this conversion:
 
 "         if var == 1                 let val = var == 1
@@ -51,15 +56,11 @@ com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
 
 " Code  {{{3
 
-com -bar -buffer -range RefIf call vim#refactor#if#main(<line1>,<line2>)
+com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2>)
 "}}}2
-" RefQuote {{{2
-
-com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
-
 " RefVval {{{2
 
-com -bar -buffer -range RefVval call vim#refactor#vval#main()
+com -bar -buffer -range RefVval call vim#refactor#vval#main('ex')
 "}}}1
 " Mappings {{{1
 
@@ -114,23 +115,19 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
         \ ]})
 endif
 
-nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#break_bar#main<cr>g@l
-
 nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
 xno <buffer><nowait><silent> =rd :RefDot<cr>
 
 nno <buffer><nowait><silent> =rh :<c-u>set opfunc=vim#refactor#heredoc#main<cr>g@l
 
-xno <buffer><nowait><silent> =ri :RefIf<cr>
+nno <buffer><nowait><silent> =ri :<c-u>set opfunc=vim#refactor#if#main<cr>g@l
 
 nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
 xno <buffer><nowait><silent> =rq :RefQuote<cr>
 
-xno <buffer><nowait><silent> =rv :RefVval<cr>
-"                            │││
-"                            ││└ v:Val
-"                            │└ Refactor
-"                            └ fix
+xno <buffer><nowait><silent> =rt :RefTernary<cr>
+
+nno <buffer><nowait><silent> =rv :<c-u>set opfunc=vim#refactor#vval#main<cr>g@l
 
 " Options {{{1
 " flp {{{2
@@ -205,13 +202,13 @@ let b:match_ignorecase = 0
 " i.e. contain a lot of garbage.
 "}}}
 const b:mc_chain =<< trim END
-file
-keyn
-tags
-ulti
-dict
-abbr
-c-n
+    file
+    keyn
+    tags
+    ulti
+    dict
+    abbr
+    c-n
 END
 
 " Teardown {{{1
@@ -229,20 +226,20 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ | exe "unmap <buffer> ]M"
     \
     \ | exe "nunmap <buffer> K"
-    \ | exe "nunmap <buffer> =rb"
     \ | exe "nunmap <buffer> =rd"
+    \ | exe "nunmap <buffer> =ri"
     \ | exe "nunmap <buffer> =rq"
     \
     \ | exe "xunmap <buffer> =rd"
-    \ | exe "xunmap <buffer> =ri"
     \ | exe "xunmap <buffer> =rq"
+    \ | exe "xunmap <buffer> =rt"
     \ | exe "xunmap <buffer> =rv"
     \
-    \ | delc RefBreakBar
     \ | delc RefDot
     \ | delc RefHeredoc
     \ | delc RefIf
     \ | delc RefQuote
+    \ | delc RefTernary
     \ | delc RefVval
     \ | delc Refactor
     \ '

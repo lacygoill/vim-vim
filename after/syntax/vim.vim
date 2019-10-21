@@ -59,8 +59,8 @@ syn region vimFixHeredoc
 " highlighting of most heredocs which are not at the toplevel. But not all:
 "
 "     let dict.normal =<< trim END
-"     i
-"     xx
+"         i
+"         xx
 "     END
 "
 " Here, everything after `i` is highlighted as a string.
@@ -68,8 +68,8 @@ syn region vimFixHeredoc
 "
 "              v
 "     let dict.xormal =<< trim END
-"     i
-"     xx
+"         i
+"         xx
 "     END
 "
 " If you inspect the syntax highlighting on `=<< trim END`, you'll see `vimNormCmds`.

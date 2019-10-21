@@ -11,7 +11,7 @@ fu vim#refactor#general#main(lnum1,lnum2, confirm) abort "{{{1
         \ 'fu':    {'pat': '^\s*\zsfu%[nction]!? ',      'rep': 'fu '  },
         \ 'endfu': {'pat': '^\s*\zsendfu%[nction]\s*$',  'rep': 'endfu' },
         \ 'exe':   {'pat': 'exe%[cute] ',                'rep': 'exe '  },
-        \ 'sil':   {'pat': '\<@<!sil%[ent](!| )',        'rep': ' sil\1'},
+        \ 'sil':   {'pat': '\<@1<!sil%[ent](!| )',       'rep': ' sil\1'},
         \ 'setl':  {'pat': 'setl%[ocal] ',               'rep': 'setl ' },
         \ 'keepj': {'pat': 'keepj%[umps] ',              'rep': 'keepj '},
         \ 'keepp': {'pat': 'keepp%[atterns] ',           'rep': 'keepp '},

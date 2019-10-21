@@ -1,80 +1,52 @@
 " Interface {{{1
-fu vim#refactor#vval#main() abort "{{{2
+fu vim#refactor#vval#main(_) abort "{{{2
+    let [cb_save, sel_save] = [&cb, &sel]
+    let reg_save = ['"', getreg('"'), getregtype('"')]
     try
-        " Make sure the visual selection contains an expression we can refactor.
-        " It must begin with a quote, and end with a quote or a closed parenthesis.
+        set cb-=unnamed cb-=unnamedplus sel=inclusive
+        " TODO: Make sure you find the argument of a `map()` or `filter()` expression.{{{
         "
-        " Why a closed parenthesis? MWE:
+        " Take inspiration from what we did for `:RefHeredoc`; in particular with:
         "
-        "         map(…, '…'.string(…))
-        "                            ^
-        let [lnum1, lnum2] = [line("'<"), line("'>")]
-        let [col1, col2]   = [col("'<"), col("'>")]
-        let [char1, char2] = [matchstr(getline(lnum1), '\%'..col1..'c.'),
-                            \ matchstr(getline(lnum2), '\%'..col2..'c.')]
-        if  index(["'", '"'], char1) < 0 || index(["'", '"', ')'], char2) < 0
-            return ''
-        endif
-
-        let l:Rep = {-> '{i,v -> '..s:ref_v_val_rep(submatch(1))..'}'}
-
-        "                     ┌ first character in selection
-        "                     │              ┌ last character in selection
-        "                     │              │
-        sil keepj keepp s/\%'<.\(\_.*\%<'>.\)./\=l:Rep()/
-        "                 ├───┘
-        "                 └ the character just before the last one in the selection
-
-        " Why use the anchor `\%<'>` instead of simply `\%'>` ?{{{
-        "
-        " We could write this:
-        "
-        "         .\%'>.
-        "
-        " … but it's not reliable with a linewise selection.
-        "
-        " MWE:
-        "     V
-        "     : C-u echo getpos("'>")[3]
-        "
-        "             2147483647
-        "
-        " It  probably doesn't  matter here,  because this  function should  only be
-        " invoked on a characterwise selection, but I prefer to stay consistent.
+        "    - `s:contains_original_line()`
+        "    - `s:contains_empty_or_commented_line()`
         "}}}
+        call search('\m\C\<\%(map\|filter\)(', 'bceW')
+        norm! %
+        call search('["'']', 'bW')
+        let char = matchstr(getline('.'), '\%'..col('.')..'c.')
+        let pat = char is# '"' ? '\\\@1<!"' : ...
+        call search(char, 'bW')
+        " FIXME: `va'` fails on that:
+        "
+        "     echo map([1,2,3], 'v:val.."''"')
+        "                                   ^
+        "                                   cursor here
+        exe 'norm! va'..char..'y'
+        " TODO: Ask for user confirmation, like `:RefHeredoc`.
+        let @" = ' {i,v -> '..s:get_expr(@")..'}'
+        norm! gvp
     catch
         return lg#catch_error()
+    finally
+        let [&cb, &sel]  = [cb_save, sel_save]
+        call call('setreg', reg_save)
     endtry
 endfu
 "}}}1
 " Core {{{1
-fu s:ref_v_val_rep(captured_text) abort "{{{2
-    " replace:
-    "         v:val      →  v
-    "         v:key      →  k
-    "         ''         →  '
-    "         \\         →  \
-    "         '.string(  →  ∅
-
-    let pat2rep = {
-        \ 'v:val':             'v' ,
-        \ 'v:key':             'k' ,
-        \ "''":                "'" ,
-        \ '\\\\':              '\\',
-        \ '''\s*\.\s*string(': '',
-        \ }
-
-    let transformed_text = a:captured_text
-    for [pat, rep] in items(pat2rep)
-        let transformed_text = substitute(transformed_text, pat, rep, 'g')
-    endfor
-
-    " The  last 2  transformations  must  be done  after,  because of  undesired
-    " interactions.
-    "
-    " replace:
-    "         " (not escaped)  →  '
-    "         \"               →  "
-    return substitute(substitute(transformed_text, '\\\@1<!"', "'", 'g'), '\\"', '"', 'g')
+fu s:get_expr(captured_text) abort "{{{2
+    let expr = a:captured_text
+    let quote = expr[-1:-1]
+    let is_single_quoted = quote is# "'"
+    let expr = substitute(expr, '^\s*'..quote..'\|'..quote..'\s*$', '', 'g')
+    if is_single_quoted
+        let expr = substitute(expr, "''", "'", 'g')
+    else
+        let expr = eval('"'..expr..'"')
+    endif
+    let expr = substitute(expr, 'v:val', 'v', 'g')
+    let expr = substitute(expr, 'v:key', 'k', 'g')
+    return expr
 endfu
 

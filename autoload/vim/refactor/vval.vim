@@ -25,8 +25,10 @@ endfu
 "}}}1
 " Core {{{1
 fu s:search_closing_quote() abort "{{{2
-    if vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
+    if ! vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
+    let pos = getcurpos()
     norm! %
+    if getcurpos() == pos | return 0 | endif
     return search('["'']', 'bW')
 endfu
 

@@ -1,3 +1,14 @@
+" TODO: Check whether some refactoring commands could be turned into operators.{{{
+"
+" ---
+"
+" Make sure that:
+"
+"    - all operators can be invoked via an Ex command
+"    - the latter supports a bang
+"    - without a bang, the refactored text is highlighted, and the command asks for your confirmation
+"}}}
+
 " Commands {{{1
 " Refactor {{{2
 
@@ -60,7 +71,7 @@ com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2
 "}}}2
 " RefVval {{{2
 
-com -bar -buffer -range RefVval call vim#refactor#vval#main('ex')
+com -bang -bar -buffer -range RefVval call vim#refactor#vval#main(<bang>0)
 "}}}1
 " Mappings {{{1
 
@@ -229,11 +240,11 @@ let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
     \ | exe "nunmap <buffer> =rd"
     \ | exe "nunmap <buffer> =ri"
     \ | exe "nunmap <buffer> =rq"
+    \ | exe "nunmap <buffer> =rv"
     \
     \ | exe "xunmap <buffer> =rd"
     \ | exe "xunmap <buffer> =rq"
     \ | exe "xunmap <buffer> =rt"
-    \ | exe "xunmap <buffer> =rv"
     \
     \ | delc RefDot
     \ | delc RefHeredoc

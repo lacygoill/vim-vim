@@ -46,9 +46,7 @@ fu vim#refactor#ternary#main(lnum1,lnum2) abort "{{{2
     "}}}
     let n_values = len(values)
     let n_tests = len(tests)
-    if n_tests == n_values
-        return
-    endif
+    if n_tests == n_values | return | endif
 
     for i in range(1, n_tests-1)
         let assignment += ['    \ ?     '..values[i-1]]

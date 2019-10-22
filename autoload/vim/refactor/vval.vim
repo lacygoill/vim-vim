@@ -1,40 +1,41 @@
 " Interface {{{1
-fu vim#refactor#vval#main(_) abort "{{{2
-    let [cb_save, sel_save] = [&cb, &sel]
-    let reg_save = ['"', getreg('"'), getregtype('"')]
-    try
-        set cb-=unnamed cb-=unnamedplus sel=inclusive
-        " TODO: Make sure you find the argument of a `map()` or `filter()` expression.{{{
-        "
-        " Take inspiration from what we did for `:RefHeredoc`; in particular with:
-        "
-        "    - `s:contains_original_line()`
-        "    - `s:contains_empty_or_commented_line()`
-        "}}}
-        call search('\m\C\<\%(map\|filter\)(', 'bceW')
-        norm! %
-        call search('["'']', 'bW')
-        let char = matchstr(getline('.'), '\%'..col('.')..'c.')
-        let pat = char is# '"' ? '\\\@1<!"' : ...
-        call search(char, 'bW')
-        " FIXME: `va'` fails on that:
-        "
-        "     echo map([1,2,3], 'v:val.."''"')
-        "                                   ^
-        "                                   cursor here
-        exe 'norm! va'..char..'y'
-        " TODO: Ask for user confirmation, like `:RefHeredoc`.
-        let @" = ' {i,v -> '..s:get_expr(@")..'}'
-        norm! gvp
-    catch
-        return lg#catch_error()
-    finally
-        let [&cb, &sel]  = [cb_save, sel_save]
-        call call('setreg', reg_save)
-    endtry
+fu vim#refactor#vval#main(bang) abort "{{{2
+    let view = winsaveview()
+
+    " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
+    let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
+    let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
+
+    if ! vim#util#we_can_refactor(
+        \ [s1, s2],
+        \ lnum1, col1,
+        \ lnum2, col2,
+        \ a:bang,
+        \ view,
+        \ 'map/filter {expr2}', 'lambda',
+        \ ) | return | endif
+
+    let new_expr = '{i,v -> '..s:get_expr(@")..'}'
+    call vim#util#put(
+        \ new_expr,
+        \ lnum1, col1,
+        \ lnum2, col2,
+        \ )
 endfu
 "}}}1
 " Core {{{1
+fu s:search_closing_quote() abort "{{{2
+    if vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
+    norm! %
+    return search('["'']', 'bW')
+endfu
+
+fu s:search_opening_quote() abort "{{{2
+    let char = matchstr(getline('.'), '\%'..col('.')..'c.')
+    let pat = char is# '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
+    return search(pat, 'bW')
+endfu
+
 fu s:get_expr(captured_text) abort "{{{2
     let expr = a:captured_text
     let quote = expr[-1:-1]

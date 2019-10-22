@@ -13,6 +13,47 @@
 syn keyword vimAbb Aab Pab skipwhite nextgroup=vimMapMod,vimMapLhs
 " TODO: Comment how `skipwhite` and `nextgroup` work.
 
+" Purpose:{{{
+"
+" At the  moment, there is no  syntax highlighting specific to  a heredoc, which
+" means that any text it contains is highlighted as if it was Vimscript code.
+" Depending on  what is written inside,  it may break the  syntax highlighing of
+" what follows.
+"
+" As an example:
+"
+"     let list =<< trim END
+"         a
+"         b
+"         c
+"     END
+"     let var = 123
+"
+" The `let  var = 123`  assignment is  highlighted according to  the `vimInsert`
+" syntax group.
+" This is because, inside the heredoc, the  `a` line and the `c` line are parsed
+" as resp. the  `:append` and `:change` commands; this is  confirmed by the fact
+" that the issue disappears if you append an `x` on these two lines:
+"
+"     let list =<< trim END
+"         ax
+"         b
+"         cx
+"     END
+"     let var = 123
+"
+" Note that the issue does not occur inside a function; so here the highlighting
+" is correct:
+"
+"     fu Func()
+"         let list =<< trim END
+"             ax
+"             b
+"             cx
+"         END
+"         let var = 123
+"     endfu
+"}}}
 " Warning: The `start` and `end` patterns are not 100% correct.{{{
 "
 " The marker can be any non-whitespace sequence of characters, not starting with

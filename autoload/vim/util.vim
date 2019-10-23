@@ -34,7 +34,7 @@ fu vim#util#we_can_refactor(...) abort "{{{2
     \ ] = a:000
 
     let [lnum0, col0] = [view.lnum, view.col]
-    let l:Finish = function('s:error', [view])
+    let l:Finish = function('s:finish', [view])
 
     " Why `call()`?{{{
     "
@@ -96,7 +96,7 @@ fu s:contains_empty_or_commented_line(lnum1, lnum2) abort "{{{2
     return match(lines, '^\s*"\%(\\ \)\@!\|^\s*$') != -1
 endfu
 
-fu s:error(view, ...) abort "{{{2
+fu s:finish(view, ...) abort "{{{2
     " Why `winrestview()` instead of `cursor()`?{{{
     "
     " Restoring the cursor position does not the guarantee that the view will be

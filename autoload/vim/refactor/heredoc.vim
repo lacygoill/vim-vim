@@ -80,7 +80,7 @@ fu s:get_args(args) abort "{{{2
 endfu
 
 fu s:search_let() abort "{{{2
-    return vim#util#search('\<\%(let\|const\=\)\>', 'b', 'vimLet')
+    return vim#util#search('\m\C\<\%(let\|const\=\)\>', 'b', 'vimLet')
 endfu
 
 fu s:search_opening_bracket() abort "{{{2

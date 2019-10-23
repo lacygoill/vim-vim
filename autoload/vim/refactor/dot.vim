@@ -1,4 +1,4 @@
-fu vim#refactor#dot#main(lnum1,lnum2) abort
+fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
     let pat = [
         "\ outside a single-quoted string
         \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<=',
@@ -40,6 +40,6 @@ fu vim#refactor#dot#main(lnum1,lnum2) abort
     "}}}
 
     let range = a:lnum1..','..a:lnum2
-    exe range..'s/'..pat..'/../gce'
+    exe range..'s/'..pat..'/../ge'..(a:bang ? '' : 'c')
 endfu
 

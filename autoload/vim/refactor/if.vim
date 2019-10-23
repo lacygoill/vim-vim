@@ -9,11 +9,11 @@ let s:PAT_BAR = '\s*|\@1<!||\@!\s*'
 let s:MAX_JOINED_LINES = 5
 
 " Interface {{{1
-fu vim#refactor#if#main(type, ...) abort "{{{2
+fu vim#refactor#if#main(bang, ...) abort "{{{2
     let line = getline('.')
     if line =~# '^\s*"' | return | endif
     let pos = getcurpos()
-    if a:type is# 'ex' | let arg = a:1 | else | let arg = '' | endif
+    if a:0 | let arg = a:1 | else | let arg = '' | endif
     try
         if arg isnot# ''
             call s:{arg[1:]}()
@@ -64,6 +64,8 @@ fu s:break() abort "{{{2
         "     \ | endif
         "}}}
         sil exe 'keepj keepp s/'..s:PAT_BAR..'/\="\r\\ | "/ge'
+    else
+        return
     endif
     let range = (line("'[")+1)..','..line("']")
     exe range..'norm! =='

@@ -1,4 +1,4 @@
-fu vim#refactor#general#main(lnum1,lnum2, confirm) abort "{{{1
+fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
     let range     = a:lnum1..','..a:lnum2
     let modifiers = 'keepj keepp '
     let view      = winsaveview()
@@ -26,7 +26,7 @@ fu vim#refactor#general#main(lnum1,lnum2, confirm) abort "{{{1
 
     sil! exe modifiers..'norm! '..a:lnum1..'G='..a:lnum2..'G'
     for sbs in values(substitutions)
-        sil exe modifiers..range..'s/\v'..sbs.pat..'/'..sbs.rep..'/ge'..(a:confirm ? 'c' : '')
+        sil exe modifiers..range..'s/\v'..sbs.pat..'/'..sbs.rep..'/ge'..(a:bang ? '' : 'c')
     endfor
 
     " format the arguments of a mapping, so that there's no space between them,

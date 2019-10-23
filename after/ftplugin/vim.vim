@@ -12,12 +12,12 @@
 " Commands {{{1
 " Refactor {{{2
 
-com -bar -bang -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
+com -bang -bar -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
 
 " RefIf {{{2
 
-com -bar -buffer -complete=custom,vim#refactor#if#complete -nargs=1
-\ RefIf call vim#refactor#if#main('ex', <q-args>)
+com -bang -bar -buffer -complete=custom,vim#refactor#if#complete -nargs=?
+\ RefIf call vim#refactor#if#main(<bang>0, <f-args>)
 
 " RefDot {{{2
 
@@ -27,7 +27,7 @@ com -bar -buffer -complete=custom,vim#refactor#if#complete -nargs=1
 "     a.b     →  a..b
 "     a .. b  →  a..b
 "}}}
-com -bar -buffer -range=% RefDot call vim#refactor#dot#main(<line1>,<line2>)
+com -bang -bar -buffer -range=% RefDot call vim#refactor#dot#main(<bang>0, <line1>,<line2>)
 
 " RefHeredoc {{{2
 
@@ -40,7 +40,8 @@ com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
 " RefTernary {{{2
 " Usage  {{{3
-" select an if / else(if) / endif construct, and execute `:RefTernary`.
+
+" Select an `if / else(if) / endif` block, and execute `:RefTernary`.
 " It will perform this conversion:
 
 "         if var == 1                 let val = var == 1

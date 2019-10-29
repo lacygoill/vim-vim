@@ -226,33 +226,5 @@ END
 " Teardown {{{1
 
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
-    \ ..'
-    \ | setl comments< omnifunc<
-    \ | unlet! b:match_words b:match_ignorecase b:mc_chain
-    \
-    \ | exe "unmap <buffer> [["
-    \ | exe "unmap <buffer> ]]"
-    \ | exe "unmap <buffer> [m"
-    \ | exe "unmap <buffer> ]m"
-    \ | exe "unmap <buffer> [M"
-    \ | exe "unmap <buffer> ]M"
-    \
-    \ | exe "nunmap <buffer> K"
-    \ | exe "nunmap <buffer> =rd"
-    \ | exe "nunmap <buffer> =ri"
-    \ | exe "nunmap <buffer> =rq"
-    \ | exe "nunmap <buffer> =rv"
-    \
-    \ | exe "xunmap <buffer> =rd"
-    \ | exe "xunmap <buffer> =rq"
-    \ | exe "xunmap <buffer> =rt"
-    \
-    \ | delc RefDot
-    \ | delc RefHeredoc
-    \ | delc RefIf
-    \ | delc RefQuote
-    \ | delc RefTernary
-    \ | delc RefVval
-    \ | delc Refactor
-    \ '
+    \ ..'| call vim#undo_ftplugin()'
 

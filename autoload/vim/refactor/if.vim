@@ -5,8 +5,18 @@ let g:autoloaded_vim#refactor#if = 1
 
 " Init {{{1
 
-let s:PAT_BAR = '\s*|\@1<!||\@!\s*'
-let s:MAX_JOINED_LINES = 5
+let s:PAT_BAR = [
+    "\ outside a single-quoted string
+    \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<=',
+    "\ outside a double-quoted string
+    \ '\%(^\%("[^"]*"\|[^"]\)*\)\@<=',
+    "\ not on a commented line
+    \ '\%(^\s*".*\)\@<!',
+    "\ a bar (!= `||`)
+    \ '\s*|\@1<!||\@!\s*',
+    \ ]
+let s:PAT_BAR = join(s:PAT_BAR, '') | lockvar s:PAT_BAR
+const s:MAX_JOINED_LINES = 5
 
 " Interface {{{1
 fu vim#refactor#if#main(bang, ...) abort "{{{2

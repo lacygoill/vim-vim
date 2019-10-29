@@ -59,3 +59,33 @@ fu vim#jump_to_tag() abort "{{{1
     endtry
 endfu
 
+fu vim#undo_ftplugin() abort "{{{1
+    setl comments< omnifunc<
+    unlet! b:match_words b:match_ignorecase b:mc_chain
+
+    unmap <buffer> [[
+    unmap <buffer> ]]
+    unmap <buffer> [m
+    unmap <buffer> ]m
+    unmap <buffer> [M
+    unmap <buffer> ]M
+
+    nunmap <buffer> K
+    nunmap <buffer> =rd
+    nunmap <buffer> =ri
+    nunmap <buffer> =rq
+    nunmap <buffer> =rv
+
+    xunmap <buffer> =rd
+    xunmap <buffer> =rq
+    xunmap <buffer> =rt
+
+    delc RefDot
+    delc RefHeredoc
+    delc RefIf
+    delc RefQuote
+    delc RefTernary
+    delc RefVval
+    delc Refactor
+endfu
+

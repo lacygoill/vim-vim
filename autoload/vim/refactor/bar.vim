@@ -1,7 +1,7 @@
-if exists('g:autoloaded_vim#refactor#if')
+if exists('g:autoloaded_vim#refactor#bar')
     finish
 endif
-let g:autoloaded_vim#refactor#if = 1
+let g:autoloaded_vim#refactor#bar = 1
 
 " Init {{{1
 
@@ -19,7 +19,7 @@ let s:PAT_BAR = join(s:PAT_BAR, '') | lockvar s:PAT_BAR
 const s:MAX_JOINED_LINES = 5
 
 " Interface {{{1
-fu vim#refactor#if#main(bang, ...) abort "{{{2
+fu vim#refactor#bar#main(bang, ...) abort "{{{2
     let line = getline('.')
     if line =~# '^\s*"' | return | endif
     let pos = getcurpos()
@@ -41,7 +41,7 @@ fu vim#refactor#if#main(bang, ...) abort "{{{2
     endtry
 endfu
 
-fu vim#refactor#if#complete(_a, _l, _p) abort "{{{2
+fu vim#refactor#bar#complete(_a, _l, _p) abort "{{{2
     return join(['-break', '-join'], "\n")
 endfu
 "}}}1
@@ -50,7 +50,7 @@ fu s:break() abort "{{{2
     let line = getline('.')
     let word = matchstr(line, '^\s*\zs\w\+')
     let word = s:normalize(word)
-    if word is# 'if'
+    if word is# 'if' || word is# 'try'
         " Perform this transformation:{{{
         "
         "     if 1 | echo 'true' | endif
@@ -85,7 +85,7 @@ fu s:join() abort "{{{2
     let line = getline('.')
     let word = matchstr(line, '^\s*\zs\w\+')
     let word = s:normalize(word)
-    if index(['au', 'if'], word) == -1 || line =~# '\C\sendif\s*$'
+    if index(['au', 'if', 'try'], word) == -1 || line =~# '\C\send\%(if\|try\)\s*$'
         return
     endif
     let mods = 'keepj keepp'
@@ -100,8 +100,8 @@ fu s:join() abort "{{{2
     "
     "     if 1 | echo 'true' | endif
     "}}}
-    if word is# 'if'
-        let lnum2 = search('^\s*\Cen\%[dif]\s*$', 'nW')
+    if word is# 'if' || word is# 'try'
+        let lnum2 = search('^\s*\Cend\%(if\|try\)\s*$', 'nW')
         " if too many lines are going to be joined, it's probably an error; bail out
         if lnum2 - lnum1 + 1 > s:MAX_JOINED_LINES | return | endif
         let range = lnum1..','..lnum2
@@ -117,7 +117,7 @@ fu s:join() abort "{{{2
     "     au User test if 1 | do sth | endif
         "}}}
     elseif word is# 'au'
-        let lnum2 = search('^\s*\\\s*|\s*\Cen\%[dif]\s*$', 'nW')
+        let lnum2 = search('^\s*\\\s*|\s*\Cend\%(if\|try\)\s*$', 'nW')
         if lnum2 - lnum1 + 1 > s:MAX_JOINED_LINES | return | endif
         let range = lnum1..','..lnum2
         exe mods..' '..range..'-s/$/ |/'

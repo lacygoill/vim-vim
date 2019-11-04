@@ -1,5 +1,5 @@
 " Interface {{{1
-fu vim#refactor#vval#main(bang) abort "{{{2
+fu vim#refactor#lambda#main(bang) abort "{{{2
     let view = winsaveview()
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
@@ -15,7 +15,12 @@ fu vim#refactor#vval#main(bang) abort "{{{2
         \ 'map/filter {expr2}', 'lambda',
         \ ) | return | endif
 
-    let new_expr = '{i,v -> '..s:get_expr(@")..'}'
+    if @" =~# '\Cv:key'
+        let new_expr = '{i,v -> '..s:get_expr(@")..'}'
+    else
+        let new_expr = '{_,v -> '..s:get_expr(@")..'}'
+    endif
+
     call vim#util#put(
         \ new_expr,
         \ lnum1, col1,
@@ -49,7 +54,7 @@ fu s:get_expr(captured_text) abort "{{{2
         let expr = eval('"'..expr..'"')
     endif
     let expr = substitute(expr, 'v:val', 'v', 'g')
-    let expr = substitute(expr, 'v:key', 'k', 'g')
+    let expr = substitute(expr, 'v:key', 'i', 'g')
     return expr
 endfu
 

@@ -14,10 +14,10 @@
 
 com -bang -bar -buffer -range=% Refactor call vim#refactor#general#main(<line1>,<line2>, <bang>0)
 
-" RefIf {{{2
+" RefBar {{{2
 
-com -bang -bar -buffer -complete=custom,vim#refactor#if#complete -nargs=?
-\ RefIf call vim#refactor#if#main(<bang>0, <f-args>)
+com -bang -bar -buffer -complete=custom,vim#refactor#bar#complete -nargs=?
+\ RefBar call vim#refactor#bar#main(<bang>0, <f-args>)
 
 " RefDot {{{2
 
@@ -33,6 +33,10 @@ com -bang -bar -buffer -range=% RefDot call vim#refactor#dot#main(<bang>0, <line
 
 com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
 \ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
+
+" RefMethod {{{2
+
+com -bang -bar -buffer -range RefMethod call vim#refactor#method#main(<bang>0)
 
 " RefQuote {{{2
 
@@ -70,13 +74,13 @@ com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
 
 com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2>)
 "}}}2
-" RefVval {{{2
+" RefLambda {{{2
 
-com -bang -bar -buffer -range RefVval call vim#refactor#vval#main(<bang>0)
+com -bang -bar -buffer -range RefLambda call vim#refactor#lambda#main(<bang>0)
 "}}}1
 " Mappings {{{1
 
-nno <buffer><nowait><silent> K :<c-u>exe 'help ' . vim#helptopic()<cr>
+nno <buffer><nowait><silent> K :<c-u>exe 'help '..vim#helptopic()<cr>
 
 nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
 
@@ -119,7 +123,7 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
     call lg#motion#repeatable#make#all({
         \ 'mode': '',
         \ 'buffer': 1,
-        \ 'from': expand('<sfile>:p').':'.expand('<slnum>'),
+        \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),
         \ 'motions': [
         \     {'bwd': '[m',  'fwd': ']m'},
         \     {'bwd': '[M',  'fwd': ']M'},
@@ -127,19 +131,21 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
         \ ]})
 endif
 
+nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#bar#main<cr>g@l
+
 nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
 xno <buffer><nowait><silent> =rd :RefDot<cr>
 
 nno <buffer><nowait><silent> =rh :<c-u>set opfunc=vim#refactor#heredoc#main<cr>g@l
 
-nno <buffer><nowait><silent> =ri :<c-u>set opfunc=vim#refactor#if#main<cr>g@l
+nno <buffer><nowait><silent> =rl :<c-u>set opfunc=vim#refactor#lambda#main<cr>g@l
+
+nno <buffer><nowait><silent> =rm :<c-u>set opfunc=vim#refactor#method#main<cr>g@l
 
 nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
 xno <buffer><nowait><silent> =rq :RefQuote<cr>
 
 xno <buffer><nowait><silent> =rt :RefTernary<cr>
-
-nno <buffer><nowait><silent> =rv :<c-u>set opfunc=vim#refactor#vval#main<cr>g@l
 
 " Options {{{1
 " flp {{{2
@@ -180,11 +186,11 @@ setl omnifunc=syntaxcomplete#Complete
 "                                                  └ no open parenthesis at the end
 
 let b:match_words =
-\                   '\<fu\%[nction]\>(\@!:\<retu\%[rn]\>:\<endf\%[unction]\>,'
-\                  .'\<\(wh\%[ile]\|for\)\>:\<brea\%[k]\>:\<con\%[tinue]\>:\<end\(w\%[hile]\|fo\%[r]\)\>,'
-\                  .'\<if\>:\<el\%[seif]\>:\<en\%[dif]\>,'
-\                  .'\<try\>:\<cat\%[ch]\>:\<fina\%[lly]\>:\<endt\%[ry]\>,'
-\                  .'\<aug\%[roup]\s\+\%(END\>\)\@!\S:\<aug\%[roup]\s\+END\>'
+\   '\<fu\%[nction]\>(\@!:\<retu\%[rn]\>:\<endf\%[unction]\>,'
+\ ..'\<\(wh\%[ile]\|for\)\>:\<brea\%[k]\>:\<con\%[tinue]\>:\<end\(w\%[hile]\|fo\%[r]\)\>,'
+\ ..'\<if\>:\<el\%[seif]\>:\<en\%[dif]\>,'
+\ ..'\<try\>:\<cat\%[ch]\>:\<fina\%[lly]\>:\<endt\%[ry]\>,'
+\ ..'\<aug\%[roup]\s\+\%(END\>\)\@!\S:\<aug\%[roup]\s\+END\>'
 
 " We want the keywords to be searched exactly as we've written them in
 " `b:match_words`, no matter the value of `&ic`.

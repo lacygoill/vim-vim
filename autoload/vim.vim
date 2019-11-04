@@ -71,21 +71,23 @@ fu vim#undo_ftplugin() abort "{{{1
     unmap <buffer> ]M
 
     nunmap <buffer> K
+    nunmap <buffer> =rb
     nunmap <buffer> =rd
-    nunmap <buffer> =ri
+    nunmap <buffer> =rl
+    nunmap <buffer> =rm
     nunmap <buffer> =rq
-    nunmap <buffer> =rv
 
     xunmap <buffer> =rd
     xunmap <buffer> =rq
     xunmap <buffer> =rt
 
+    delc RefBar
     delc RefDot
     delc RefHeredoc
-    delc RefIf
+    delc RefLambda
+    delc RefMethod
     delc RefQuote
     delc RefTernary
-    delc RefVval
     delc Refactor
 endfu
 

@@ -12,11 +12,14 @@ fu vim#refactor#method#main(bang) abort "{{{2
     call vim#util#search('\%'..col('.')..'c\%'..line('.')..'l\S*\zs(')
     let funcname = matchstr(getline('.'), '\S*\%'..col('.')..'c')
     if match(s:FUNCTION_NAMES, '^\V'..funcname..'\m\%((\|()\)') == -1
+        echohl ErrorMsg
         echo 'no builtin function under the cursor'
+        echohl NONE
         call winrestview(view)
     endif
-    call searchpair('(', '', ')', 'W', 'synIDattr(synID(line("."),col("."),1),"name") =~? "comment\\|string"')
-    sil norm! v%y
+    norm! v
+    call lg#jump_to_closing_bracket()
+    sil norm! y
     "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
     "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
 

@@ -18,7 +18,22 @@ fu vim#refactor#method#main(bang) abort "{{{2
         call winrestview(view)
     endif
     norm! v
-    call lg#jump_to_closing_bracket()
+    " TODO: Do we need to write a `vim#util#jump_to_closing_bracket()` function?{{{
+    "
+    " If so, here's the code:
+    "
+    "     let opening_bracket = getline('.')[col('.')-1]
+    "     if index(['<', '(', '[', '{'], opening_bracket) == -1
+    "         return
+    "     endif
+    "     let closing_bracket = {'<': '>', '(': ')', '[': ']', '{': '}'}[opening_bracket]
+    "     call searchpair(opening_bracket, '', closing_bracket,
+    "         \ 'W', 'synIDattr(synID(line("."),col("."),1),"name") =~? "comment\\|string"')
+    "
+    " But I'm not sure we need it.
+    " Maybe `vim#util#search(')')` is enough...
+    "}}}
+    call vim#util#jump_to_closing_bracket()
     sil norm! y
     "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
     "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y

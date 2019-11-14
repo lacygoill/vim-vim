@@ -60,7 +60,7 @@ fu vim#jump_to_tag() abort "{{{1
 endfu
 
 fu vim#undo_ftplugin() abort "{{{1
-    setl comments< omnifunc<
+    setl com< mps< ofu<
     unlet! b:match_words b:match_ignorecase b:mc_chain
 
     unmap <buffer> [[

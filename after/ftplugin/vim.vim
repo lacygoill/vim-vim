@@ -194,20 +194,20 @@ setl omnifunc=syntaxcomplete#Complete
 " The matchit plugin uses these 3 patterns to make `%` cycle through the
 " keyword `function`, `return` and `endfunction`:
 "
-"         \<fu\%[nction]\>:\<retu\%[rn]\>:\<endf\%[unction]\>
+"     \<fu\%[nction]\>:\<retu\%[rn]\>:\<endf\%[unction]\>
 "
 " It doesn't work as expected in a function which contains a funcref produced
 " by the `function()` function:
 "
-"         fu MyFunc() abort
-"             let myfuncref = function('Foo')
-"         endfu
+"     fu MyFunc() abort
+"         let myfuncref = function('Foo')
+"     endfu
 "
 " We need to tweak the pattern of the `function` keyword:
 "
-"         \<fu\%[nction]\>    →    \<fu\%[nction]\>(@!
-"                                                  │
-"                                                  └ no open parenthesis at the end
+"     \<fu\%[nction]\>    →    \<fu\%[nction]\>(@!
+"                                              │
+"                                              └ no open parenthesis at the end
 
 let b:match_words =
 \   '\<fu\%[nction]\>(\@!:\<retu\%[rn]\>:\<endf\%[unction]\>,'
@@ -225,8 +225,8 @@ let b:match_ignorecase = 0
 "
 "     $VIMRUNTIME/ftplugin/vim.vim
 "
-" The default ftplugin adds `(:)` which is superfluous, because it's already in
-" 'mps', and `matchit` includes in its search all the tokens inside 'mps'.
+" The default ftplugin adds `(:)` which  is superfluous, because it's already in
+" `'mps'`, and `matchit` includes in its search all the tokens inside `'mps'`.
 
 " Rationale:{{{
 " We want  as little  methods as  possible, to have  suggestions as  relevant as

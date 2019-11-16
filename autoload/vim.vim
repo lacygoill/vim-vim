@@ -60,8 +60,8 @@ fu vim#jump_to_tag() abort "{{{1
 endfu
 
 fu vim#undo_ftplugin() abort "{{{1
-    setl com< mps< ofu<
-    unlet! b:match_words b:match_ignorecase b:mc_chain
+    setl com< ofu<
+    unlet! b:mc_chain
 
     unmap <buffer> [[
     unmap <buffer> ]]

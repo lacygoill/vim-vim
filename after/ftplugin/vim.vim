@@ -156,30 +156,6 @@ let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+])\s+'
 "                                  ├───┘
 "                                  └ recognize unordered lists
 
-" mps {{{2
-
-" Why?{{{
-"
-" If `{:}` is in `'mps'`, then, if:
-"
-"    - the matchparen module of the `vim-matchup` plugin is enabled
-"    - you move the cursor on an opening marker
-"    - the closing fold marker is offscreen
-"
-" The closing fold marker is displayed in a popup window or in the status line.
-" I don't want that.
-"
-" Solution:
-"
-" We remove `{:}` from `'mps'`, and include a pair of regexes in `b:match_words`,
-" using negative lookarounds to prevent a match in a fold marker:
-"
-"     {\@1<!{{\@!:}\@1<!}}\@!
-"                ^
-"                delimiter
-"}}}
-setl mps-={:}
-
 " ofu {{{2
 "
 " Set the function invoked when we press `C-x C-o`.
@@ -190,43 +166,6 @@ setl mps-={:}
 setl omnifunc=syntaxcomplete#Complete
 " }}}1
 " Variables {{{1
-
-" The matchit plugin uses these 3 patterns to make `%` cycle through the
-" keyword `function`, `return` and `endfunction`:
-"
-"     \<fu\%[nction]\>:\<retu\%[rn]\>:\<endf\%[unction]\>
-"
-" It doesn't work as expected in a function which contains a funcref produced
-" by the `function()` function:
-"
-"     fu MyFunc() abort
-"         let myfuncref = function('Foo')
-"     endfu
-"
-" We need to tweak the pattern of the `function` keyword:
-"
-"     \<fu\%[nction]\>    →    \<fu\%[nction]\>(@!
-"                                              │
-"                                              └ no open parenthesis at the end
-
-let b:match_words =
-\   '\<fu\%[nction]\>(\@!:\<retu\%[rn]\>:\<endf\%[unction]\>,'
-\ ..'\<\(wh\%[ile]\|for\)\>:\<brea\%[k]\>:\<con\%[tinue]\>:\<end\(w\%[hile]\|fo\%[r]\)\>,'
-\ ..'\<if\>:\<el\%[seif]\>:\<en\%[dif]\>,'
-\ ..'\<try\>:\<cat\%[ch]\>:\<fina\%[lly]\>:\<endt\%[ry]\>,'
-\ ..'\<aug\%[roup]\s\+\%(END\>\)\@!\S:\<aug\%[roup]\s\+END\>,'
-\ ..'{\@1<!{{\@!:}\@1<!}}\@!'
-
-" We want the keywords to be searched exactly as we've written them in
-" `b:match_words`, no matter the value of `&ic`.
-let b:match_ignorecase = 0
-
-" How did we get the rest of the value of `b:match_words`?
-"
-"     $VIMRUNTIME/ftplugin/vim.vim
-"
-" The default ftplugin adds `(:)` which  is superfluous, because it's already in
-" `'mps'`, and `matchit` includes in its search all the tokens inside `'mps'`.
 
 " Rationale:{{{
 " We want  as little  methods as  possible, to have  suggestions as  relevant as

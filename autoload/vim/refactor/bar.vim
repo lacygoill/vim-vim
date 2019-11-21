@@ -15,7 +15,7 @@ let s:PAT_BAR = [
     "\ a bar (!= `||`)
     \ '\s*|\@1<!||\@!\s*',
     \ ]
-let s:PAT_BAR = join(s:PAT_BAR, '') | lockvar s:PAT_BAR
+let s:PAT_BAR = join(s:PAT_BAR, '') | lockvar! s:PAT_BAR
 const s:MAX_JOINED_LINES = 5
 
 " Interface {{{1

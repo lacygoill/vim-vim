@@ -84,35 +84,6 @@ nno <buffer><nowait><silent> K :<c-u>exe 'help '..vim#helptopic()<cr>
 
 nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
 
-" The default Vim ftplugin:
-"
-"     $VIMRUNTIME/ftplugin/vim.vim
-"
-" … defines the buffer-local  ["  ]"  mappings. I don't want them, because
-" I use other global mappings (same keys), which are more powerful (support
-" more filetypes).
-"
-" In theory, we could disable these mappings by setting one of the variable:
-"
-"    - no_vim_maps       (only vim ftplugin mappings)
-"    - no_plugin_maps    (all ftplugin mappings)
-"
-" Unfortunately, the Vim ftplugin doesn't check the existence of these
-" variables, contrary to a few others like `$VIMRUNTIME/ftplugin/mail.vim`.
-
-sil! nunmap <buffer> ["
-sil! nunmap <buffer> ]"
-sil! vunmap <buffer> ["
-sil! vunmap <buffer> ]"
-"  │
-"  └ If we change the filetype from  `vim` to `python`, then from `python` back to `vim`,
-"    we have an error, because `set ft=vim` only loads our ftplugin. It doesn't load the one
-"    in the vimruntime, because of a guard (`if exists('b:did_ftplugin')`).
-"    So, the mappings are not installed again.
-
-noremap <buffer><expr><nowait><silent> [[ lg#motion#regex#rhs('{{',0)
-noremap <buffer><expr><nowait><silent> ]] lg#motion#regex#rhs('{{',1)
-
 noremap <buffer><expr><nowait><silent> [m lg#motion#regex#rhs('fu',0)
 noremap <buffer><expr><nowait><silent> ]m lg#motion#regex#rhs('fu',1)
 
@@ -127,7 +98,6 @@ if stridx(&rtp, 'vim-lg-lib') >= 0
         \ 'motions': [
         \     {'bwd': '[m',  'fwd': ']m'},
         \     {'bwd': '[M',  'fwd': ']M'},
-        \     {'bwd': '[[',  'fwd': ']]'},
         \ ]})
 endif
 

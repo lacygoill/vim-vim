@@ -63,8 +63,6 @@ fu vim#undo_ftplugin() abort "{{{1
     setl com< ofu<
     unlet! b:mc_chain
 
-    unmap <buffer> [[
-    unmap <buffer> ]]
     unmap <buffer> [m
     unmap <buffer> ]m
     unmap <buffer> [M

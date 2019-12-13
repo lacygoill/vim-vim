@@ -126,41 +126,40 @@ let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+])\s+'
 "                                  ├───┘
 "                                  └ recognize unordered lists
 
-" ofu {{{2
-"
-" Set the function invoked when we press `C-x C-o`.
-
-"             ┌ Found here:    http://vim.wikia.com/wiki/Omni_completion
-"             │ Defined here:  /usr/share/vim/vim74/autoload/syntaxcomplete.vim
-"             │
-setl omnifunc=syntaxcomplete#Complete
 " }}}1
 " Variables {{{1
 
 " Rationale:{{{
+"
 " We want  as little  methods as  possible, to have  suggestions as  relevant as
 " possible, and review all of them as quickly as possible.
 " The presently used methods are, imo, the bare minimum.
 "
 " We put `file` in first position because we know how to detect whether the text
 " before the cursor matches a filepath.
-" OTOH,  we  can't  be  sure  that  the  text matches  a  tags  name  or  a  tab
-" trigger. Therefore, we must give the priority to `file`.
+" In contrast,  we can't be  sure whether the text  before the cursor  matches a
+" tags name or an UltiSnips tab trigger.
 "
-" We put  `keyn`, `tags`, `ulti` afterwards,  in this order, because  the latter
-" matches the frequency with which I suspect I'll need those methods.
+" We then  put `omni` because  we mainly write code  in Vim, and  it's extremely
+" useful to read a function signature.
+" We use  `vim-Verdin` which installs  an omnifunc  smart enough to  not suggest
+" anything when it's invoked while we're writing a comment.
 "
-" Finally, we add `dict` and `c-n` because they can still be useful from time to
-" time. We put them  at the very end because their  suggestions are often noisy,
-" i.e. contain a lot of garbage.
+" We then put `keyn`, `tags`, `ulti`,  in this order, because the latter matches
+" the frequency with which I suspect I'll need those methods.
+"
+" Finally, we add `abbr`, `dict` and `c-n` because they can still be useful from
+" time to time. We put them at the  very end because their suggestions are often
+" noisy, i.e. contain a lot of garbage.
 "}}}
 const b:mc_chain =<< trim END
     file
+    omni
     keyn
     tags
     ulti
-    dict
     abbr
+    dict
     c-n
 END
 

@@ -1,5 +1,7 @@
 " Interface {{{1
 fu vim#refactor#lambda#main(bang) abort "{{{2
+    " TODO: A lambda is not always better than an eval string.
+    " Make the function support the reverse refactoring (`{_,v -> v}` → `'v:val'`).
     let view = winsaveview()
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.

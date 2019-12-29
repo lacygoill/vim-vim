@@ -119,13 +119,11 @@ xno <buffer><nowait><silent> =rt :RefTernary<cr>
 
 " Options {{{1
 " flp {{{2
-"
-"                          ┌ recognize numbered lists
-"                          ├─────┐
-let &l:flp = '\v^\s*"?\s*%(\d+[.)]|[-*+])\s+'
-"                                  ├───┘
-"                                  └ recognize unordered lists
 
+let &l:flp = '^\s*"\=\s*\%(\d\+[.)]\|[-*+]\)\s\+'
+"                          ├──────┘  ├───┘
+"                          │         └ recognize unordered lists
+"                          └ recognize numbered lists
 " }}}1
 " Variables {{{1
 

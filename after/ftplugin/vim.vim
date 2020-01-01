@@ -80,8 +80,6 @@ com -bang -bar -buffer -range RefLambda call vim#refactor#lambda#main(<bang>0)
 "}}}1
 " Mappings {{{1
 
-nno <buffer><nowait><silent> K :<c-u>exe 'help '..vim#helptopic()<cr>
-
 nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
 
 noremap <buffer><expr><nowait><silent> [m lg#motion#regex#rhs('fu',0)

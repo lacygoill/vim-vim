@@ -1,4 +1,4 @@
-fu vim#helptopic() abort "{{{1
+fu vim#helptopic(cword) abort "{{{1
     let [line, col] = [getline('.'), col('.')]
     if line[col-1] =~# '\k'
         let pat_pre = '.*\ze\<\k*\%'..col..'c'
@@ -11,7 +11,7 @@ fu vim#helptopic() abort "{{{1
 
     let syntax_item = get(reverse(map(synstack(line('.'), col('.')),
         \ {_,v -> synIDattr(v,'name')})), 0, '')
-    let cword = expand('<cword>')
+    let cword = a:cword
 
     if syntax_item is# 'vimFuncName'
         return cword..'()'
@@ -20,6 +20,9 @@ fu vim#helptopic() abort "{{{1
     " `-bar`, `-nargs`, `-range`...
     elseif syntax_item is# 'vimUserAttrbKey'
         return ':command-'..cword
+    " `<silent>`, `<unique>`, ...
+    elseif syntax_item is# 'vimMapModKey'
+        return ':map-<'..cword
 
     " if the word under the cursor is  preceded by nothing, except maybe a colon
     " right before, treat it as an Ex command
@@ -68,7 +71,6 @@ fu vim#undo_ftplugin() abort "{{{1
     unmap <buffer> [M
     unmap <buffer> ]M
 
-    nunmap <buffer> K
     nunmap <buffer> =rb
     nunmap <buffer> =rd
     nunmap <buffer> =rl

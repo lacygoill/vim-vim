@@ -50,7 +50,7 @@ fu s:break() abort "{{{2
     let line = getline('.')
     let word = matchstr(line, '^\s*\zs\w\+')
     let word = s:normalize(word)
-    if word is# 'if' || word is# 'try'
+    if index(['if', 'elseif', 'try'], word) != -1
         " Perform this transformation:{{{
         "
         "     if 1 | echo 'true' | endif

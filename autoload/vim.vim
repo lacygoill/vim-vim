@@ -1,4 +1,4 @@
-fu vim#helptopic(cword) abort "{{{1
+fu vim#helptopic() abort "{{{1
     let [line, col] = [getline('.'), col('.')]
     if line[col-1] =~# '\k'
         let pat_pre = '.*\ze\<\k*\%'..col..'c'
@@ -11,7 +11,7 @@ fu vim#helptopic(cword) abort "{{{1
 
     let syntax_item = get(reverse(map(synstack(line('.'), col('.')),
         \ {_,v -> synIDattr(v,'name')})), 0, '')
-    let cword = a:cword
+    let cword = expand('<cword>')
 
     if syntax_item is# 'vimFuncName'
         return cword..'()'

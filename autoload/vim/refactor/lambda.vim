@@ -8,7 +8,7 @@ fu vim#refactor#lambda#main(bang) abort "{{{2
     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
 
-    if ! vim#util#we_can_refactor(
+    if !vim#util#we_can_refactor(
         \ [s1, s2],
         \ lnum1, col1,
         \ lnum2, col2,
@@ -32,7 +32,7 @@ endfu
 "}}}1
 " Core {{{1
 fu s:search_closing_quote() abort "{{{2
-    if ! vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
+    if !vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
     let pos = getcurpos()
     norm! %
     if getcurpos() == pos | return 0 | endif

@@ -38,7 +38,7 @@ fu vim#refactor#method#main(bang) abort "{{{2
     "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
     "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
 
-    "     if ! vim#util#we_can_refactor(
+    "     if !vim#util#we_can_refactor(
     "         \ [s1, s2],
     "         \ lnum1, col1,
     "         \ lnum2, col2,

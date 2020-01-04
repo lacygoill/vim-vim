@@ -3,7 +3,7 @@ fu vim#refactor#heredoc#main(bang, ...) abort "{{{2
     let view = winsaveview()
     if index(a:000, '-help') >= 0
         return s:print_help()
-    elseif ! s:syntax_is_correct(a:000)
+    elseif !s:syntax_is_correct(a:000)
         return l:Finish('invalid syntax, run `:RefHeredoc -help` for more info')
     else
         let [notrim, marker] = s:get_args(a:000)
@@ -14,7 +14,7 @@ fu vim#refactor#heredoc#main(bang, ...) abort "{{{2
     let s2 = s:search_opening_bracket() | let [lnum2, col2] = getcurpos()[1:2]
     let s3 = s:search_closing_bracket() | let [lnum3, col3] = getcurpos()[1:2]
 
-    if ! vim#util#we_can_refactor(
+    if !vim#util#we_can_refactor(
         \ [s1, s2, s3],
         \ lnum1, col1,
         \ lnum3, col3,

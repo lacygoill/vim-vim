@@ -5,7 +5,7 @@ fu vim#util#search(pat, ...) abort "{{{2
     let [g, s] = [0, 1]
     let syntax_was_enabled = exists('g:syntax_on')
     try
-        if ! syntax_was_enabled
+        if !syntax_was_enabled
             call s:warn('enabling syntax to search pattern; may take some time...')
             syn enable
         endif
@@ -19,7 +19,7 @@ fu vim#util#search(pat, ...) abort "{{{2
         endwhile
         return s
     finally
-        if ! syntax_was_enabled | syn off | endif
+        if !syntax_was_enabled | syn off | endif
     endtry
 endfu
 
@@ -42,10 +42,10 @@ fu vim#util#we_can_refactor(...) abort "{{{2
     "}}}
     let args = [lnum1, col1, lnum2, col2]
     if index(search_results, 0) >= 0
-    \ || ! call('s:contains_pos', [lnum0, col0] + args)
+    \ || !call('s:contains_pos', [lnum0, col0] + args)
     \ || s:contains_empty_or_commented_line(lnum1, lnum2)
         return l:Finish(from..' not found')
-    elseif ! bang && call('s:confirm', ['refactor into '..into] + args) isnot# 'y'
+    elseif !bang && call('s:confirm', ['refactor into '..into] + args) isnot# 'y'
         return l:Finish()
     else
         return 1

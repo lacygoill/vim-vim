@@ -88,16 +88,14 @@ noremap <buffer><expr><nowait><silent> ]m lg#motion#regex#rhs('fu',1)
 noremap <buffer><expr><nowait><silent> [M lg#motion#regex#rhs('endfu',0)
 noremap <buffer><expr><nowait><silent> ]M lg#motion#regex#rhs('endfu',1)
 
-if stridx(&rtp, 'vim-lg-lib') >= 0
-    call lg#motion#repeatable#make#all({
-        \ 'mode': '',
-        \ 'buffer': 1,
-        \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),
-        \ 'motions': [
-        \     {'bwd': '[m',  'fwd': ']m'},
-        \     {'bwd': '[M',  'fwd': ']M'},
-        \ ]})
-endif
+sil! call lg#motion#repeatable#make#all({
+    \ 'mode': '',
+    \ 'buffer': 1,
+    \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),
+    \ 'motions': [
+    \     {'bwd': '[m',  'fwd': ']m'},
+    \     {'bwd': '[M',  'fwd': ']M'},
+    \ ]})
 
 nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#bar#main<cr>g@l
 

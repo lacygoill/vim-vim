@@ -1,19 +1,17 @@
 fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
-    let pat = [
+    let pat =
         "\ outside a single-quoted string
-        \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<=',
+        \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<='
         "\ outside a double-quoted string
-        \ '\%(^\%("[^"]*"\|[^"]\)*\)\@<=',
+        \ ..'\%(^\%("[^"]*"\|[^"]\)*\)\@<='
         "\ not on a commented line
-        \ '\%(^\s*".*\)\@<!',
+        \ ..'\%(^\s*".*\)\@<!'
         "\ a dot not preceded by another dot, nor followed by another dot/equal sign
-        \ '\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*',
+        \ ..'\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*'
         "\ `.=` assignment → `..=`
-        \ '\|\.\@1<!\.\ze=',
+        \ ..'\|\.\@1<!\.\ze='
         "\ or two dots surrounded by spaces
-        \ '\|\s\+\.\.\s\+\)',
-        \ ]
-    let pat = join(pat, '')
+        \ ..'\|\s\+\.\.\s\+\)'
     " Warning: The pattern could find false positives.{{{
     "
     " MWE:

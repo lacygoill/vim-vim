@@ -49,7 +49,7 @@ fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
         \ 'norm':  {'pat': 'normal\=! ',                   'rep': 'norm! '},
         \
         \ 'abort': { 'pat': '^\%(.*)\s*abort\)\@!\s*fu\%[nction]!\=.*)'
-        \                 ..'\zs\ze\(\s*"{{'..'{\d*\)\=',
+        \                 ..'\zs\ze\%(\s*"{{'..'{\d*\)\=',
         \            'rep': ' abort' },
         \ }
 

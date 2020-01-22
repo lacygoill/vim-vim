@@ -33,20 +33,20 @@ fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
     let view = winsaveview()
 
     let substitutions = {
-        \ 'au':    {'pat': '^\s*\zsaut\%[ocmd] ',          'rep': 'au '},
-        \ 'lower': {'pat': '\C<\%(C-\a\|CR\|SID\|Plug\)>', 'rep': '\L\0'},
-        \ 'com':   {'pat': '^\s*\zscomm\%[and]!\= ',       'rep': 'com '},
-        \ 'echom': {'pat': 'echomsg\= ',                   'rep': 'echom '},
-        \ 'exe':   {'pat': 'exec\%[ute] ',                 'rep': 'exe '},
-        \ 'fu':    {'pat': '^\s*\zsfun\%[ction]!\= ',      'rep': 'fu '},
-        \ 'endfu': {'pat': '^\s*\zsendfun\%[ction]\s*$',   'rep': 'endfu'},
-        \ 'sil':   {'pat': '<\@1<!sile\%[nt]\(!\| \)',     'rep': 'sil\1'},
-        \ 'setl':  {'pat': 'setlo\%[cal] ',                'rep': 'setl '},
-        \ 'keepj': {'pat': 'keepju\%[mps] ',               'rep': 'keepj '},
-        \ 'keepp': {'pat': 'keeppa\%[tterns] ',            'rep': 'keepp '},
-        \ 'nno':   {'pat': '\([nvxoic]\)nor\%[emap] ',     'rep': '\1no '},
-        \ 'noa':   {'pat': 'noau\%[tocmd] ',               'rep': 'noa '},
-        \ 'norm':  {'pat': 'normal\=! ',                   'rep': 'norm! '},
+        \ 'au':    {'pat': '^\s*\zsaut\%[ocmd]\ze!\=\%( \|$\)', 'rep': 'au'},
+        \ 'lower': {'pat': '\C<\%(C-\a\|CR\|SID\|Plug\)>',      'rep': '\L\0'},
+        \ 'com':   {'pat': '^\s*\zscomm\%[and]!\= ',            'rep': 'com '},
+        \ 'echom': {'pat': 'echomsg\= ',                        'rep': 'echom '},
+        \ 'exe':   {'pat': 'exec\%[ute] ',                      'rep': 'exe '},
+        \ 'fu':    {'pat': '^\s*\zsfun\%[ction]!\= ',           'rep': 'fu '},
+        \ 'endfu': {'pat': '^\s*\zsendfun\%[ction]\s*$',        'rep': 'endfu'},
+        \ 'sil':   {'pat': '<\@1<!sile\%[nt]\(!\| \)',          'rep': 'sil\1'},
+        \ 'setl':  {'pat': 'setlo\%[cal] ',                     'rep': 'setl '},
+        \ 'keepj': {'pat': 'keepju\%[mps] ',                    'rep': 'keepj '},
+        \ 'keepp': {'pat': 'keeppa\%[tterns] ',                 'rep': 'keepp '},
+        \ 'nno':   {'pat': '\([nvxoic]\)nor\%[emap] ',          'rep': '\1no '},
+        \ 'noa':   {'pat': 'noau\%[tocmd] ',                    'rep': 'noa '},
+        \ 'norm':  {'pat': 'normal\=! ',                        'rep': 'norm! '},
         \
         \ 'abort': { 'pat': '^\%(.*)\s*abort\)\@!\s*fu\%[nction]!\=.*)'
         \                 ..'\zs\ze\%(\s*"{{'..'{\d*\)\=',
@@ -55,7 +55,12 @@ fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
 
     sil! exe modifiers..'norm! '..a:lnum1..'G='..a:lnum2..'G'
     for sbs in values(substitutions)
-        sil exe modifiers..range..'s/'..sbs.pat..'/'..sbs.rep..'/ge'..(a:bang ? '' : 'c')
+        let cmd = modifiers..range..'s/'..sbs.pat..'/'..sbs.rep..'/ge'
+        if a:bang
+            sil exe cmd
+        else
+            exe cmd..'c'
+        endif
     endfor
 
     " format the arguments of a mapping, so that there's no space between them,

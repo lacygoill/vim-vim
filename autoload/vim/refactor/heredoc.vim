@@ -131,7 +131,7 @@ fu s:get_items(lnum1, lnum3) abort "{{{2
         \ }
     let l:Rep = {m -> add(items, l:Item(m))[0]}
     call substitute(list_value, pat, l:Rep, 'g')
-    call map(items, {_,v -> v isnot# '' ? repeat(' ', &l:sw)..v : v})
+    call map(items, {_,v -> v isnot# '' ? repeat(' ', shiftwidth())..v : v})
     return items
 endfu
 

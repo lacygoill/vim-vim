@@ -13,6 +13,10 @@
 syn keyword vimAbb Aab Pab skipwhite nextgroup=vimMapMod,vimMapLhs
 " TODO: Comment how `skipwhite` and `nextgroup` work.
 
+" `:h line-continuation-comment` is not highlighted inside a dictionary
+call vim#syntax#override_vimOperGroup()
+
+
 " The following prevents the syntax highlighting from breaking inside and after a heredoc.
 " It has been fixed in Vim:
 " https://github.com/vim/vim/commit/574ee7bc1246070dba598f9561a2776aa1a10d07
@@ -126,3 +130,4 @@ syn region vimFixHeredoc
 " But that would make you lose syntax highlighting in a commented heredoc.
 " Final solution: use `ALLBUT,vimLineComment`.
 "}}}
+

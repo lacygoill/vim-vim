@@ -54,9 +54,11 @@ endfu
 
 fu vim#util#put(...) abort "{{{2
     let [text, lnum1, col1, lnum2, col2] = a:000
-    let [cb_save, sel_save] = [&cb, &sel]
+    let [cb_save, sel_save, wrap_save] = [&cb, &sel, &l:wrap]
     let reg_save = ['"', getreg('"'), getregtype('"')]
     try
+        " `123|` may not position the cursor where you expect on a long wrapped line
+        setl nowrap
         set cb-=unnamed cb-=unnamedplus sel=inclusive
         if type(text) == type([])
             let @" = join(text, "\n")
@@ -65,7 +67,8 @@ fu vim#util#put(...) abort "{{{2
         endif
         exe 'norm! '..lnum1..'G'..col1..'|v'..lnum2..'G'..col2..'|p'
     finally
-        let [&cb, &sel] = [cb_save, sel_save]
+        " TODO: make sure `'wrap'` is restored in the right window and in the right buffer
+        let [&cb, &sel, &l:wrap] = [cb_save, sel_save, wrap_save]
         call call('setreg', reg_save)
     endtry
 endfu

@@ -36,11 +36,15 @@ com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
 
 " RefMethod {{{2
 
-com -bang -bar -buffer -range RefMethod call vim#refactor#method#main(<bang>0)
+com -bang -bar -buffer RefMethod call vim#refactor#method#main(<bang>0)
 
 " RefQuote {{{2
 
 com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
+
+" RefSubstitute {{{2
+
+com -bang -bar -buffer RefSubstitute call vim#refactor#substitute#main#main(<bang>0)
 
 " RefTernary {{{2
 " Usage  {{{3
@@ -76,7 +80,7 @@ com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2
 "}}}2
 " RefLambda {{{2
 
-com -bang -bar -buffer -range RefLambda call vim#refactor#lambda#main(<bang>0)
+com -bang -bar -buffer RefLambda call vim#refactor#lambda#main(<bang>0)
 "}}}1
 " Mappings {{{1
 
@@ -97,6 +101,8 @@ sil! call lg#motion#repeatable#make#all({
     \     {'bwd': '[M',  'fwd': ']M'},
     \ ]})
 
+" TODO: When should we install visual mappings?
+
 nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#bar#main<cr>g@l
 
 nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
@@ -110,6 +116,8 @@ nno <buffer><nowait><silent> =rm :<c-u>set opfunc=vim#refactor#method#main<cr>g@
 
 nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
 xno <buffer><nowait><silent> =rq :RefQuote<cr>
+
+nno <buffer><nowait><silent> =rs :<c-u>set opfunc=vim#refactor#substitute#main<cr>g@l
 
 xno <buffer><nowait><silent> =rt :RefTernary<cr>
 

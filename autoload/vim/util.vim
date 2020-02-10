@@ -14,7 +14,7 @@ fu vim#util#search(pat, ...) abort "{{{2
             let synstack = synstack(line('.'), col('.'))
             let syngroup = get(map(synstack, {_,v -> synIDattr(v, 'name')}), -1, '')
             if syngroup is# 'vimString' | let g += 1 | continue | endif
-            if syntomatch is# '' || syngroup is# syntomatch | break | endif
+            if syntomatch is# '' || syngroup =~# '\C^\%('..syntomatch..'\)$' | break | endif
             let g += 1
         endwhile
         return s
@@ -30,7 +30,7 @@ fu vim#util#we_can_refactor(...) abort "{{{2
     \ lnum2, col2,
     \ bang,
     \ view,
-    \ from, into
+    \ this, into_that
     \ ] = a:000
 
     let [lnum0, col0] = [view.lnum, view.col]
@@ -44,8 +44,8 @@ fu vim#util#we_can_refactor(...) abort "{{{2
     if index(search_results, 0) >= 0
     \ || !call('s:contains_pos', [lnum0, col0] + args)
     \ || s:contains_empty_or_commented_line(lnum1, lnum2)
-        return l:Finish(from..' not found')
-    elseif !bang && call('s:confirm', ['refactor into '..into] + args) isnot# 'y'
+        return l:Finish(this..' not found')
+    elseif !bang && call('s:confirm', ['refactor into '..into_that] + args) isnot# 'y'
         return l:Finish()
     else
         return 1
@@ -60,12 +60,14 @@ fu vim#util#put(...) abort "{{{2
         " `123|` may not position the cursor where you expect on a long wrapped line
         setl nowrap
         set cb-=unnamed cb-=unnamedplus sel=inclusive
+        call setpos('.', [0, lnum1, col1, 0]) | let vcol1 = virtcol('.')
+        call setpos('.', [0, lnum2, col2, 0]) | let vcol2 = virtcol('.')
         if type(text) == type([])
             let @" = join(text, "\n")
         else
             let @" = text
         endif
-        exe 'norm! '..lnum1..'G'..col1..'|v'..lnum2..'G'..col2..'|p'
+        exe 'norm! '..lnum1..'G'..vcol1..'|v'..lnum2..'G'..vcol2..'|p'
     finally
         " TODO: make sure `'wrap'` is restored in the right window and in the right buffer
         let [&cb, &sel, &l:wrap] = [cb_save, sel_save, wrap_save]

@@ -4,10 +4,10 @@ fu vim#refactor#heredoc#main(bang, ...) abort "{{{2
     if index(a:000, '-help') >= 0
         return s:print_help()
     elseif !s:syntax_is_correct(a:000)
-        return l:Finish('invalid syntax, run `:RefHeredoc -help` for more info')
+        return s:error('invalid syntax, run `:RefHeredoc -help` for more info')
     else
         let [notrim, marker] = s:get_args(a:000)
-        if marker is# '' | return l:Finish('invalid marker') | endif
+        if marker is# '' | return s:error('invalid marker') | endif
     endif
 
     let s1 = s:search_let() | let [lnum1, col1] = getcurpos()[1:2]
@@ -65,6 +65,12 @@ endfu
 fu s:syntax_is_correct(args) abort "{{{2
     let args = join(a:args)
     return args =~# '^\%(-notrim\s*\)\=\%(\S\+\)\=$'
+endfu
+
+fu s:error(msg) abort "{{{2
+    echohl ErrorMsg
+    echo a:msg
+    echohl NONE
 endfu
 
 fu s:get_args(args) abort "{{{2

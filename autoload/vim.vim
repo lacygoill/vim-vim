@@ -76,6 +76,7 @@ fu vim#undo_ftplugin() abort "{{{1
     nunmap <buffer> =rl
     nunmap <buffer> =rm
     nunmap <buffer> =rq
+    nunmap <buffer> =rs
 
     xunmap <buffer> =rd
     xunmap <buffer> =rq
@@ -87,6 +88,7 @@ fu vim#undo_ftplugin() abort "{{{1
     delc RefLambda
     delc RefMethod
     delc RefQuote
+    delc RefSubstitute
     delc RefTernary
     delc Refactor
 endfu

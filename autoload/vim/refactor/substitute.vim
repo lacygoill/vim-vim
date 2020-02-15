@@ -4,6 +4,9 @@ endif
 let g:autoloaded_vim#refactor#substitute = 1
 
 " TODO: add support for some not-too-complex ranges
+" Update: Nope.  It's too slow.
+" Try to replace `foo` with `bar` in our vimrc.  It's about 20 times slower with
+" `setline()`+`substitute()`+`getline()`+`map()`, compared to `:s`.
 const s:PAT =
     "\ the substitution could be in a sequence of commands separated by bars
     \ '\C^\%(.*|\)\='
@@ -62,7 +65,7 @@ fu s:get_new_substitution(old) abort "{{{2
     let [range, _, pat, rep, flags] = matchlist(a:old, s:PAT)[1:5]
     let flags = substitute(flags, 'e', '', '')
     " TODO: support case where pattern or replacement contains a single quote
-
+    " TODO: make sure `&`, `~` and `\` are always escaped in the replacement
     " TODO: when Nvim supports the method call operator, refactor the new
     " substitution command to make it more readable; make sure to update the tests
     let lnum = {'': "'.'", '-': "line('.')-1"}[range]

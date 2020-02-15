@@ -54,11 +54,20 @@ endfu
 
 fu vim#util#put(...) abort "{{{2
     let [text, lnum1, col1, lnum2, col2] = a:000
-    let [cb_save, sel_save, wrap_save] = [&cb, &sel, &l:wrap]
+    let [cb_save, sel_save] = [&cb, &sel]
     let reg_save = ['"', getreg('"'), getregtype('"')]
     try
-        " `123|` may not position the cursor where you expect on a long wrapped line
-        setl nowrap
+        " Shouldn't we temporarily disable `'wrap'`?{{{
+        "
+        " I don't think it's necessary.
+        " We convert the  byte offset positions into  character offset positions
+        " via `virtcol()`.  Then, we use those positions via `:norm`.
+        "
+        " Both  `virtcol()`   and  `:norm`   take  into   consideration  virtual
+        " characters which are added when a long line gets wrapped.
+        " IOW, they  agree on  what the  position of  a character  is on  a long
+        " wrapped line.
+        "}}}
         set cb-=unnamed cb-=unnamedplus sel=inclusive
         call setpos('.', [0, lnum1, col1, 0]) | let vcol1 = virtcol('.')
         call setpos('.', [0, lnum2, col2, 0]) | let vcol2 = virtcol('.')
@@ -69,8 +78,7 @@ fu vim#util#put(...) abort "{{{2
         endif
         exe 'norm! '..lnum1..'G'..vcol1..'|v'..lnum2..'G'..vcol2..'|p'
     finally
-        " TODO: make sure `'wrap'` is restored in the right window and in the right buffer
-        let [&cb, &sel, &l:wrap] = [cb_save, sel_save, wrap_save]
+        let [&cb, &sel] = [cb_save, sel_save]
         call call('setreg', reg_save)
     endtry
 endfu

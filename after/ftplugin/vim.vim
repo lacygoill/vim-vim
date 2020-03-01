@@ -92,7 +92,7 @@ noremap <buffer><expr><nowait><silent> ]m lg#motion#regex#rhs('fu',1)
 noremap <buffer><expr><nowait><silent> [M lg#motion#regex#rhs('endfu',0)
 noremap <buffer><expr><nowait><silent> ]M lg#motion#regex#rhs('endfu',1)
 
-sil! call lg#motion#repeatable#make#all({
+sil! call repmap#make#all({
     \ 'mode': '',
     \ 'buffer': 1,
     \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),

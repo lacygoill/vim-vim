@@ -86,11 +86,11 @@ com -bang -bar -buffer RefLambda call vim#refactor#lambda#main(<bang>0)
 
 nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
 
-noremap <buffer><expr><nowait><silent> [m lg#motion#regex#rhs('fu',0)
-noremap <buffer><expr><nowait><silent> ]m lg#motion#regex#rhs('fu',1)
+noremap <buffer><expr><nowait><silent> [m lg#motion#rhs('fu',0)
+noremap <buffer><expr><nowait><silent> ]m lg#motion#rhs('fu',1)
 
-noremap <buffer><expr><nowait><silent> [M lg#motion#regex#rhs('endfu',0)
-noremap <buffer><expr><nowait><silent> ]M lg#motion#regex#rhs('endfu',1)
+noremap <buffer><expr><nowait><silent> [M lg#motion#rhs('endfu',0)
+noremap <buffer><expr><nowait><silent> ]M lg#motion#rhs('endfu',1)
 
 sil! call repmap#make#all({
     \ 'mode': '',

@@ -35,7 +35,7 @@ fu vim#refactor#bar#main(bang, ...) abort "{{{2
             endif
         endif
     catch
-        return lg#catch_error()
+        return lg#catch()
     finally
         call setpos('.', pos)
     endtry

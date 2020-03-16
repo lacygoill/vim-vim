@@ -52,7 +52,7 @@ fu vim#jump_to_tag() abort "{{{1
         exe "norm! \<c-]>"
         norm! zvzz
     catch
-        return lg#catch_error()
+        return lg#catch()
     finally
         " Why not simply `let &l:isk = isk_save`?{{{
         "

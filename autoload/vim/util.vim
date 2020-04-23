@@ -57,26 +57,16 @@ fu vim#util#put(...) abort "{{{2
     let [cb_save, sel_save] = [&cb, &sel]
     let reg_save = ['"', getreg('"'), getregtype('"')]
     try
-        " Shouldn't we temporarily disable `'wrap'`?{{{
-        "
-        " I don't think it's necessary.
-        " We convert the  byte offset positions into  character offset positions
-        " via `virtcol()`.  Then, we use those positions via `:norm`.
-        "
-        " Both  `virtcol()`   and  `:norm`   take  into   consideration  virtual
-        " characters which are added when a long line gets wrapped.
-        " IOW, they  agree on  what the  position of  a character  is on  a long
-        " wrapped line.
-        "}}}
         set cb-=unnamed cb-=unnamedplus sel=inclusive
-        call setpos('.', [0, lnum1, col1, 0]) | let vcol1 = virtcol('.')
-        call setpos('.', [0, lnum2, col2, 0]) | let vcol2 = virtcol('.')
         if type(text) == type([])
             let @" = join(text, "\n")
         else
             let @" = text
         endif
-        exe 'norm! '..lnum1..'G'..vcol1..'|v'..lnum2..'G'..vcol2..'|p'
+        call setpos('.', [0, lnum1, col1, 0])
+        norm! v
+        call setpos('.', [0, lnum2, col2, 0])
+        norm! p
     finally
         let [&cb, &sel] = [cb_save, sel_save]
         call call('setreg', reg_save)

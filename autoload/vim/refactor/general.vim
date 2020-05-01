@@ -44,7 +44,7 @@ fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
         \ 'setl':  {'pat': 'setlo\%[cal] ',                     'rep': 'setl '},
         \ 'keepj': {'pat': 'keepju\%[mps] ',                    'rep': 'keepj '},
         \ 'keepp': {'pat': 'keeppa\%[tterns] ',                 'rep': 'keepp '},
-        \ 'nno':   {'pat': '\([nvxoic]\)nor\%[emap] ',          'rep': '\1no '},
+        \ 'nno':   {'pat': '\([nvxoict]\)nor\%[emap] ',         'rep': '\1no '},
         \ 'noa':   {'pat': 'noau\%[tocmd] ',                    'rep': 'noa '},
         \ 'norm':  {'pat': 'normal\=! ',                        'rep': 'norm! '},
         \

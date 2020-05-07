@@ -39,7 +39,7 @@ fu vim#refactor#general#main(lnum1,lnum2, bang) abort "{{{1
         \ 'echom': {'pat': 'echomsg\= ',                        'rep': 'echom '},
         \ 'exe':   {'pat': 'exec\%[ute] ',                      'rep': 'exe '},
         \ 'fu':    {'pat': '^\s*\zsfun\%[ction]!\= ',           'rep': 'fu '},
-        \ 'endfu': {'pat': '^\s*\zsendfun\%[ction]\s*$',        'rep': 'endfu'},
+        \ 'endfu': {'pat': '^\s*\zsendf\%[unction]\s*$',        'rep': 'endfu'},
         \ 'sil':   {'pat': '<\@1<!sile\%[nt]\(!\| \)',          'rep': 'sil\1'},
         \ 'setl':  {'pat': 'setlo\%[cal] ',                     'rep': 'setl '},
         \ 'keepj': {'pat': 'keepju\%[mps] ',                    'rep': 'keepj '},

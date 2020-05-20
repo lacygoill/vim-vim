@@ -92,7 +92,7 @@ noremap <buffer><expr><nowait><silent> ]m brackets#move#regex('fu', 1)
 noremap <buffer><expr><nowait><silent> [M brackets#move#regex('endfu', 0)
 noremap <buffer><expr><nowait><silent> ]M brackets#move#regex('endfu', 1)
 
-sil! call repmap#make#all({
+sil! call repmap#make#repeatable({
     \ 'mode': '',
     \ 'buffer': 1,
     \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),

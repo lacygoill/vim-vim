@@ -18,17 +18,22 @@ const s:PAT =
     \ ..'s\(\i\@!.\)\(.\{-}\)\2\(.\{-}\)\2\([gcen]\{,4}\)$'
 
 " Interface {{{1
-fu vim#refactor#substitute#main(bang) abort "{{{2
+fu vim#refactor#substitute#main(...) abort "{{{2
+    if !a:0
+        let &opfunc = 'vim#refactor#substitute#main'
+        return 'g@l'
+    endif
     let view = winsaveview()
 
     let s1 = s:search_substitution_start() | let [lnum1, col1] = getcurpos()[1:2]
     let s2 = s:search_substitution_end() | let [lnum2, col2] = getcurpos()[1:2]
 
+    let bang = type(a:1) == v:t_number ? a:1 : v:true
     if !vim#util#we_can_refactor(
         \ [s1, s2],
         \ lnum1, col1,
         \ lnum2, col2,
-        \ a:bang,
+        \ bang,
         \ view,
         \ 'substitution command', 'setline()+substitute()',
         \ ) | return | endif

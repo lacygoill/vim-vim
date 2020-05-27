@@ -6,7 +6,11 @@ let g:autoloaded_vim#refactor#method = 1
 let s:FUNCTION_NAMES = filter(getcompletion('[a-z]', 'function'), {_,v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
 
 " Interface {{{1
-fu vim#refactor#method#main(bang) abort "{{{2
+fu vim#refactor#method#main(...) abort "{{{2
+    if !a:0
+        let &opfunc = 'vim#refactor#method#main'
+        return 'g@l'
+    endif
     let view = winsaveview()
 
     call vim#util#search('\%'..col('.')..'c\%'..line('.')..'l\S*\zs(')
@@ -38,11 +42,12 @@ fu vim#refactor#method#main(bang) abort "{{{2
     "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
     "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
 
+    let bang = type(a:1) == v:t_number ? a:1 : v:true
     "     if !vim#util#we_can_refactor(
     "         \ [s1, s2],
     "         \ lnum1, col1,
     "         \ lnum2, col2,
-    "         \ a:bang,
+    "         \ bang,
     "         \ view,
     "         \ 'map/filter {expr2}', 'lambda',
     "         \ ) | return | endif

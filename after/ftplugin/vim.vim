@@ -17,7 +17,7 @@ com -bang -bar -buffer -range=% Refactor call vim#refactor#general#main(<line1>,
 " RefBar {{{2
 
 com -bang -bar -buffer -complete=custom,vim#refactor#bar#complete -nargs=?
-\ RefBar call vim#refactor#bar#main(<bang>0, <f-args>)
+    \ RefBar call vim#refactor#bar#main(<bang>0, <f-args>)
 
 " RefDot {{{2
 
@@ -103,21 +103,20 @@ sil! call repmap#make#repeatable({
 
 " TODO: When should we install visual mappings?
 
-nno <buffer><nowait><silent> =rb :<c-u>set opfunc=vim#refactor#bar#main<cr>g@l
+nno <buffer><expr><nowait> =rb vim#refactor#bar#main()
 
+" TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
 nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
 xno <buffer><nowait><silent> =rd :RefDot<cr>
 
-nno <buffer><nowait><silent> =rh :<c-u>set opfunc=vim#refactor#heredoc#main<cr>g@l
-
-nno <buffer><nowait><silent> =rl :<c-u>set opfunc=vim#refactor#lambda#main<cr>g@l
-
-nno <buffer><nowait><silent> =rm :<c-u>set opfunc=vim#refactor#method#main<cr>g@l
+nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
+nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
+nno <buffer><expr><nowait> =rm vim#refactor#method#main()
 
 nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
 xno <buffer><nowait><silent> =rq :RefQuote<cr>
 
-nno <buffer><nowait><silent> =rs :<c-u>set opfunc=vim#refactor#substitute#main<cr>g@l
+nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 
 xno <buffer><nowait><silent> =rt :RefTernary<cr>
 

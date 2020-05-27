@@ -1,12 +1,28 @@
 " Interface {{{1
-fu vim#refactor#heredoc#main(bang, ...) abort "{{{2
+fu vim#refactor#heredoc#main(...) abort "{{{2
+    if !a:0
+        let &opfunc = 'vim#refactor#heredoc#main'
+        return 'g@l'
+    endif
     let view = winsaveview()
-    if index(a:000, '-help') >= 0
+
+    " opfunc
+    if a:0 == 1 && type(a:1) == v:t_string
+        let [bang, arg] = [v:true, []]
+    " Ex cmd, 1 argument
+    elseif a:0 == 1 && type(a:1) == v:t_number
+        let [bang, arg] = [a:1, []]
+    " Ex cmd, 2 arguments
+    else
+        let [bang, arg] = [a:1, a:2]
+    endif
+
+    if index(arg, '-help') >= 0
         return s:print_help()
-    elseif !s:syntax_is_correct(a:000)
+    elseif !s:syntax_is_correct(arg)
         return s:error('invalid syntax, run `:RefHeredoc -help` for more info')
     else
-        let [notrim, marker] = s:get_args(a:000)
+        let [notrim, marker] = s:get_args(arg)
         if marker is# '' | return s:error('invalid marker') | endif
     endif
 
@@ -18,7 +34,7 @@ fu vim#refactor#heredoc#main(bang, ...) abort "{{{2
         \ [s1, s2, s3],
         \ lnum1, col1,
         \ lnum3, col3,
-        \ a:bang,
+        \ bang,
         \ view,
         \ 'list assignment', 'heredoc',
         \ ) | return | endif

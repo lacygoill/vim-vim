@@ -71,8 +71,8 @@ fu s:get_new_substitution(old) abort "{{{2
     let flags = substitute(flags, 'e', '', '')
     " TODO: support case where pattern or replacement contains a single quote
     " TODO: make sure `&`, `~` and `\` are always escaped in the replacement
-    " TODO: when Nvim supports the method call operator, refactor the new
-    " substitution command to make it more readable; make sure to update the tests
+    " TODO: use the  method  call  operator to  refactor  the new  substitution
+    " command to make it more readable; make sure to update the tests
     let lnum = {'': "'.'", '-': "line('.')-1"}[range]
     let new = printf("call setline(%s, substitute(getline(%s), '%s', '%s', '%s'))", lnum, lnum, pat, rep, flags)
     return new

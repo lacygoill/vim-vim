@@ -68,12 +68,12 @@ fu vim#refactor#ternary#main(lnum1,lnum2) abort "{{{2
     let indent_block = matchstr(getline(a:lnum1), '^\s*')
     call map(assignment, {_,v -> indent_block..v})
 
-    let reg_save = [getreg('"'), getregtype('"')]
+    let reg_save = getreginfo('"')
     let @" = join(assignment, "\n")
     try
         exe 'norm! '..a:lnum1..'G'..'V'..a:lnum2..'Gp'
     finally
-        call setreg('"', reg_save[0], reg_save[1])
+        call setreg('"', reg_save)
     endtry
 endfu
 "}}}1

@@ -55,7 +55,7 @@ endfu
 fu vim#util#put(...) abort "{{{2
     let [text, lnum1, col1, lnum2, col2] = a:000
     let [cb_save, sel_save] = [&cb, &sel]
-    let reg_save = ['"', getreg('"'), getregtype('"')]
+    let reg_save = getreginfo('"')
     try
         set cb-=unnamed cb-=unnamedplus sel=inclusive
         if type(text) == v:t_list
@@ -69,7 +69,7 @@ fu vim#util#put(...) abort "{{{2
         norm! p
     finally
         let [&cb, &sel] = [cb_save, sel_save]
-        call call('setreg', reg_save)
+        call setreg('"', reg_save)
     endtry
 endfu
 "}}}1

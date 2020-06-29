@@ -57,7 +57,7 @@ fu vim#util#put(...) abort "{{{2
     let [cb_save, sel_save] = [&cb, &sel]
     let reg_save = getreginfo('"')
     try
-        set cb-=unnamed cb-=unnamedplus sel=inclusive
+        set cb= sel=inclusive
         if type(text) == v:t_list
             let @" = join(text, "\n")
         else

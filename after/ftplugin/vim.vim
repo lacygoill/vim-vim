@@ -121,6 +121,11 @@ nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 xno <buffer><nowait><silent> =rt :RefTernary<cr>
 
 " Options {{{1
+" comments {{{2
+
+" let's try to fix this issue: https://github.com/vim/vim/issues/6403
+let &l:comments ..= ',' .. substitute(&l:comments, '"', '#', 'g')
+
 " flp {{{2
 
 let &l:flp = '^\s*"\=\s*\%(\d\+[.)]\|[-*+]\)\s\+'

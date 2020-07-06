@@ -20,7 +20,7 @@ fu vim#jump_to_tag() abort "{{{1
 endfu
 
 fu vim#undo_ftplugin() abort "{{{1
-    setl com<
+    setl com< flp<
     unlet! b:mc_chain
 
     unmap <buffer> [m

@@ -1,7 +1,5 @@
 " Interface {{{1
-fu vim#util#search(pat, ...) abort "{{{2
-    let flags = get(a:, 1, '')
-    let syntomatch = get(a:, 2, '')
+fu vim#util#search(pat, flags = '', syntomatch = '') abort "{{{2
     let [g, s] = [0, 1]
     let syntax_was_enabled = exists('g:syntax_on')
     try
@@ -10,11 +8,11 @@ fu vim#util#search(pat, ...) abort "{{{2
             syn enable
         endif
         while s > 0 && g < 999
-            let s = search(a:pat, flags..'W'..(g == 0 ? 'c' : ''))
+            let s = search(a:pat, a:flags..'W'..(g == 0 ? 'c' : ''))
             let synstack = synstack(line('.'), col('.'))
             let syngroup = get(map(synstack, {_,v -> synIDattr(v, 'name')}), -1, '')
             if syngroup is# 'vimString' | let g += 1 | continue | endif
-            if syntomatch is# '' || syngroup =~# '\C^\%('..syntomatch..'\)$' | break | endif
+            if a:syntomatch is# '' || syngroup =~# '\C^\%('..a:syntomatch..'\)$' | break | endif
             let g += 1
         endwhile
         return s

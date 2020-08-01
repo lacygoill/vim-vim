@@ -6,4 +6,3 @@ fu vim#syntax#override_vimOperGroup() abort
     let cmd ..= ',vimLineComment'
     exe cmd
 endfu
-

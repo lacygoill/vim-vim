@@ -8,11 +8,11 @@ fu vim#util#search(pat, flags = '', syntomatch = '') abort "{{{2
             syn enable
         endif
         while s > 0 && g < 999
-            let s = search(a:pat, a:flags..'W'..(g == 0 ? 'c' : ''))
-            let synstack = synstack(line('.'), col('.'))
-            let syngroup = get(map(synstack, {_,v -> synIDattr(v, 'name')}), -1, '')
+            let s = search(a:pat, a:flags .. 'W' .. (g == 0 ? 'c' : ''))
+            let synstack = synstack('.', col('.'))
+            let syngroup = map(synstack, {_, v -> synIDattr(v, 'name')})->get(-1, '')
             if syngroup is# 'vimString' | let g += 1 | continue | endif
-            if a:syntomatch is# '' || syngroup =~# '\C^\%('..a:syntomatch..'\)$' | break | endif
+            if a:syntomatch == '' || syngroup =~# '\C^\%(' .. a:syntomatch .. '\)$' | break | endif
             let g += 1
         endwhile
         return s
@@ -23,13 +23,13 @@ endfu
 
 fu vim#util#we_can_refactor(...) abort "{{{2
     let [
-    \ search_results,
-    \ lnum1, col1,
-    \ lnum2, col2,
-    \ bang,
-    \ view,
-    \ this, into_that
-    \ ] = a:000
+        \ search_results,
+        \ lnum1, col1,
+        \ lnum2, col2,
+        \ bang,
+        \ view,
+        \ this, into_that
+        \ ] = a:000
 
     let [lnum0, col0] = [view.lnum, view.col]
     let l:Finish = function('s:finish', [view])
@@ -42,8 +42,8 @@ fu vim#util#we_can_refactor(...) abort "{{{2
     if index(search_results, 0) >= 0
     \ || !call('s:contains_pos', [lnum0, col0] + args)
     \ || s:contains_empty_or_commented_line(lnum1, lnum2)
-        return l:Finish(this..' not found')
-    elseif !bang && call('s:confirm', ['refactor into '..into_that] + args) isnot# 'y'
+        return l:Finish(this .. ' not found')
+    elseif !bang && call('s:confirm', ['refactor into ' .. into_that] + args) isnot# 'y'
         return l:Finish()
     else
         return 1
@@ -87,8 +87,8 @@ fu s:contains_pos(...) abort "{{{2
         return col0 >= (col1 - 1) && col0 <= (col2 - 1)
     else
         return (lnum0 > lnum1 && lnum0 < lnum2)
-        \ || (lnum0 == lnum1 && col0 >= (col1 - 1))
-        \ || (lnum0 == lnum2 && col0 <= (col2 - 1))
+            \ || (lnum0 == lnum1 && col0 >= (col1 - 1))
+            \ || (lnum0 == lnum2 && col0 <= (col2 - 1))
     endif
 endfu
 
@@ -101,7 +101,7 @@ fu s:finish(view, ...) abort "{{{2
     " Why `winrestview()` instead of `cursor()`?{{{
     "
     " Restoring the cursor position does not the guarantee that the view will be
-    " preserved. I want it preserved.
+    " preserved.  I want it preserved.
     "}}}
     " Why restoring the view *before* echo'ing the message?{{{
     "
@@ -113,7 +113,7 @@ fu s:finish(view, ...) abort "{{{2
     " Without, the message is  erased if no list assignment is  found and if the
     " syntax is disabled.
     redraw
-    if a:0 && a:1 isnot# ''
+    if a:0 && a:1 != ''
         echohl ErrorMsg
         echo a:1
         echohl NONE
@@ -124,16 +124,16 @@ endfu
 fu s:confirm(msg, ...) abort "{{{2
     let [lnum1, col1, lnum2, col2] = a:000
     let fen_save = &l:fen
-    let pat = '\%'..lnum1..'l\%'..col1..'c\_.*\%'..lnum2..'l\%'..col2..'c.'
+    let pat = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
     let id = matchadd('IncSearch', pat)
     try
         setl nofen
         echohl Question
-        redraw | echo a:msg..' (y/n)?'
+        redraw | echo a:msg .. ' (y/n)?'
         echohl NONE
         let answer = ''
         while index(['y', 'n', "\e"], answer) == -1
-            let answer = nr2char(getchar())
+            let answer = getchar()->nr2char()
         endwhile
         redraw!
     catch /Vim:Interrupt/

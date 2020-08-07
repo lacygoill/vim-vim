@@ -1,3 +1,5 @@
+import Catch from 'lg.vim'
+
 fu vim#jump_to_tag() abort "{{{1
     let [isk_save, bufnr] = [&l:isk, bufnr('%')]
     " Some tags may contain a colon (ex: `s:some_function()`).
@@ -9,7 +11,7 @@ fu vim#jump_to_tag() abort "{{{1
         exe "norm! \<c-]>"
         norm! zvzz
     catch
-        return lg#catch()
+        return s:Catch()
     finally
         " Why not simply `let &l:isk = isk_save`?{{{
         "

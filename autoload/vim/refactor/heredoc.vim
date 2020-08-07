@@ -23,7 +23,7 @@ fu vim#refactor#heredoc#main(...) abort "{{{2
         return s:error('invalid syntax, run `:RefHeredoc -help` for more info')
     else
         let [notrim, marker] = s:get_args(arg)
-        if marker is# '' | return s:error('invalid marker') | endif
+        if marker == '' | return s:error('invalid marker') | endif
     endif
 
     let s1 = s:search_let() | let [lnum1, col1] = getcurpos()[1:2]
@@ -39,7 +39,7 @@ fu vim#refactor#heredoc#main(...) abort "{{{2
         \ 'list assignment', 'heredoc',
         \ ) | return | endif
 
-    let indent = matchstr(getline(lnum2), '^\s*')
+    let indent = getline(lnum2)->matchstr('^\s*')
     call s:break_bar(lnum3, indent)
 
     let items = s:get_items(lnum1, lnum3)
@@ -91,9 +91,9 @@ endfu
 
 fu s:get_args(args) abort "{{{2
     let notrim = index(a:args, '-notrim') >= 0
-    let args = substitute(join(a:args), '\C-\%(help\|notrim\)', '', 'g')
+    let args = join(a:args)->substitute('\C-\%(help\|notrim\)', '', 'g')
     let marker = matchstr(args, '\S\+\s*$')
-    if marker is# ''
+    if marker == ''
         let marker = 'END'
     elseif marker !~# '\L\S*'
         let marker = ''
@@ -137,23 +137,23 @@ fu s:break_bar(lnum, indent) abort "{{{2
     "
     " and what follows the bar would interfere when Vim looks for the `END` marker.
     "}}}
-    exe 'keepj keepp '..a:lnum..'s/\s*|\s*/\r'..a:indent..'/e'
+    exe 'keepj keepp ' .. a:lnum .. 's/\s*|\s*/\r' .. a:indent .. '/e'
 endfu
 
 fu s:get_items(lnum1, lnum3) abort "{{{2
     let lines = getline(a:lnum1, a:lnum3)
     " remove possible comments inside the list (`:h line-continuation-comment`)
-    call filter(lines, {_,v -> v !~# '^\s*"\\ '})
+    call filter(lines, {_, v -> v !~# '^\s*"\\ '})
     let list_value = join(lines)
     let pat = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
     let items = []
     let l:Item = {m -> m[1] is# "'"
         \ ? substitute(m[0], "''", "'", 'g')
-        \ : eval('"'..m[0]..'"')
+        \ : eval('"' .. m[0] .. '"')
         \ }
     let l:Rep = {m -> add(items, l:Item(m))[0]}
     call substitute(list_value, pat, l:Rep, 'g')
-    call map(items, {_,v -> v isnot# '' ? repeat(' ', shiftwidth())..v : v})
+    call map(items, {_, v -> v != '' ? repeat(' ', shiftwidth()) .. v : v})
     return items
 endfu
 
@@ -163,9 +163,9 @@ fu s:get_new_assignment(...) abort "{{{2
         \ [printf('=<< %s%s', notrim ? '' : 'trim ', marker)]
         \ + items
         \ + [marker]
-    call map(assignment, {i,v -> i == 0 || v is# '' ? v : indent..v})
+    call map(assignment, {i, v -> i == 0 || v == '' ? v : indent .. v})
     if notrim
-        call map(assignment, {_,v -> trim(v, " \t")})
+        call map(assignment, {_, v -> trim(v, " \t")})
     endif
     return assignment
 endfu

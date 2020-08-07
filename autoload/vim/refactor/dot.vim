@@ -3,15 +3,15 @@ fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
         "\ outside a single-quoted string
         \ '\%(^\%(''[^'']*''\|[^'']\)*\)\@<='
         "\ outside a double-quoted string
-        \ ..'\%(^\%("[^"]*"\|[^"]\)*\)\@<='
+        \ .. '\%(^\%("[^"]*"\|[^"]\)*\)\@<='
         "\ not on a commented line
-        \ ..'\%(^\s*".*\)\@<!'
+        \ .. '\%(^\s*".*\)\@<!'
         "\ a dot not preceded by another dot, nor followed by another dot/equal sign
-        \ ..'\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*'
+        \ .. '\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*'
         "\ `.=` assignment → `..=`
-        \ ..'\|\.\@1<!\.\ze='
+        \ .. '\|\.\@1<!\.\ze='
         "\ or two dots surrounded by spaces
-        \ ..'\|\s\+\.\.\s\+\)'
+        \ .. '\|\s\+\.\.\s\+\)'
     " Warning: The pattern could find false positives.{{{
     "
     " MWE:
@@ -37,7 +37,7 @@ fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
     " the `c` flag of `:s` when there are many matches and you're tired).
     "}}}
 
-    let range = a:lnum1..','..a:lnum2
-    exe range..'s/'..pat..'/../ge'..(a:bang ? '' : 'c')
+    let range = a:lnum1 .. ',' .. a:lnum2
+    exe range .. 's/' .. pat .. '/../ge' .. (a:bang ? '' : 'c')
 endfu
 

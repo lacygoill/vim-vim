@@ -3,7 +3,7 @@ if exists('g:autoloaded_vim#refactor#method')
 endif
 let g:autoloaded_vim#refactor#method = 1
 
-let s:FUNCTION_NAMES = filter(getcompletion('[a-z]', 'function'), {_,v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
+let s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')->filter({_, v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
 
 " Interface {{{1
 fu vim#refactor#method#main(...) abort "{{{2
@@ -13,9 +13,9 @@ fu vim#refactor#method#main(...) abort "{{{2
     endif
     let view = winsaveview()
 
-    call vim#util#search('\%'..col('.')..'c\%'..line('.')..'l\S*\zs(')
-    let funcname = matchstr(getline('.'), '\S*\%'..col('.')..'c')
-    if match(s:FUNCTION_NAMES, '^\V'..funcname..'\m\%((\|()\)') == -1
+    call vim#util#search('\%' .. col('.') .. 'c\%' .. line('.') .. 'l\S*\zs(')
+    let funcname = getline('.')->matchstr('\S*\%' .. col('.') .. 'c')
+    if match(s:FUNCTION_NAMES, '^\V' .. funcname .. '\m\%((\|()\)') == -1
         echohl ErrorMsg
         echo 'no builtin function under the cursor'
         echohl NONE
@@ -26,13 +26,13 @@ fu vim#refactor#method#main(...) abort "{{{2
     "
     " If so, here's the code:
     "
-    "     let opening_bracket = getline('.')[col('.')-1]
+    "     let opening_bracket = getline('.')[col('.') - 1]
     "     if index(['<', '(', '[', '{'], opening_bracket) == -1
     "         return
     "     endif
     "     let closing_bracket = {'<': '>', '(': ')', '[': ']', '{': '}'}[opening_bracket]
     "     call searchpair(opening_bracket, '', closing_bracket,
-    "         \ 'W', 'synIDattr(synID(line("."),col("."),1),"name") =~? "comment\\|string"')
+    "         \ 'W', 'synID(".", col("."), 1)->synIDattr("name") =~? "comment\\|string"')
     "
     " But I'm not sure we need it.
     " Maybe `vim#util#search(')')` is enough...
@@ -53,9 +53,9 @@ fu vim#refactor#method#main(...) abort "{{{2
     "         \ ) | return | endif
 
     "     if @" =~# '\Cv:key'
-    "         let new_expr = '{i,v -> '..s:get_expr(@")..'}'
+    "         let new_expr = '{i, v -> ' .. s:get_expr(@") .. '}'
     "     else
-    "         let new_expr = '{_,v -> '..s:get_expr(@")..'}'
+    "         let new_expr = '{_, v -> ' .. s:get_expr(@") .. '}'
     "     endif
 
     "     call vim#util#put(

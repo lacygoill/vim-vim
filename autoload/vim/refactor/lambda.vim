@@ -6,7 +6,7 @@ fu vim#refactor#lambda#main(...) abort "{{{2
     endif
 
     " TODO: A lambda is not always better than an eval string.
-    " Make the function support the reverse refactoring (`{_,v -> v}` → `'v:val'`).
+    " Make the function support the reverse refactoring (`{_, v -> v}` → `'v:val'`).
     let view = winsaveview()
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
@@ -24,9 +24,9 @@ fu vim#refactor#lambda#main(...) abort "{{{2
         \ ) | return | endif
 
     if @" =~# '\Cv:key'
-        let new_expr = '{i,v -> '..s:get_expr(@")..'}'
+        let new_expr = '{i, v -> ' .. s:get_expr(@") .. '}'
     else
-        let new_expr = '{_,v -> '..s:get_expr(@")..'}'
+        let new_expr = '{_, v -> ' .. s:get_expr(@") .. '}'
     endif
 
     call vim#util#put(
@@ -46,7 +46,7 @@ fu s:search_closing_quote() abort "{{{2
 endfu
 
 fu s:search_opening_quote() abort "{{{2
-    let char = matchstr(getline('.'), '\%'..col('.')..'c.')
+    let char = getline('.')->matchstr('\%' .. col('.') .. 'c.')
     let pat = char is# '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')
 endfu
@@ -55,11 +55,11 @@ fu s:get_expr(captured_text) abort "{{{2
     let expr = a:captured_text
     let quote = expr[-1:-1]
     let is_single_quoted = quote is# "'"
-    let expr = substitute(expr, '^\s*'..quote..'\|'..quote..'\s*$', '', 'g')
+    let expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted
         let expr = substitute(expr, "''", "'", 'g')
     else
-        let expr = eval('"'..expr..'"')
+        let expr = eval('"' .. expr .. '"')
     endif
     let expr = substitute(expr, 'v:val', 'v', 'g')
     let expr = substitute(expr, 'v:key', 'i', 'g')

@@ -32,7 +32,7 @@ com -bang -bar -buffer -range=% RefDot call vim#refactor#dot#main(<bang>0, <line
 " RefHeredoc {{{2
 
 com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
-\ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
+    \ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
 
 " RefMethod {{{2
 
@@ -63,16 +63,16 @@ com -bang -bar -buffer RefSubstitute call vim#refactor#substitute#main#main(<ban
 " Or this one:
 "
 "     if s:has_flag_p(a:flags, 'u')
-"         return a:mode.'unmap'
+"         return a:mode .. 'unmap'
 "     else
-"         return a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
+"         return a:mode .. (s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
 "     endif
 "
 "         →
 "
 "     return s:has_flag_p(a:flags, 'u')
-"        \ ?     a:mode.'unmap'
-"        \ :     a:mode.(s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
+"         \ ?     a:mode .. 'unmap'
+"         \ :     a:mode .. (s:has_flag_p(a:flags, 'r') ? 'map' : 'noremap')
 
 " Code  {{{3
 
@@ -95,10 +95,10 @@ noremap <buffer><expr><nowait><silent> ]M brackets#move#regex('endfu', 1)
 sil! call repmap#make#repeatable({
     \ 'mode': '',
     \ 'buffer': 1,
-    \ 'from': expand('<sfile>:p')..':'..expand('<slnum>'),
+    \ 'from': expand('<sfile>:p') .. ':' .. expand('<slnum>'),
     \ 'motions': [
-    \     {'bwd': '[m',  'fwd': ']m'},
-    \     {'bwd': '[M',  'fwd': ']M'},
+    \     {'bwd': '[m', 'fwd': ']m'},
+    \     {'bwd': '[M', 'fwd': ']M'},
     \ ]})
 
 " TODO: When should we install visual mappings?
@@ -144,5 +144,5 @@ END
 " Teardown {{{1
 
 let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
-    \ ..'| call vim#undo_ftplugin()'
+    \ .. '| call vim#undo_ftplugin()'
 

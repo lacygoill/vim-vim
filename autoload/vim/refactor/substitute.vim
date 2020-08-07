@@ -11,11 +11,11 @@ const s:PAT =
     "\ the substitution could be in a sequence of commands separated by bars
     \ '\C^\%(.*|\)\='
     "\ modifiers
-    \ ..'\s*\zs\%(\%(sil\%[ent]!\=\|keepj\%[umps]\|keepp\%[atterns]\)\s*\)\{,3}'
+    \ .. '\s*\zs\%(\%(sil\%[ent]!\=\|keepj\%[umps]\|keepp\%[atterns]\)\s*\)\{,3}'
     "\ range
-    \ ..'\(-\=\)'
+    \ .. '\(-\=\)'
     "\ command
-    \ ..'s\(\i\@!.\)\(.\{-}\)\2\(.\{-}\)\2\([gcen]\{,4}\)$'
+    \ .. 's\(\i\@!.\)\(.\{-}\)\2\(.\{-}\)\2\([gcen]\{,4}\)$'
 
 " Interface {{{1
 fu vim#refactor#substitute#main(...) abort "{{{2
@@ -63,7 +63,7 @@ fu s:search_substitution_end() abort "{{{2
 endfu
 
 fu s:get_old_substitution(lnum) abort "{{{2
-    return matchstr(getline(a:lnum), s:PAT)
+    return getline(a:lnum)->matchstr(s:PAT)
 endfu
 
 fu s:get_new_substitution(old) abort "{{{2
@@ -73,8 +73,9 @@ fu s:get_new_substitution(old) abort "{{{2
     " TODO: make sure `&`, `~` and `\` are always escaped in the replacement
     " TODO: use the  method  call  operator to  refactor  the new  substitution
     " command to make it more readable; make sure to update the tests
-    let lnum = {'': "'.'", '-': "line('.')-1"}[range]
-    let new = printf("call setline(%s, substitute(getline(%s), '%s', '%s', '%s'))", lnum, lnum, pat, rep, flags)
+    let lnum = {'': "'.'", '-': "line('.') - 1"}[range]
+    let new = printf("call getline(%s)->substitute('%s', '%s', '%s')->setline(%s)",
+        \ lnum, pat, rep, flags, lnum)
     return new
 endfu
 

@@ -45,11 +45,11 @@ fu s:search_closing_quote() abort "{{{2
     return search('["'']', 'bW')
 endfu
 
-fu s:search_opening_quote() abort "{{{2
-    let char = getline('.')->matchstr('\%' .. col('.') .. 'c.')
-    let pat = char is# '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
+def s:search_opening_quote(): number #{{{2
+    let char = getline('.')->strpart(col('.') - 1)[0]
+    let pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')
-endfu
+enddef
 
 fu s:get_expr(captured_text) abort "{{{2
     let expr = a:captured_text

@@ -22,7 +22,7 @@ fu vim#jump_to_tag() abort "{{{1
 endfu
 
 fu vim#undo_ftplugin() abort "{{{1
-    setl com< flp<
+    set flp<
     unlet! b:mc_chain
 
     unmap <buffer> [m
@@ -37,6 +37,7 @@ fu vim#undo_ftplugin() abort "{{{1
     nunmap <buffer> =rh
     nunmap <buffer> =rl
     nunmap <buffer> =rm
+    nunmap <buffer> =r-
     nunmap <buffer> =rq
     nunmap <buffer> =rs
 
@@ -52,6 +53,7 @@ fu vim#undo_ftplugin() abort "{{{1
     delc RefQuote
     delc RefSubstitute
     delc RefTernary
+    delc RefVim9
     delc Refactor
 endfu
 

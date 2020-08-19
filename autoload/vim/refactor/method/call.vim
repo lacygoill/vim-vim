@@ -1,14 +1,15 @@
-if exists('g:autoloaded_vim#refactor#method')
+if exists('g:autoloaded_vim#refactor#method#call')
     finish
 endif
-let g:autoloaded_vim#refactor#method = 1
+let g:autoloaded_vim#refactor#method#call = 1
 
-let s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')->filter({_, v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
+const s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')
+    \ ->filter({_, v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
 
 " Interface {{{1
-fu vim#refactor#method#main(...) abort "{{{2
+fu vim#refactor#method#call#main(...) abort "{{{2
     if !a:0
-        let &opfunc = 'vim#refactor#method#main'
+        let &opfunc = 'vim#refactor#method#call#main'
         return 'g@l'
     endif
     let view = winsaveview()
@@ -65,4 +66,3 @@ fu vim#refactor#method#main(...) abort "{{{2
     "         \ )
 endfu
 "}}}1
-" Core {{{1

@@ -16,7 +16,7 @@ com -bang -bar -buffer -range=% Refactor call vim#refactor#general#main(<line1>,
 
 " RefBar {{{2
 
-com -bang -bar -buffer -complete=custom,vim#refactor#bar#complete -nargs=?
+com -bang -bar -buffer -nargs=? -complete=custom,vim#refactor#bar#complete
     \ RefBar call vim#refactor#bar#main(<bang>0, <f-args>)
 
 " RefDot {{{2
@@ -31,8 +31,12 @@ com -bang -bar -buffer -range=% RefDot call vim#refactor#dot#main(<bang>0, <line
 
 " RefHeredoc {{{2
 
-com -bang -bar -buffer -complete=custom,vim#refactor#heredoc#complete -nargs=*
+com -bang -bar -buffer -nargs=* -complete=custom,vim#refactor#heredoc#complete
     \ RefHeredoc call vim#refactor#heredoc#main(<bang>0, <f-args>)
+
+" RefLambda {{{2
+
+com -bang -bar -buffer RefLambda call vim#refactor#lambda#main(<bang>0)
 
 " RefMethod {{{2
 
@@ -78,9 +82,9 @@ com -bang -bar -buffer RefSubstitute call vim#refactor#substitute#main#main(<ban
 
 com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2>)
 "}}}2
-" RefLambda {{{2
+" RefVim9 {{{2
 
-com -bang -bar -buffer RefLambda call vim#refactor#lambda#main(<bang>0)
+com -bar -buffer RefVim9 call vim#refactor#vim9#main()
 "}}}1
 " Mappings {{{1
 
@@ -111,7 +115,8 @@ xno <buffer><nowait><silent> =rd :RefDot<cr>
 
 nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
 nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
-nno <buffer><expr><nowait> =rm vim#refactor#method#main()
+nno <buffer><expr><nowait> =rm vim#refactor#method#call#main()
+nno <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
 
 nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
 xno <buffer><nowait><silent> =rq :RefQuote<cr>

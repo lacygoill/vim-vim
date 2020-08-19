@@ -24,6 +24,7 @@ sil! call s:Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=ital
 
 " Problem: In `hi clear {group}`, `{group}` is not highlighted.
 " Solution: Pass `skipwhite` to `:syn keyword`.
+
 syn clear vimHiClear
 syn keyword vimHiClear contained clear skipwhite nextgroup=vimHiGroup
 
@@ -43,6 +44,7 @@ syn keyword vimHiClear contained clear skipwhite nextgroup=vimHiGroup
 " We don't need to.
 " Besides, it contains too many items.  It would be cumbersome to redefine them.
 "}}}
+
 syn keyword vimSynType contained clear skipwhite nextgroup=vimGroupList,vimHiGroup
 syn clear vimGroupList
 syn match vimGroupList contained '@\=[^ \t,]\+' contains=vimGroupSpecial,vimPatSep
@@ -64,16 +66,39 @@ syn match vimHiGroup contained '\i\+'
 " Problem: `:h line-continuation-comment` is not highlighted inside a dictionary.
 " Solution: Include the syntax group `vimLineComment` in the cluster `@vimOperGroup`.
 " https://github.com/vim/vim/issues/6592
+
 call vim#syntax#include_group_in_cluster('vimOperGroup', 'vimLineComment')
 
 " Problem: Vim9 comment leader not highlighted on empty commented line inside function.
 " Solution: Include the syntax group `vim9LineComment` in the `vimFuncBodyList` cluster.
 " https://github.com/vim/vim/issues/6600
+
 call vim#syntax#include_group_in_cluster('vimFuncBodyList', 'vim9LineComment')
+
+" Problem: A literal dictionary at the start of a line is wrongly highlighted as a Vim9 comment{{{
+"
+"     vim9script
+"     let l = [#{},
+"         #{}]
+"         ^--^
+"         wrongly highlighted as a comment
+"}}}
+" Solution: Disallow `{` after `#`.
+
+syn clear vim9LineComment
+syn match vim9LineComment '^[ \t:]*#{\@!.*$' contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+"                                  ^---^
+
+" Problem: The `#` prefix in a literal dictionary is not highlighted.
+" Solution: Add a rule to highlight it.
+
+syn region vimOperParen matchgroup=vimSep  start='#{' end='}' contains=@vimOperGroup nextgroup=vimVar,vimFuncVar
+"                                                 ^
 
 " Problem: Title in Vim9 comment not highlighted.
 " Solution: Recognize `#` comment leader.
 " https://github.com/vim/vim/issues/6599
+
 syn clear vimCommentTitle
 syn match vimCommentTitle '["#]\s*\%([sS]:\|\h\w*#\)\=\u\w*\(\s\+\u\w*\)*:'hs=s+1
     \ contained contains=vimCommentTitleLeader,vimTodo,@vimCommentGroup
@@ -81,12 +106,22 @@ syn match vimCommentTitle '["#]\s*\%([sS]:\|\h\w*#\)\=\u\w*\(\s\+\u\w*\)*:'hs=s+
 " Problem: `#{` in `#{{ {` is wrongly parsed as the start of a literal dictionary.
 " Solution: Allow `{{ {` after Vim9 comment leader.
 " https://github.com/vim/vim/issues/6601
+" Problem: A title is not highlighted inside a comment at the script level.
+" Solution: Allow a title in a comment at the script level.{{{
+"
+" Make each `vim9Comment` item contain the `vimCommentTitle` syntax group.
+"
+"     syn match vim9Comment ... contains=@vimCommentGroup,...,vimCommentTitle
+"                                                             ^-------------^
+"     ...
+"}}}
+
 syn clear vim9Comment
-syn match vim9Comment excludenl +^#\%([^{]\|{{\%x7b\).*$+               contains=@vimCommentGroup,vimCommentString
-syn match vim9Comment excludenl +\s#\%([^{]\|{{\%x7b\).*$+lc=1          contains=@vimCommentGroup,vimCommentString
-syn match vim9Comment           +\<endif\s\+#\%([^{]\|{{\%x7b\).*$+lc=5 contains=@vimCommentGroup,vimCommentString
-syn match vim9Comment           +\<else\s\+#\%([^{]\|{{\%x7b\).*$+lc=4  contains=@vimCommentGroup,vimCommentString
-syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains=@vimCommentGroup,vimCommentString
+syn match vim9Comment excludenl +^#\%([^{]\|{{\%x7b\).*$+               contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+syn match vim9Comment excludenl +\s#\%([^{]\|{{\%x7b\).*$+lc=1          contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+syn match vim9Comment           +\<endif\s\+#\%([^{]\|{{\%x7b\).*$+lc=5 contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+syn match vim9Comment           +\<else\s\+#\%([^{]\|{{\%x7b\).*$+lc=4  contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains=@vimCommentGroup,vimCommentString,vimCommentTitle
 
 " Misc. {{{1
 
@@ -101,6 +136,7 @@ syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains
 "}}}
 " Solution:  Make `vimUsrCmd` highlight only the command name.
 " https://github.com/vim/vim/issues/6587
+
 syn clear vimUsrCmd
 syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>(\@!'
 "                                     ^-----^
@@ -109,6 +145,7 @@ syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>(\@!'
 
 " Problem: In an `:echo` command, the `->` method tokens, and functions parentheses, are wrongly highlighted.
 " Solution: Allow `vimOper` and `vimOperParen` to start in a `vimEcho` region.
+
 syn region vimEcho oneline excludenl matchgroup=vimCommand
     \ start="\<ec\%[ho]\>" skip="\(\\\\\)*\\|" end="$\||"
     \ contains=vimFunc,vimFuncVar,vimString,vimVar,vimOper,vimOperParen
@@ -117,6 +154,7 @@ syn region vimEcho oneline excludenl matchgroup=vimCommand
 " Problem: The `substitute()` function is wrongly highlighted as a command when used as a method.
 " Solution: Disallow `(` after `substitute`.
 " https://github.com/vim/vim/issues/6611
+
 syn clear vimSubst
 syn match vimSubst
     \ "\(:\+\s*\|^\s*\||\s*\)\<\%(\<s\%[ubstitute]\>\|\<sm\%[agic]\>\|\<sno\%[magic]\>\)[:#[:alpha:]]\@!"

@@ -51,7 +51,7 @@ fu vim#util#we_can_refactor(...) abort "{{{2
 endfu
 
 fu vim#util#put(...) abort "{{{2
-    let [text, lnum1, col1, lnum2, col2] = a:000
+    let [text, lnum1, col1, lnum2, col2; linewise] = a:000
     let [cb_save, sel_save] = [&cb, &sel]
     let reg_save = getreginfo('"')
     try
@@ -62,7 +62,7 @@ fu vim#util#put(...) abort "{{{2
             let @" = text
         endif
         call setpos('.', [0, lnum1, col1, 0])
-        norm! v
+        exe 'norm!' .. (!empty(linewise) ? 'V' : 'v')
         call setpos('.', [0, lnum2, col2, 0])
         norm! p
     finally

@@ -33,12 +33,19 @@ def vim#refactor#vim9#main() #{{{2
     Fu2Def()
 
     ImportNoReinclusionGuard()
+    RemoveInvalid()
     CannotDeclarePublicVariable()
     ScriptLocalVariables()
-    # `ProperWhitespace()` must be invoked *before* `UselessConstructs()` (it might need to find `:call`)
+    # `ProperWhitespace()` must be invoked *before* `UselessConstructs()`{{{
+    #
+    # The former might need to find `:call`.
+    # And  the latter  might  perform  some wrong  refactorings  if all  useless
+    # whitespace has  not been removed.  In  particular, it assumes that  – in a
+    # function call –  there is no extra whitespace between  a function name and
+    # the opening parenthesis.
+    #}}}
     ProperWhitespace()
     UselessConstructs()
-    RemoveInvalid()
     Misc()
     OpenLocationWindow()
 
@@ -59,6 +66,8 @@ def Vim9script() #{{{2
 enddef
 
 def Comments() #{{{2
+    # `:h line-continuation-comment`
+    :sil keepj keepp lockm %s/^\s*\zs"\\ /# /ge
     :sil keepj keepp lockm %s/"/\=GetNewCommentLeader()/ge
 enddef
 
@@ -104,71 +113,6 @@ def Fu2Def() #{{{2
     # list on the stack, and let the user perform those refactorings manually.
 enddef
 
-def ProperWhitespace() #{{{2
-    let lines =<< trim END
-        {_,v -> ...}
-        →
-        {_, v -> ...}
-    END
-    popup_clear() | Popup_notification(lines)
-    :keepj keepp lockm %s/{\s*[^ ,]\+,\zs\ze[^ ,]\+\s*->/ /gce
-
-    popup_clear() | Popup_notification('let var= 234    # Error!')
-    :keepj keepp lockm %s/\C\<let\s\+.*\S\zs\ze\\\@1<!=/ /gce
-
-    popup_clear() | Popup_notification('let var =234    # Error!')
-    :keepj keepp lockm %s/\C\<let\s\+.*=\\\@!\zs\ze\S\%(.*\i\)/ /gce
-
-    popup_clear() | Popup_notification('let var = 234# Error!')
-    :keepj keepp lockm %s/\C\<let\s\+.*=.*\S\zs\ze#{\@!\s\+/ /gce
-    #                                                  ^--^{{{
-    #                                                  technically, we should remove this, but:
-    #                                                  - in practice, it probably won't matter
-    #                                                  - it should remove false positives
-    #                                                  (e.g. # inside a string)
-    #}}}
-
-    popup_clear() | Popup_notification('call Func (arg) # Error!')
-    :keepj keepp lockm %s/\C\<call\s\+[a-zA-Z_:]\+\zs\s\+\ze(//gce
-
-    # TODO: check white space is correctly used in other contexts{{{
-    #
-    #     let x = 1+2 # Error! (tricky to find; many possible operators, and many types of operands)
-    #     let l = [1 , 2 , 3] # Error!
-    #     let d = {'a': 1 , 'b': 2 , 'c': 3} # Error!
-    #     let d = {'a' : 1, 'b' : 2, 'c' : 3} # Error!
-    #}}}
-enddef
-
-def UselessConstructs() #{{{2
-    popup_clear() | Popup_notification('==# → ==')
-    :keepj keepp lockm %s/[!=][=~]\zs#//gce
-    # What about the `?` family of comparison operators?{{{
-    #
-    #     ==?
-    #     !=?
-    #     =~?
-    #     !~?
-    #
-    # We still need them in Vim9 script.
-    #}}}
-
-    popup_clear() | Popup_notification('s:func() → Func()')
-    :keepj keepp lockm %s/\C\<s:\(\a\)/\U\1/gce
-
-    popup_clear() | Popup_notification('v:true → true')
-    :keepj keepp lockm %s/\C\<v:\ze\%(true\|false\)\>//gce
-
-    popup_clear() | Popup_notification(':call → ∅')
-    :keepj keepp lockm %s/\C\zs\<call\>\s\+\ze\S\+(//gce
-
-    popup_clear() | Popup_notification('line continuations')
-    # TODO: don't remove a leading backslash in a multiline autocmd or custom Ex command
-    :keepj keepp lockm %s/^\s*\zs\\\s\=//ce
-
-    popup_clear()
-enddef
-
 def ImportNoReinclusionGuard() #{{{2
     # No need of a re-inclusion guard in an import script. {{{
     #
@@ -186,30 +130,52 @@ def ImportNoReinclusionGuard() #{{{2
     endif
 enddef
 
+def RemoveInvalid() #{{{2
+    let info = Popup_notification('a:funcarg → funcarg')
+    :keepj keepp lockm %s/\C\<a:\ze\D//gce
+    popup_close(info[1])
+
+    info = Popup_notification('l:funcvar → funcvar')
+    :keepj keepp lockm %s/\C&\@1<!\<l://gce
+    popup_close(info[1])
+
+    info = Popup_notification('is# → ==')
+    :keepj keepp lockm %s/\C\<is#/==/gce
+    :keepj keepp lockm %s/\C\<isnot#/!=/gce
+    :keepj keepp lockm %s/\C\<is?/==?/gce
+    :keepj keepp lockm %s/\C\<isnot?/!=?/gce
+    popup_close(info[1])
+enddef
+
 def CannotDeclarePublicVariable() #{{{2
     # E1016: Cannot declare a global variable: g:var
     # You can declare a script-local variable at  the script level, but not in a
     # `:def` function.
-    popup_clear() | Popup_notification('let g:var = 123 → g:var = 123')
+    let info = Popup_notification('let g:var = 123 → g:var = 123')
     :keepj keepp lockm %s/\C\zs\<let\s\+\ze[bgtvw]:\S//gce
+    popup_close(info[1])
+
     # Cannot declare environment variable (`E1016`), nor Vim option (`E1052`)
-    popup_clear() | Popup_notification('let $ENVVAR = 123 → $ENVVAR = 123')
+    info = Popup_notification('let $ENVVAR = 123 → $ENVVAR = 123')
     :keepj keepp lockm %s/\C\zs\<let\s\+\ze[$&]\S//gce
+    popup_close(info[1])
 enddef
 
 def ScriptLocalVariables() #{{{2
     let lines =<< trim END
-    # in function
+    " in function
     let s:var = 123
     →
     s:var = 123
-    # at script level
+
+    " at script level
     let s:var = 123
     →
     let var = 123
     END
-    popup_clear() | Popup_notification(lines)
-    :keepj keepp lockm sil %s/\C\<let\s\+s:\ze\S/\=GetNewAssignment()/gce
+    let info = Popup_notification(lines)
+    :keepj keepp lockm sil %s/\C\<\(let\|const\=\)\s\+s:\ze\S/\=GetNewAssignment()/gce
+    popup_close(info[1])
 enddef
 
 def GetNewAssignment(): string
@@ -227,22 +193,84 @@ def GetNewAssignment(): string
     if synstack('.', col('.'))
         ->map({_, v -> synIDattr(v, 'name')})
         ->match('\cvimfuncbody') == -1
-        return 'let '
+        return submatch(1) .. ' '
     else
         return 's:'
     endif
 enddef
 
-def RemoveInvalid() #{{{2
-    # `a:`
-    :keepj keepp lockm %s/\C\<a:\ze\D//gce
-    # `l:`
-    :keepj keepp lockm %s/\C\<l://gce
-    # `is#` → `==`
-    :keepj keepp lockm %s/\C\<is#/==/gce
-    :keepj keepp lockm %s/\C\<isnot#/!=/gce
-    :keepj keepp lockm %s/\C\<is?/==?/gce
-    :keepj keepp lockm %s/\C\<isnot?/!=?/gce
+def ProperWhitespace() #{{{2
+    let lines =<< trim END
+        {_,v -> ...}
+        →
+        {_, v -> ...}
+    END
+    let info = Popup_notification(lines)
+    :keepj keepp lockm %s/{\s*[^ ,]\+,\zs\ze[^ ,]\+\s*->/ /gce
+    popup_close(info[1])
+
+    info = Popup_notification('let var= 234    # Error!')
+    :keepj keepp lockm %s/\C\<let\s\+.*\S\zs\ze\\\@1<!=/ /gce
+    popup_close(info[1])
+
+    info = Popup_notification('let var =234    # Error!')
+    :keepj keepp lockm %s/\C\<let\s\+.*=\\\@!\zs\ze\S\%(.*\i\)/ /gce
+    popup_close(info[1])
+
+    info = Popup_notification('let var = 234# Error!')
+    :keepj keepp lockm %s/\C\<let\s\+.*=.*\S\zs\ze#{\@!\s\+/ /gce
+    #                                                  ^--^{{{
+    #                                                  technically, we should remove this, but:
+    #                                                  - in practice, it probably won't matter
+    #                                                  - it should remove false positives
+    #                                                  (e.g. # inside a string)
+    #}}}
+    popup_close(info[1])
+
+    info = Popup_notification('call Func (arg) # Error!')
+    :keepj keepp lockm %s/\C\<call\s\+[a-zA-Z_:]\+\zs\s\+\ze(//gce
+    popup_close(info[1])
+    # TODO: check white space is correctly used in other contexts{{{
+    #
+    #     let x = 1+2 # Error! (tricky to find; many possible operators, and many types of operands)
+    #     let l = [1 , 2 , 3] # Error!
+    #     let d = {'a': 1 , 'b': 2 , 'c': 3} # Error!
+    #     let d = {'a' : 1, 'b' : 2, 'c' : 3} # Error!
+    #}}}
+enddef
+
+def UselessConstructs() #{{{2
+    let info = Popup_notification('==# → ==')
+    :keepj keepp lockm %s/[!=][=~]\zs#//gce
+    # What about the `?` family of comparison operators?{{{
+    #
+    #     ==?
+    #     !=?
+    #     =~?
+    #     !~?
+    #
+    # We still need them in Vim9 script.
+    #}}}
+    popup_close(info[1])
+
+    info = Popup_notification('s:func() → Func()')
+    :keepj keepp lockm %s/\C\<s:\(\h\)\ze\w*(/\U\1/gce
+    popup_close(info[1])
+    # TODO: Try to remove `s:` in front of a variable name at the script level.
+    # Inspect the stack of syntax items under the cursor.
+
+    info = Popup_notification('v:true → true')
+    :keepj keepp lockm %s/\C\<v:\ze\%(true\|false\)\>//gce
+    popup_close(info[1])
+
+    info = Popup_notification(':call → ∅')
+    :keepj keepp lockm %s/\C\zs\<call\>\s\+\ze\S\+(//gce
+    popup_close(info[1])
+
+    info = Popup_notification('line continuations')
+    # TODO: don't remove a leading backslash in a multiline autocmd or custom Ex command
+    :keepj keepp lockm %s/^\s*\zs\\\s\=//ce
+    popup_close(info[1])
 enddef
 
 def Misc() #{{{2
@@ -260,7 +288,7 @@ def Misc() #{{{2
         helptag: 'Vim9-refactoring-a:123',
     },
     #{
-        pat: '^\C\s*def\>\s\+\S\+(\s*[^) ]',
+        pat: '^\C\s*def\>\s\+\S\+(\s*\zs[^) ]',
         title: 'declare function arguments types',
         helptag: 'Vim9-function-arguments-types',
     },
@@ -270,7 +298,7 @@ def Misc() #{{{2
         helptag: 'Vim9-function-return-type',
     },
     #{
-        pat: '\C\<let\>',
+        pat: '\C\<let\>\s',
         title: 'assignments',
         helptag: 'Vim9-assignments',
     },
@@ -331,7 +359,13 @@ def Misc() #{{{2
 enddef
 
 def OpenLocationWindow() #{{{2
-    # `sil!` in case there is no location list
+    while getloclist(0, {'size': 0}).size == 0
+        # `sil!` in case there is no location list
+        sil! lolder
+        if getloclist(0, {'nr': 0}).nr == 1
+            break
+        endif
+    endwhile
     sil! lwindow
     if &bt == 'quickfix'
         # install a  mapping which opens a  help page explaining what  should be

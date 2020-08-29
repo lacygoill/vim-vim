@@ -130,9 +130,9 @@ fu s:break_bar(lnum, indent) abort "{{{2
     " otherwise, the refactoring would give:
     "
     "     let list =<< trim END
-    "     a
-    "     b
-    "     c
+    "         a
+    "         b
+    "         c
     "     END | echo 'some other command'
     "
     " and what follows the bar would interfere when Vim looks for the `END` marker.

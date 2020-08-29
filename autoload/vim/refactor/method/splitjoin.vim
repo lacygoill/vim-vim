@@ -5,6 +5,8 @@ let g:autoloaded_vim#refactor#method#splitjoin = 1
 
 const s:ARROW_PAT = '\S\zs\ze\%\({\s*\%(\%\(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
 
+import IsVim9 from 'lg.vim'
+
 " Interface {{{1
 fu vim#refactor#method#splitjoin#main(...) abort "{{{2
     if !a:0
@@ -27,7 +29,7 @@ endfu
 fu s:split(range) abort "{{{2
     let [lnum1, lnum2] = a:range
     let indent = getline('.')->matchstr('^\s*')
-    let rep = "\x01" .. indent .. repeat(' ', &l:sw) .. (s:isvim9() ? '' : '\\ ')
+    let rep = "\x01" .. indent .. repeat(' ', &l:sw) .. (s:IsVim9() ? '' : '\\ ')
     let new = getline(lnum1, lnum2)
         \ ->map({_, v -> substitute(v, s:ARROW_PAT, rep, 'g')->split("\x01")})
         \ ->flatten()
@@ -41,7 +43,7 @@ fu s:split(range) abort "{{{2
 endfu
 
 fu s:join() abort "{{{2
-    let isvim9 = s:isvim9()
+    let isvim9 = s:IsVim9()
     let pat = '^\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a'
     call search('^\%(\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a\)\@!', 'bcW')
     let lastlnum = search(pat .. '.*\n\%(' .. pat .. '\)\@!', 'cnW')
@@ -57,7 +59,7 @@ endfu
 "}}}1
 " Utilities {{{1
 fu s:get_range() abort "{{{2
-    if s:isvim9()
+    if s:IsVim9()
         let patfirst = '^\%(\s*->\a\)\@!.*\n\s*->\a'
         let patlast = '^\s*->\a.*\n\%(\s*->\a\)\@!'
     else
@@ -97,10 +99,5 @@ fu s:should_split(range) abort "{{{2
     let result = search(s:ARROW_PAT .. '.*' .. s:ARROW_PAT, 'nW', lnum2)
     call setpos('.', curpos)
     return result
-endfu
-
-fu s:isvim9() abort "{{{2
-    return getline(1) is# 'vim9script'
-        \ || searchpair('^\C\s*\<def\>', '', '^\C\s*\<enddef\>$', 'nW')
 endfu
 

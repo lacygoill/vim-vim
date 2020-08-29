@@ -84,7 +84,7 @@ com -bar -buffer -range RefTernary call vim#refactor#ternary#main(<line1>,<line2
 "}}}2
 " RefVim9 {{{2
 
-com -bar -buffer RefVim9 call vim#refactor#vim9#main()
+com -bar -buffer -range=% RefVim9 call vim#refactor#vim9#main(<line1>, <line2>)
 "}}}1
 " Mappings {{{1
 

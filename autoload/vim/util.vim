@@ -125,7 +125,7 @@ fu s:confirm(msg, ...) abort "{{{2
     let [lnum1, col1, lnum2, col2] = a:000
     let fen_save = &l:fen
     let pat = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
-    let id = matchadd('IncSearch', pat)
+    let id = matchadd('IncSearch', pat, 0)
     try
         setl nofen
         echohl Question

@@ -291,7 +291,7 @@ def UselessConstructs() #{{{2
     popup_close(info[1])
 
     info = Popup_notification(':call → ∅')
-    let pat = printf('^\C\%(\s*%s\>\)\@!.*\zs\<call\>\s\+\ze\S\+(', MAPCMDPAT)
+    let pat = printf('\%(^\%(\s*%s\>\)\@!.*\)\@<=\C\<call\>\s\+\ze\S\+(', MAPCMDPAT)
     exe ':keepj keepp lockm *s/' .. pat .. '//gce'
     popup_close(info[1])
 
@@ -553,7 +553,7 @@ enddef
 # (not a simple `return` statement used to end a function's execution)
 const FUNCRETPAT = '^\C\s*def\>\s\+\S\+('
     .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
-    .. '\<return\>\s\+[ \n|]\@!'
+    .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
     .. '\_.\{-}\n\s*enddef'
 
 def OpenLocationWindow() #{{{2

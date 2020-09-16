@@ -89,6 +89,7 @@ com -bar -buffer -range=% RefVim9 call vim#refactor#vim9#main(<line1>, <line2>)
 " Mappings {{{1
 
 nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
+nno <buffer><nowait><silent> -h :<c-u>call vim#get_helpurl()<cr>
 
 noremap <buffer><expr><nowait><silent> [m brackets#move#regex('fu', 0)
 noremap <buffer><expr><nowait><silent> ]m brackets#move#regex('fu', 1)

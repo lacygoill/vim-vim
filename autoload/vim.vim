@@ -21,6 +21,35 @@ fu vim#jump_to_tag() abort "{{{1
     endtry
 endfu
 
+fu vim#get_helpurl() abort "{{{1
+    let winid = win_getid()
+    " use our custom `K` which is smarter than the builtin one
+    norm K
+    if expand('%:p') !~# '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
+        return
+    endif
+    let fname = expand('%:p')->fnamemodify(':t')
+    let tag = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
+    if &ft is# 'help'
+        close
+    endif
+    call win_gotoid(winid)
+    let value = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
+        \ tag,
+        \ fname,
+        \ tag,
+        \ )
+    call setreg('h', value, 'a')
+    call getreg('h', v:true, v:true)
+        \ ->popup_notification(#{
+        \ time: 2000,
+        \ pos: 'topright',
+        \ line: 1,
+        \ col: &columns,
+        \ borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+        \ })
+endfu
+
 fu vim#undo_ftplugin() abort "{{{1
     set flp<
     unlet! b:mc_chain
@@ -31,6 +60,7 @@ fu vim#undo_ftplugin() abort "{{{1
     unmap <buffer> ]M
 
     nunmap <buffer> <c-]>
+    nunmap <buffer> -h
 
     nunmap <buffer> =rb
     nunmap <buffer> =rd

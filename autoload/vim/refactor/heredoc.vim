@@ -151,8 +151,8 @@ fu s:get_items(lnum1, lnum3) abort "{{{2
         \ ? substitute(m[0], "''", "'", 'g')
         \ : eval('"' .. m[0] .. '"')
         \ }
-    let l:Rep = {m -> add(items, l:Item(m))[0]}
-    call substitute(list_value, pat, l:Rep, 'g')
+    let l:Rep = {m -> add(items, Item(m))[0]}
+    call substitute(list_value, pat, Rep, 'g')
     call map(items, {_, v -> v != '' ? repeat(' ', shiftwidth()) .. v : v})
     return items
 endfu

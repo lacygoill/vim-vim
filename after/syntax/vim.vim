@@ -75,6 +75,11 @@ call vim#syntax#include_group_in_cluster('vimOperGroup', 'vimLineComment')
 
 call vim#syntax#include_group_in_cluster('vimFuncBodyList', 'vim9LineComment')
 
+" Problem: Vim9 comment leader not highlighted on empty commented line inside dictionary inside function.
+" Solution: Include the syntax group `vim9LineComment` in the `vimOperGroup` cluster.
+
+call vim#syntax#include_group_in_cluster('vimOperGroup', 'vim9LineComment')
+
 " Problem: A literal dictionary at the start of a line is wrongly highlighted as a Vim9 comment{{{
 "
 "     vim9script

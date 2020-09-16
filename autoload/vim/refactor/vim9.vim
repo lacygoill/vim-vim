@@ -46,8 +46,8 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
 
     ImportNoReinclusionGuard()
     RemoveInvalid()
-    CannotDeclarePublicVariable()
-    ScriptLocalVariables()
+    NoPublicVarDeclaration()
+    NoScriptLocalVarDeclarationInDef()
     # `ProperWhitespace()` must be invoked *before* `UselessConstructs()`{{{
     #
     # The former might need to find `:call`.
@@ -75,6 +75,10 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
     setpos("'>", visual_marks[1])
     winrestview(view)
 
+    if getloclist(0, #{nr: 0}).nr == 0
+        return
+    endif
+    SortUniqLoclists()
     OpenLocationWindow()
 enddef
 #}}}1
@@ -148,8 +152,30 @@ def ImportNoReinclusionGuard() #{{{2
 enddef
 
 def RemoveInvalid() #{{{2
+    # In some cases, we should not remove `a:`.{{{
+    #
+    #     def Func(arg: number)
+    #         let arg = a:arg + 1
+    #     enddef
+    #
+    # Rationale:  This might lead to confusing  errors later, for which you'll –
+    # needlessly – spend a lot of time to find a fix.
+    #
+    # Indeed, in such cases, you can't just remove `a:`; you also need to create
+    # a new variable; otherwise:
+    #
+    #     E1006: arg is used as an argument
+    #
+    # Sure, you'll quickly find a fix for this error.
+    # But  in the  rest  of the  original  function, there  might  have been  an
+    # arbitrary mix of `a:arg` and `arg`.  If `a:` has been removed, you've lost
+    # information which might not be obvious to get back.
+    #}}}
+    # TODO: Should we also populate yet another loclist for such cases?
+    :keepj keepp lockm *s/\C\<let\%(\s\+\)\@>[^=]*\(\w\+\).*=.*\zsa\ze:\1\>/\="\x01"/ge
     let info = Popup_notification('a:funcarg → funcarg')
     :keepj keepp lockm *s/\C\<a:\ze\D//gce
+    :keepj keepp lockm *s/\%x01/a/ge
     popup_close(info[1])
 
     info = Popup_notification('l:funcvar → funcvar')
@@ -164,7 +190,7 @@ def RemoveInvalid() #{{{2
     popup_close(info[1])
 enddef
 
-def CannotDeclarePublicVariable() #{{{2
+def NoPublicVarDeclaration() #{{{2
     # E1016: Cannot declare a global variable: g:var
     # You can declare a script-local variable at  the script level, but not in a
     # `:def` function.
@@ -178,40 +204,23 @@ def CannotDeclarePublicVariable() #{{{2
     popup_close(info[1])
 enddef
 
-def ScriptLocalVariables() #{{{2
+def NoScriptLocalVarDeclarationInDef() #{{{2
     let lines =<< trim END
-        # in function
+        # in `:def` function
         let s:var = 123
         →
         s:var = 123
-
-        # at script level
-        let s:var = 123
-        →
-        let var = 123
     END
     let info = Popup_notification(lines)
-    :keepj keepp lockm sil *s/\C\<\(let\|const\=\)\s\+s:\ze\S/\=GetNewAssignment()/gce
+    :keepj keepp lockm sil *s/\C\<\%(let\|const\=!\=\)\s\+\zes:\S/\=MaybeRemoveDeclaration()/gce
     popup_close(info[1])
 enddef
 
-def GetNewAssignment(): string
-    # Why not `searchpair()`?{{{
-    #
-    #     searchpair('^\C\s*\<def\>', '', '^\C\s*\<enddef\>$', 'cnW')
-    #
-    # We could,  but we would have  to be careful not  to move the order  of the
-    # function calls in  `#vim9#main()`.  Depending on the order,  we might need
-    # to look for `fu`  and `endfu`, instead of `def` and  `enddef`.  I guess we
-    # could look for both (`fu\|def`, `endfu\|enddef`)...
-    #
-    # In any case, inspecting the syntax seems more reliable.
-    #}}}
-    if !In('vimFuncBody')
-        return submatch(1) .. ' '
-    else
-        return 's:'
+def MaybeRemoveDeclaration(): string
+    if In('vimFuncBody')
+        return ''
     endif
+    return submatch(0)
 enddef
 
 def ProperWhitespace() #{{{2
@@ -248,9 +257,12 @@ def ProperWhitespace() #{{{2
     :keepj keepp lockm *s/\C\<call\s\+[a-zA-Z_:]\+\zs\s\+\ze(//gce
     popup_close(info[1])
 
-    info = Popup_notification("{'a' : 1} # Error!")
-    :keepj keepp lockm *s/\s\+\ze:/\=RemoveOnlyInDictionary()/gce
-    popup_close(info[1])
+    # Commented because it gives too many false positives.
+    #
+    #     info = Popup_notification("{'a' : 1} # Error!")
+    #     :keepj keepp lockm *s/\s\+\ze:/\=RemoveOnlyInDictionary()/gce
+    #     popup_close(info[1])
+
     # TODO: check white space is correctly used in other contexts{{{
     #
     #     let x = 1+2 # Error! (tricky to find; many possible operators, and many types of operands)
@@ -273,6 +285,14 @@ def RemoveOnlyInDictionary(): string
 enddef
 
 def UselessConstructs() #{{{2
+    # TODO: The code repeats itself too much.{{{
+    #
+    #     info = Popup_notification('...')
+    #     :keepj keepp lockm *s/.../.../...
+    #     popup_close(info[1])
+    #
+    # Try to refactor each of these blocks into a single function call.
+    #}}}
     let info = Popup_notification('==# → ==')
     :keepj keepp lockm *s/[!=][=~]\zs#//gce
     # What about the `?` family of comparison operators?{{{
@@ -298,30 +318,16 @@ def UselessConstructs() #{{{2
     info = Popup_notification('line continuations')
     # TODO: don't remove a leading backslash in a multiline autocmd or custom Ex command
     :keepj keepp lockm *s/^\s*\zs\\\s\=//ce
-    # For closing braces, we also want to decrease the indentation.{{{
-    #
-    #     let d = {
-    #         \ 'key': 'value',
-    #         \ }
-    #
-    #     →
-    #
-    #     let d = {
-    #         'key': 'value',
-    #         }
-    #
-    #     →
-    #
-    #     let d = {
-    #         'key': 'value',
-    #     }
-    #     ^
-    #}}}
-    :keepj keepp lockm *g/^\s*[\]})]\+$/norm! ==
     popup_close(info[1])
 
     # TODO: Try to remove `s:` in front of a variable name at the script level.
     # Inspect the stack of syntax items under the cursor.
+
+    if getline(1) == 'vim9script'
+        info = Popup_notification('s:var → var')
+        :keepj keepp lockm *s/\%#=1\C\<s:\ze\h\%(\w*\)\@>(\@!//gce
+        popup_close(info[1])
+    endif
 
     # Keep this at the very end!{{{
     #
@@ -334,13 +340,11 @@ def UselessConstructs() #{{{2
     info = Popup_notification('s:func() → Func()')
     :keepj keepp lockm *s/\C\<s:\(\h\)\ze\(\w*\)(/\=GetNewFunctionPrefix()/gce
     popup_close(info[1])
-    funcnames_to_capitalize = []
 enddef
 
 def GetNewFunctionPrefix(): string
     let funcname = submatch(1) .. submatch(2)
-    if submatch(1) =~ '[[:lower:]]' && index(funcnames_to_capitalize, funcname) == -1
-        add(funcnames_to_capitalize, funcname)
+    if submatch(1) =~ '[[:lower:]]'
         # the function name is going to be  capitalized in its header; we'll need to
         # capitalize it everywhere in the file (i.e. at the call sites)
         # We use `:lvimgrepadd` instead of `:lvim` to not create too many loclists.{{{
@@ -353,7 +357,7 @@ def GetNewFunctionPrefix(): string
         setloclist(0, [], 'a', #{
             title: 'capitalize function name at call sites',
             context: 'Vim9-capitalize-function-names',
-        })
+            })
     endif
 
     let pfx = submatch(1)->toupper()
@@ -369,12 +373,7 @@ def GetNewFunctionPrefix(): string
     endif
 enddef
 
-# We need to memorize the names of functions which need to be capitalized.
-# We  don't want  to add  redundant entries  in the  location list  if the  same
-# function is called multiple times.
-let funcnames_to_capitalize: list<string> = []
-
-const MAPCMDS =<< trim END
+const! MAPCMDS =<< trim END
     map
     nm\%[ap]
     vm\%[ap]
@@ -398,7 +397,7 @@ const MAPCMDS =<< trim END
     cno\%[remap]
     tno\%[remap]
 END
-const MAPCMDPAT = '\%(' .. join(MAPCMDS, '\|') .. '\)'
+const! MAPCMDPAT = '\%(' .. join(MAPCMDS, '\|') .. '\)'
 
 def Misc() #{{{2
     # Warning: Do not add too many loclists.{{{
@@ -433,7 +432,7 @@ def Misc() #{{{2
         helptag: 'Vim9-refactoring-a:123',
     },
     #{
-        pat: '^\C\s*def\>\s\+\S\+(\s*\zs[^) ]',
+        pat: '^\C\s*def\>!\=\s\+\S\+(\s*\zs[^) ]',
         title: 'declare function arguments types',
         helptag: 'Vim9-function-arguments-types',
     },
@@ -443,7 +442,13 @@ def Misc() #{{{2
         helptag: 'Vim9-function-return-type',
     },
     #{
-        pat: '\C\(\<let\>\)\s\+\(\S\+\)\s\_.\{-}\zs\1\s\+\2\s',
+        # E1003: Missing return value
+        pat: MISSINGRETPAT,
+        title: 'return missing value',
+        helptag: 'Vim9-function-return-missing-value',
+    },
+    #{
+        pat: '\C\<let\>\s\+\(\S\+\)\s\%(\%(\n\s*enddef\s*\n\)\@!\_.\)*\zs\<let\>\s\+\1\s',
         title: 'assignments',
         helptag: 'Vim9-assignments',
     },
@@ -506,77 +511,79 @@ def Misc() #{{{2
             context: entry.helptag,
         })
     endfor
-
-    # E1003: Missing return value
-    cursor(line("'<"), 1)
-    if search(FUNCRETPAT, 'cn', line("'>"))
-        pat = anchor .. '\C\<return\>\s*[\n|]\@=' .. anchor
-        exe 'noa sil! lvim /' .. pat .. '/gj %'
-        setloclist(0, [], 'a', #{
-            title: 'return missing value',
-            context: 'Vim9-function-return-missing-value',
-        })
-    endif
-
-    # remove empty loclists
-    let newstack = range(1, getloclist(0, {'nr': '$'}).nr)
-        # `extend()` lets Vim renumber the loclists in the stack.{{{
-        #
-        # Suppose we  have 2 loclists;  the first is  empty, but not  the second
-        # one.  We're  going to  flush the  stack, then try  to re-add  only the
-        # *non*-empty  lists.  If  we let  `'nr': 2`  in the  properties of  the
-        # second loclist, Vim won't add it  back onto the stack; because there's
-        # no position 2.  We must let Vim renumber the loclists as they're added
-        # back.
-        #
-        #     before:
-        #
-        #     1 | 2 | 3 | 4
-        #     ∅ | A | ∅ | B
-        #
-        #     after:
-        #
-        #     1 | 2
-        #     A | B
-        #}}}
-        ->map({_, v -> getloclist(0, {'nr': v, 'all': 0})->extend({'nr': 0})})
-        ->filter({_, v -> !empty(v.items)})
-    setloclist(0, [], 'f')
-    for loclist in newstack
-        setloclist(0, [], ' ', loclist)
-    endfor
-    # `sil!` in case the stack is empty
-    :sil! 1lhi
 enddef
 
-# describe a `return` statement in a `:def` function which returns some value
+# a `return` statement in a `:def` function which returns some value
 # (not a simple `return` statement used to end a function's execution)
-const FUNCRETPAT = '^\C\s*def\>\s\+\S\+('
+const! FUNCRETPAT = '^\C\s*def\>!\=\s\+\S\+('
     .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
     .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
-    .. '\_.\{-}\n\s*enddef'
+    .. '\_.\{-}\n\s*enddef\s*\%(\%(\n\|\%$\)\)\@='
 
-def OpenLocationWindow() #{{{2
-    if getloclist(0, {'nr': 0}).nr == 0
-        return
-    endif
-    while getloclist(0, {'size': 0}).size == 0
-        # `sil!` in case there is no location list
-        sil! lolder
-        if getloclist(0, {'nr': 0}).nr == 1
-            break
+# a `return` statement in a `:def` function which returns some value
+# followed by a `return` statement which does not return any value
+const! MISSINGRETPAT = '^\C\s*def\>!\=\s\+\S\+('
+    .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
+    .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
+    .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
+    .. '\C\<return\>\s*[\n|]\@='
+    .. '\_.\{-}\n\s*enddef\s*\%(\n\|\%$\)'
+    # or a  `return` statement in  a `:def` function  which does not  return any
+    # value followed by a `return` statement which returns some value
+    .. '\|^\C\s*def\>!\=\s\+\S\+('
+    .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
+    .. '\C\<return\>\s*[\n|]\@='
+    .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
+    .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
+    .. '\_.\{-}\n\s*enddef\s*\%(\n\|\%$\)'
+
+def SortUniqLoclists() #{{{2
+    let stack: list<dict<any>>
+    let info: dict<any>
+    let loclistsNumbers = range(1, getloclist(0, #{nr: '$'}).nr)
+    for nr in loclistsNumbers
+        info = getloclist(0, #{nr: nr, items: true, title: true})
+        if info.items == []
+            continue
         endif
-    endwhile
+        # sort the entries in the location list according to their location
+        sort(info.items, {i, j ->
+            i.lnum > j.lnum || i.lnum == j.lnum && i.col > j.col
+                ? 1
+                : -1
+            })
+        # We don't want redundant entries in the location lists.{{{
+        #
+        # That can happen, for example, when `GetNewFunctionPrefix()` is invoked
+        # several  times for  the same  function, because  the latter  is called
+        # multiple times.
+        #}}}
+        stack += [#{items: uniq(info.items), title: info.title}]
+    endfor
+
+    # Make sure no empty loclist is in the stack.
+    setloclist(0, [], 'f')
+    for nr in len(stack)->range()
+        setloclist(0, [], ' ', #{
+            items: stack[nr].items,
+            title: stack[nr].title,
+            })
+    endfor
+enddef
+def OpenLocationWindow() #{{{2
+    # `sil!` in case the stack is empty
+    :sil! 1lhi
     sil! lwindow
     if &bt == 'quickfix'
         # install a  mapping which opens a  help page explaining what  should be
         # refactored and how
-        nno <buffer><nowait><silent> g? :<c-u>exe 'h ' .. getloclist(0, {'context': 1}).context<cr>
+        nno <buffer><nowait><silent> g? :<c-u>exe 'h ' .. getloclist(0, #{context: 1}).context<cr>
     endif
     # print the whole stack of location lists so that we know that there is more
     # than what we can currently see
     lhi
 enddef
+
 #}}}1
 # Utilities {{{1
 def In(syngroup: string, col = col('.')): bool #{{{2

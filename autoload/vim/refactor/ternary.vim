@@ -1,10 +1,11 @@
 " Interface {{{1
 fu vim#refactor#ternary#main(lnum1,lnum2) abort "{{{2
-    call search('^\s*\<\%(let\|const\|return\)\>', 'cW', a:lnum2)
-    let kwd = getline('.')->matchstr('let\|const\|return')
+    call search('^\s*\<\%(let\|var\|const\|return\)\>', 'cW', a:lnum2)
+    let kwd = getline('.')->matchstr('let\|var\|const\|return')
     if kwd == '' | return | endif
     let expr = getline('.')->matchstr({
         \ 'let': '\m\Clet\s\+\zs.\{-}\ze\s*=',
+        \ 'var': '\m\Cvar\s\+\zs.\{-}\ze\s*=',
         \ 'const': '\m\Cconst\s\+\zs.\{-}\ze\s*=',
         \ 'return': '\m\Creturn\s\+\zs.*',
         \ }[kwd])
@@ -25,7 +26,7 @@ fu vim#refactor#ternary#main(lnum1,lnum2) abort "{{{2
         return
     endif
 
-    let assignment = [kwd .. ' ' .. (kwd is# 'let' ? expr .. ' = ' : '')]
+    let assignment = [kwd .. ' ' .. (kwd is# 'let' || kwd is# 'var' ? expr .. ' = ' : '')]
     let assignment[0] ..= tests[0]
 
     " The function should not operate on something like this:{{{

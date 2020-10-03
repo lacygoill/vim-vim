@@ -8,8 +8,7 @@ fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
         \ .. '\%(^\s*["#].*\)\@<!'
         "\ a dot not preceded by another dot, nor followed by another dot/equal sign
         \ .. '\%(\%(^\s*\\\)\@<!\s*\.\@1<!\.[.=]\@!\s*'
-        "\ `.=` assignment → `..=`
-        \ .. '\|\.\@1<!\.\ze=\)'
+        \ .. '\)'
     " Warning: The pattern could find false positives.{{{
     "
     " MWE:
@@ -37,5 +36,7 @@ fu vim#refactor#dot#main(bang, lnum1,lnum2) abort
 
     let range = a:lnum1 .. ',' .. a:lnum2
     exe range .. 's/' .. pat .. '/ .. /ge' .. (a:bang ? '' : 'c')
+    " `.=` assignment → `..=`
+    exe range .. 's/\s\zs\.=\ze\s/..=/ge' .. (a:bang ? '' : 'c')
 endfu
 

@@ -46,8 +46,8 @@ fu s:search_closing_quote() abort "{{{2
 endfu
 
 def s:search_opening_quote(): number #{{{2
-    let char = getline('.')->strpart(col('.') - 1)[0]
-    let pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
+    var char = getline('.')->strpart(col('.') - 1)[0]
+    var pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')
 enddef
 

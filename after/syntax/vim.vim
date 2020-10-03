@@ -22,45 +22,6 @@ sil! call s:Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=ital
 " Whenever you find one, report the issue.
 "}}}
 
-" Problem: In `hi clear {group}`, `{group}` is not highlighted.
-" Solution: Pass `skipwhite` to `:syn keyword`.
-
-syn clear vimHiClear
-syn keyword vimHiClear contained clear skipwhite nextgroup=vimHiGroup
-
-" Problem: In `syn clear {group}`, `{group}` is not highlighted.
-" Solution: See this diff:{{{
-"
-"     line 478
-"     -syn match	vimGroupList	contained	"@\=[^ \t,]*"	contains=vimGroupSpecial,vimPatSep
-"     +syn match	vimGroupList	contained	"@\=[^ \t,]\+"	contains=vimGroupSpecial,vimPatSep
-"
-"     line 501
-"     -syn keyword	vimSynType	contained	clear	skipwhite nextgroup=vimGroupList
-"     +syn keyword	vimSynType	contained	clear	skipwhite nextgroup=vimGroupList,vimHiGroup
-"}}}
-" Why don't you clear `vimSynType`?{{{
-"
-" We don't need to.
-" Besides, it contains too many items.  It would be cumbersome to redefine them.
-"}}}
-
-syn keyword vimSynType contained clear skipwhite nextgroup=vimGroupList,vimHiGroup
-syn clear vimGroupList
-syn match vimGroupList contained '@\=[^ \t,]\+' contains=vimGroupSpecial,vimPatSep
-syn match vimGroupList contained '@\=[^ \t,]*,' nextgroup=vimGroupList contains=vimGroupSpecial,vimPatSep
-" This is not in the previous diff.  So, why do you redefine `vimHiGroup`?{{{
-"
-" We need to, otherwise we wouldn't get the desired result.
-" It's probably an issue of priority.
-"
-" The `vimHiGroup` rule must come *after* the `vimGroupList`.
-" We've just  redefined the  latter, which –  in effect –  moves its  rule after
-" `vimHiGroup`.  To  preserve the relative order  of the rules, we  need to also
-" redefine `vimHiGroup`.
-"}}}
-syn match vimHiGroup contained '\i\+'
-
 " Comments {{{1
 
 " Problem: `:h line-continuation-comment` is not highlighted inside a dictionary.
@@ -130,6 +91,51 @@ syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains
 
 " Misc. {{{1
 
+" Problem: In `hi clear {group}`, `{group}` is not highlighted.
+" Solution: Pass `skipwhite` to `:syn keyword`.
+
+syn clear vimHiClear
+syn keyword vimHiClear contained clear skipwhite nextgroup=vimHiGroup
+
+" Problem: In `syn clear {group}`, `{group}` is not highlighted.
+" Solution: See this diff:{{{
+"
+"     line 478
+"     -syn match	vimGroupList	contained	"@\=[^ \t,]*"	contains=vimGroupSpecial,vimPatSep
+"     +syn match	vimGroupList	contained	"@\=[^ \t,]\+"	contains=vimGroupSpecial,vimPatSep
+"
+"     line 501
+"     -syn keyword	vimSynType	contained	clear	skipwhite nextgroup=vimGroupList
+"     +syn keyword	vimSynType	contained	clear	skipwhite nextgroup=vimGroupList,vimHiGroup
+"}}}
+" Why don't you clear `vimSynType`?{{{
+"
+" We don't need to.
+" Besides, it contains too many items.  It would be cumbersome to redefine them.
+"}}}
+
+syn keyword vimSynType contained clear skipwhite nextgroup=vimGroupList,vimHiGroup
+syn clear vimGroupList
+syn match vimGroupList contained '@\=[^ \t,]\+' contains=vimGroupSpecial,vimPatSep
+syn match vimGroupList contained '@\=[^ \t,]*,' nextgroup=vimGroupList contains=vimGroupSpecial,vimPatSep
+" This is not in the previous diff.  So, why do you redefine `vimHiGroup`?{{{
+"
+" We need to, otherwise we wouldn't get the desired result.
+" It's probably an issue of priority.
+"
+" The `vimHiGroup` rule must come *after* the `vimGroupList`.
+" We've just  redefined the  latter, which –  in effect –  moves its  rule after
+" `vimHiGroup`.  To  preserve the relative order  of the rules, we  need to also
+" redefine `vimHiGroup`.
+"}}}
+syn match vimHiGroup contained '\i\+'
+
+" Problem: In `var name = 123` (Vim9 script), `var` and `name` are not highlighted correctly.
+" Solution: Include `var` in the `vimLet` syntax group.
+syn clear vimLet
+syn keyword vimLet let var unl[et] skipwhite nextgroup=vimVar,vimFuncVar,vimLetHereDoc
+"                      ^^^
+
 " Problem: The default `vimUsrCmd` highlights too much.{{{
 "
 "     $VIMRUNTIME/syntax/vim.vim
@@ -169,4 +175,20 @@ syn match vimSubst
     \ nextgroup=vimSubstPat contained
 syn match vimSubst "/\zs\<s\%[ubstitute]\>\ze/" nextgroup=vimSubstPat
 syn match vimSubst "\(:\+\s*\|^\s*\)s\ze#.\{-}#.\{-}#" nextgroup=vimSubstPat
+
+" Problem: Inside a heredoc, the text following a double quote is highlighted as a Vim comment.{{{
+"
+" First I find  this unexpected.  I would  expect everything in a  heredoc to be
+" highlighted  as a  string; because  that's what  it really  is.  A  comment is
+" unexecuted source code; a string is not code; it's data.
+"
+" Second, we applyg various styles inside comments, such as bold or italics.
+" Again, it's unexpected and distracting to see those styles in a heredoc.
+"}}}
+" Solution: Remove `contains=vimComment,vim9Comment` from `vimLetHereDoc`.
+syn clear vimLetHereDoc
+syn region vimLetHereDoc matchgroup=vimLetHereDocStart
+    \ start='=<<\s\+\%(trim\>\)\=\s*\z(\L\S*\)'
+    \ matchgroup=vimLetHereDocStop
+    \ end='^\s*\z1\s*$'
 

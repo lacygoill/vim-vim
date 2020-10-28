@@ -149,10 +149,18 @@ syn keyword vimLet let var unl[et] skipwhite nextgroup=vimVar,vimFuncVar,vimLetH
 " https://github.com/vim/vim/issues/6587
 
 syn clear vimUsrCmd
-syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>(\@!'
-"                                     ^-----^
-"                                     don't highlight a custom Vim function
-"                                     invoked without ":call" in a Vim9 script
+syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%((\|\s*=\)\@!'
+"                                     ├────────────────┘{{{
+"                                     └ in a Vim9 script, don't highlight a custom Vim function
+"                                     invoked without ":call"
+"
+"                                     and don't highlight a capitalized variable name,
+"                                     in an assignment without declaration:
+"
+"                                         var MYCONSTANT: number
+"                                         MYCONSTANT = 123
+"                                         ^--------^
+"}}}
 
 " Problem: In an `:echo` command, the `->` method tokens, and functions parentheses, are wrongly highlighted.
 " Solution: Allow `vimOper` and `vimOperParen` to start in a `vimEcho` region.

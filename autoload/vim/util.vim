@@ -4,21 +4,22 @@ fu vim#util#search(pat, flags = '', syntomatch = '') abort "{{{2
     let syntax_was_enabled = exists('g:syntax_on')
     try
         if !syntax_was_enabled
-            call s:warn('enabling syntax to search pattern; may take some time...')
+            call s:warn('enabling syntax to search pattern; might take some time...')
             syn enable
         endif
-        while s > 0 && g < 999
-            let s = search(a:pat, a:flags .. 'W' .. (g == 0 ? 'c' : ''))
-            let synstack = synstack('.', col('.'))
-            let syngroup = map(synstack, {_, v -> synIDattr(v, 'name')})->get(-1, '')
-            if syngroup is# 'vimString' | let g += 1 | continue | endif
-            if a:syntomatch == '' || syngroup =~# '\C^\%(' .. a:syntomatch .. '\)$' | break | endif
-            let g += 1
-        endwhile
-        return s
+        return search(a:pat, a:flags .. 'W' .. (g == 0 ? 'c' : ''),
+            \ 0, 0, function('s:skip', [a:syntomatch]))
     finally
         if !syntax_was_enabled | syn off | endif
     endtry
+endfu
+
+fu s:skip(syntomatch) abort
+    let syngroup = synstack('.', col('.'))->map({_, v -> synIDattr(v, 'name')})->get(-1, '')
+    if syngroup is# 'vimString'
+        return v:true
+    endif
+    return a:syntomatch != '' && syngroup !~# '\C^\%(' .. a:syntomatch .. '\)$'
 endfu
 
 fu vim#util#we_can_refactor(...) abort "{{{2

@@ -179,6 +179,35 @@ def RemoveInvalid() #{{{2
     # information which might not be obvious to get back.
     #}}}
     # TODO: Should we also populate yet another loclist for such cases?
+    # FIXME: Sometimes, it still doesn't prevent `a:` from being removed, while it should:{{{
+    #
+    #     fu Func(arg)
+    #         let arg = 123
+    #         if arg == a:arg
+    #             " ...
+    #         endif
+    #     endfu
+    #
+    #     →
+    #
+    #     def Func(arg)
+    #         var arg = 123
+    #         if arg == arg
+    #             # ...
+    #         endif
+    #     enddef
+    #
+    # Notice this line:
+    #
+    #         if arg == arg
+    #
+    # It's obviously wrong.
+    #
+    # Before  removing  `a:`, we  should  check  whether  the variable  name  is
+    # declared anywhere else in the function.  This implies we should get a list
+    # of all  declared variable  names, which  is tricky  because of  the unpack
+    # notation.
+    #}}}
     :keepj keepp lockm *s/\C\<var\%(\s\+\)\@>[^=]*\(\w\+\).*=.*\zsa\ze:\1\>/\="\x01"/ge
     var info = Popup_notification('a:funcarg → funcarg')
     :keepj keepp lockm *s/\C\<a:\ze\D//gce
@@ -330,9 +359,37 @@ def UselessConstructs() #{{{2
     # TODO: Try to remove `s:` in front of a variable name at the script level.
     # Inspect the stack of syntax items under the cursor.
 
+    # TODO: Eliminate `function()`:{{{
+    #
+    #     def Func()
+    #         var Funcref = function('s:foo')
+    #     enddef
+    #
+    #     fu s:foo()
+    #         " ...
+    #     endfu
+    #
+    #     →
+    #
+    #     def Func()
+    #         var Funcref = Foo
+    #     enddef
+    #
+    #     fu s:Foo()
+    #         " ...
+    #     endfu
+    #
+    # This is a bit tricky, because we  might need to capitalize a function name
+    # outside the function which we're  refactoring.  If we invoke `:RefVim9` on
+    # a function (!= whole script), is it ok to refactor sth outside of it?
+    # If not, don't do anything; just add `function(...)` as an entry into a new
+    # loclist.
+    #}}}
+
     if getline(1) == 'vim9script'
         info = Popup_notification('s:var → var')
-        :keepj keepp lockm *s/\%#=1\C\<s:\ze\h\%(\w*\)\@>(\@!//gce
+        # We need `\%#=1` to prevent `\@>` from causing `\ze` to be ignored.
+        :keepj keepp lockm *s/\%#=1\C\%(\<function(\s*['"]\s*\)\@<!\<s:\ze\h\%(\w*\)\@>(\@!//gce
         popup_close(info[1])
     endif
 

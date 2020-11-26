@@ -35,6 +35,20 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
     # TODO: check that commands starting with a range are prefixed with a colon
     # (tricky to recognize a range; writing a command name in its full form might help)
     # TODO: refactor all eval strings into lambdas (faster)
+    # TODO: Refactor dictionaries.{{{
+    #
+    # Since 8.2.2015 and 8.2.2017, we don't need `#` anymore.
+    #
+    #     #{key: 123}
+    #     →
+    #     {key: 123}
+    #
+    # If a key must be evaluated, you'll need to use square brackets:
+    #
+    #     {key: 123}
+    #     →
+    #     {[key]: 123}
+    #}}}
     Vim9script()
     Comments()
     # Do *not* move `Fu2Def()` after `UselessConstructs()`.{{{
@@ -76,7 +90,7 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
     setpos("'>", visual_marks[1])
     winrestview(view)
 
-    if getloclist(0, #{nr: 0}).nr == 0
+    if getloclist(0, {nr: 0}).nr == 0
         return
     endif
     SortUniqLoclists()
@@ -92,8 +106,8 @@ enddef
 
 def Comments() #{{{2
     # `:h line-continuation-comment`
-    :sil keepj keepp lockm *s/^\s*\zs"\\ /# /ge
-    :sil keepj keepp lockm *s/"/\=GetNewCommentLeader()/ge
+    sil keepj keepp lockm :*s/^\s*\zs"\\ /# /ge
+    sil keepj keepp lockm :*s/"/\=GetNewCommentLeader()/ge
 enddef
 
 def GetNewCommentLeader(): string
@@ -117,9 +131,9 @@ def Fu2Def() #{{{2
     # TODO: Should support commented functions.
     # Look for the pattern `\^` in  this script, for other possible refactorings
     # which should be extended to comments.
-    :sil keepj keepp lockm *s/^\C\s*fu\%[nction]\(!\=\)\s\+.\{-}\zs\s*abort\>//e
-    :sil keepj keepp lockm *s/^\C\s*\zsfu\%[nction]\(!\=\)\ze\s\+/def\1/e
-    :sil keepj keepp lockm *s/^\C\s*\zsendf\%[unction]$/enddef/e
+    sil keepj keepp lockm :*s/^\C\s*fu\%[nction]\(!\=\)\s\+.\{-}\zs\s*abort\>//e
+    sil keepj keepp lockm :*s/^\C\s*\zsfu\%[nction]\(!\=\)\ze\s\+/def\1/e
+    sil keepj keepp lockm :*s/^\C\s*\zsendf\%[unction]$/enddef/e
     # TODO: In an  `import/` subdirectory, add  export in front of  the autoload
     # functions.  Also, refactor their names:
     #
@@ -137,7 +151,7 @@ enddef
 
 def Let2Var() #{{{2
     var info = Popup_notification('let name = 123 → var name = 123')
-    :sil keepj keepp lockm *s/\C\<let\>/\=In('vimLet') ? 'var' : 'let'/ge
+    sil keepj keepp lockm :*s/\C\<let\>/\=In('vimLet') ? 'var' : 'let'/ge
     popup_close(info[1])
 enddef
 
@@ -154,7 +168,7 @@ def ImportNoReinclusionGuard() #{{{2
             .. '\n\s*finish'
             .. '\nendif'
             .. '\nlet\s*\1\s*='
-        exe ':sil! 0/' .. pat .. '/;+4 d_'
+        exe 'sil! :0/' .. pat .. '/;+4 d_'
     endif
 enddef
 
@@ -208,21 +222,28 @@ def RemoveInvalid() #{{{2
     # of all  declared variable  names, which  is tricky  because of  the unpack
     # notation.
     #}}}
-    :keepj keepp lockm *s/\C\<var\%(\s\+\)\@>[^=]*\(\w\+\).*=.*\zsa\ze:\1\>/\="\x01"/ge
+    try
+        keepj keepp lockm :*s/\C\<var\%(\s\+\)\@>[^=]*\(\w\+\).*=.*\zsa\ze:\1\>/\="\x01"/ge
+    # E363: pattern uses more memory than 'maxmempattern'
+    catch /^Vim\%((\a\+)\)\=:E363:/
+        echohl ErrorMsg
+        echom v:exception
+        echohl NONE
+    endtry
     var info = Popup_notification('a:funcarg → funcarg')
-    :keepj keepp lockm *s/\C\<a:\ze\D//gce
-    :keepj keepp lockm *s/\%x01/a/ge
+    keepj keepp lockm :*s/\C\<a:\ze\D//gce
+    keepj keepp lockm :*s/\%x01/a/ge
     popup_close(info[1])
 
     info = Popup_notification('l:funcvar → funcvar')
-    :keepj keepp lockm *s/\C&\@1<!\<l:\ze\S//gce
+    keepj keepp lockm :*s/\C&\@1<!\<l:\ze\S//gce
     popup_close(info[1])
 
     info = Popup_notification('is# → ==')
-    :keepj keepp lockm *s/\C\<is#/==/gce
-    :keepj keepp lockm *s/\C\<isnot#/!=/gce
-    :keepj keepp lockm *s/\C\<is?/==?/gce
-    :keepj keepp lockm *s/\C\<isnot?/!=?/gce
+    keepj keepp lockm :*s/\C\<is#/==/gce
+    keepj keepp lockm :*s/\C\<isnot#/!=/gce
+    keepj keepp lockm :*s/\C\<is?/==?/gce
+    keepj keepp lockm :*s/\C\<isnot?/!=?/gce
     popup_close(info[1])
 enddef
 
@@ -231,12 +252,12 @@ def NoPublicVarDeclaration() #{{{2
     # You can declare a script-local variable at  the script level, but not in a
     # `:def` function.
     var info = Popup_notification('var g:var = 123 → g:var = 123')
-    :keepj keepp lockm *s/\C\zs\<var\s\+\ze[bgtvw]:\S//gce
+    keepj keepp lockm :*s/\C\zs\<var\s\+\ze[bgtvw]:\S//gce
     popup_close(info[1])
 
     # Cannot declare environment variable (`E1016`), nor Vim option (`E1052`)
     info = Popup_notification('var $ENVVAR = 123 → $ENVVAR = 123')
-    :keepj keepp lockm *s/\C\zs\<var\s\+\ze[$&]\S//gce
+    keepj keepp lockm :*s/\C\zs\<var\s\+\ze[$&]\S//gce
     popup_close(info[1])
 enddef
 
@@ -248,7 +269,7 @@ def NoScriptLocalVarDeclarationInDef() #{{{2
         s:var = 123
     END
     var info = Popup_notification(lines)
-    :keepj keepp lockm sil *s/\C\<\%(var\|const\=\)\s\+\zes:\S/\=MaybeRemoveDeclaration()/gce
+    keepj keepp lockm sil :*s/\C\<\%(var\|const\=\)\s\+\zes:\S/\=MaybeRemoveDeclaration()/gce
     popup_close(info[1])
 enddef
 
@@ -266,21 +287,23 @@ def ProperWhitespace() #{{{2
         {_, v -> ...}
     END
     var info = Popup_notification(lines)
-    :keepj keepp lockm *s/{\s*[^ ,]\+,\zs\ze[^ ,]\+\s*->/ /gce
+    keepj keepp lockm :*s/{\s*[^ ,]\+,\zs\ze[^ ,]\+\s*->/ /gce
     popup_close(info[1])
 
     # TODO: What about  assignments which  don't use `:var`?  (global variables,
     # environment variables, Vim options, ...)
     info = Popup_notification('var name= 234    # Error!')
-    :keepj keepp lockm *s:\C\<var\s\+.*\S\zs\ze[-+*/%.!='"<>\\@]\@1<!=: :gce
+    keepj keepp lockm :*s:\C\<var\s\+.*\S\zs\ze[-+*/%.!='"<>\\@]\@1<!=: :gce
     popup_close(info[1])
 
     info = Popup_notification('var name =234    # Error!')
-    :keepj keepp lockm *s/\C\<var\s\+.*>\@1<!=[\\~=<]\@!\zs\ze\S\%(.*\i\)/ /gce
+    keepj keepp lockm :*s/\C\<var\s\+.*>\@1<!=[\\~=<]\@!\zs\ze\S\%(.*\i\)/ /gce
     popup_close(info[1])
 
     info = Popup_notification('var name = 234# Error!')
-    :keepj keepp lockm *s/\C\<var\s\+.*=.*\S\~\@1<!\zs\ze#{\@!\s\+/ /gce
+    # TODO: In the future, `#{}` might be parsed as a comment.
+    # If that happens, consider removing `#` from the regex used in the pattern field.
+    keepj keepp lockm :*s/\C\<var\s\+.*=.*\S\~\@1<!\zs\ze#{\@!\s\+/ /gce
     #                                                         ^--^{{{
     #                                                         technically, we should remove this, but:
     #                                                         - in practice, it probably won't matter
@@ -290,13 +313,13 @@ def ProperWhitespace() #{{{2
     popup_close(info[1])
 
     info = Popup_notification('call Func (arg) # Error!')
-    :keepj keepp lockm *s/\C\<call\s\+[a-zA-Z_:]\+\zs\s\+\ze(//gce
+    keepj keepp lockm :*s/\C\<call\s\+[a-zA-Z_:]\+\zs\s\+\ze(//gce
     popup_close(info[1])
 
     # Commented because it gives too many false positives.
     #
     #     info = Popup_notification("{'a' : 1} # Error!")
-    #     :keepj keepp lockm *s/\s\+\ze:/\=RemoveOnlyInDictionary()/gce
+    #     keepj keepp lockm :*s/\s\+\ze:/\=RemoveOnlyInDictionary()/gce
     #     popup_close(info[1])
 
     # TODO: check white space is correctly used in other contexts{{{
@@ -324,13 +347,13 @@ def UselessConstructs() #{{{2
     # TODO: The code repeats itself too much.{{{
     #
     #     info = Popup_notification('...')
-    #     :keepj keepp lockm *s/.../.../...
+    #     keepj keepp lockm :*s/.../.../...
     #     popup_close(info[1])
     #
     # Try to refactor each of these blocks into a single function call.
     #}}}
     var info = Popup_notification('==# → ==')
-    :keepj keepp lockm *s/[!=][=~]\zs#//gce
+    keepj keepp lockm :*s/[!=][=~]\zs#//gce
     # What about the `?` family of comparison operators?{{{
     #
     #     ==?
@@ -343,17 +366,17 @@ def UselessConstructs() #{{{2
     popup_close(info[1])
 
     info = Popup_notification('v:true → true')
-    :keepj keepp lockm *s/\C\<v:\ze\%(true\|false\)\>//gce
+    keepj keepp lockm :*s/\C\<v:\ze\%(true\|false\)\>//gce
     popup_close(info[1])
 
     info = Popup_notification(':call → ∅')
     var pat = printf('\%(^\%(\s*%s\>\)\@!.*\)\@<=\C\<call\>\s\+\ze\S\+(', MAPCMDPAT)
-    exe ':keepj keepp lockm *s/' .. pat .. '//gce'
+    exe 'keepj keepp lockm :*s/' .. pat .. '//gce'
     popup_close(info[1])
 
     info = Popup_notification('line continuations')
     # TODO: don't remove a leading backslash in a multiline autocmd or custom Ex command
-    :keepj keepp lockm *s/^\s*\zs\\\s\=//ce
+    keepj keepp lockm :*s/^\s*\zs\\\s\=//ce
     popup_close(info[1])
 
     # TODO: Try to remove `s:` in front of a variable name at the script level.
@@ -389,7 +412,7 @@ def UselessConstructs() #{{{2
     if getline(1) == 'vim9script'
         info = Popup_notification('s:var → var')
         # We need `\%#=1` to prevent `\@>` from causing `\ze` to be ignored.
-        :keepj keepp lockm *s/\%#=1\C\%(\<function(\s*['"]\s*\)\@<!\<s:\ze\h\%(\w*\)\@>(\@!//gce
+        keepj keepp lockm :*s/\%#=1\C\%(\<function(\s*['"]\s*\)\@<!\<s:\ze\h\%(\w*\)\@>(\@!//gce
         popup_close(info[1])
     endif
 
@@ -402,14 +425,17 @@ def UselessConstructs() #{{{2
     # for when we review the location lists later.
     #}}}
     info = Popup_notification('s:func() → Func()')
-    :keepj keepp lockm *s/\C\<s:\(\h\)\ze\(\w*\)(/\=GetNewFunctionPrefix()/gce
-    popup_close(info[1])
-enddef
-
-def GetNewFunctionPrefix(): string
-    var funcname = submatch(1) .. submatch(2)
-    if submatch(1) =~ '[[:lower:]]'
-        # the function name is going to be  capitalized in its header; we'll need to
+    # let's make sure to reset `funclist` across several invocations of `:RefVim9`
+    funclist = []
+    keepj keepp lockm :*s/\C\<s:\(\h\)\ze\(\w*\)(/\=GetNewFunctionPrefix()/gce
+    # Don't try to do this right from `GetNewFunctionPrefix()`.{{{
+    #
+    # We need to wait for the substitutions to have been performed.
+    # Otherwise,  we  might  get  qf  entries for  which  there  is  nothing  to
+    # capitalize, which – in practice – is very confusing.
+    #}}}
+    for funcname in funclist
+        # the function  name has been capitalized  in its header; we'll  need to
         # capitalize it everywhere in the file (i.e. at the call sites)
         # We use `:lvimgrepadd` instead of `:lvim` to not create too many loclists.{{{
         #
@@ -417,11 +443,21 @@ def GetNewFunctionPrefix(): string
         # Beyond that, Vim overwrites the oldest loclists.
         # We don't want to lose any loclist.
         #}}}
-        exe 'noa sil! lvimgrepadd /\C\<' .. funcname .. '\>/gj %'
-        setloclist(0, [], 'a', #{
+        exe 'noa sil! lvimgrepadd /\C\<' .. funcname .. '\>(/gj %'
+        setloclist(0, [], 'a', {
             title: 'capitalize function name at call sites',
             context: 'Vim9-capitalize-function-names',
             })
+    endfor
+    popup_close(info[1])
+enddef
+
+var funclist: list<string> = []
+
+def GetNewFunctionPrefix(): string
+    var funcname = submatch(1) .. submatch(2)
+    if submatch(1) =~ '[[:lower:]]'
+        funclist += [funcname]
     endif
 
     var pfx = submatch(1)->toupper()
@@ -485,43 +521,43 @@ def Misc() #{{{2
     # Remember that in `GetNewFunctionPrefix()`, we already add 1 loclist on the
     # stack.
     #}}}
-    var db = [#{
+    var db = [{
         pat: '^\C\s*def.*,\s*\zs\.\.\.\s*)',
         title: 'refactor ... from legacy function''s header',
         helptag: 'Vim9-refactoring-...',
     },
-    #{
+    {
         pat: '\Ca:\d',
         title: 'refactor a:1, a:2, ...',
         helptag: 'Vim9-refactoring-a:123',
     },
-    #{
+    {
         pat: '^\C\s*def\>!\=\s\+\S\+(\s*\zs[^) ]',
         title: 'declare function arguments types',
         helptag: 'Vim9-function-arguments-types',
     },
-    #{
+    {
         pat: FUNCRETPAT,
         title: 'declare function return type',
         helptag: 'Vim9-function-return-type',
     },
-    #{
+    {
         # E1003: Missing return value
         pat: MISSINGRETPAT,
         title: 'return missing value',
         helptag: 'Vim9-function-return-missing-value',
     },
-    #{
+    {
         pat: '\C\<var\>\s\+\(\S\+\)\s\%(\%(\n\s*enddef\s*\n\)\@!\_.\)*\zs\<var\>\s\+\1\s',
         title: 'assignments',
         helptag: 'Vim9-assignments',
     },
-    #{
+    {
         pat: '\C\<var\>\s\+\[',
         title: 'cannot use list for declaration',
         helptag: 'Vim9-cannot-use-list-for-declaration',
     },
-    #{
+    {
         pat: '^\s*#\s*\zs"',
         title: 'commented legacy comment leaders',
         helptag: 'Vim9-commented-legacy-comment-leaders',
@@ -570,7 +606,7 @@ def Misc() #{{{2
         # `:noa` suppresses an  autocmd from opening the qf window;  we need to stay
         # in the current window, for the next `:lvim` to be run in the right context
         exe 'noa sil! lvim /' .. pat .. '/gj %'
-        setloclist(0, [], 'a', #{
+        setloclist(0, [], 'a', {
             title: entry.title,
             context: entry.helptag,
         })
@@ -604,9 +640,9 @@ const MISSINGRETPAT = '^\C\s*def\>!\=\s\+\S\+('
 def SortUniqLoclists() #{{{2
     var stack: list<dict<any>>
     var info: dict<any>
-    var loclistsNumbers = range(1, getloclist(0, #{nr: '$'}).nr)
+    var loclistsNumbers = range(1, getloclist(0, {nr: '$'}).nr)
     for nr in loclistsNumbers
-        info = getloclist(0, #{nr: nr, items: true, title: true})
+        info = getloclist(0, {nr: nr, items: true, title: true})
         if info.items == []
             continue
         endif
@@ -622,26 +658,29 @@ def SortUniqLoclists() #{{{2
         # several  times for  the same  function, because  the latter  is called
         # multiple times.
         #}}}
-        stack += [#{items: uniq(info.items), title: info.title}]
+        stack += [{items: uniq(info.items), title: info.title}]
     endfor
 
     # Make sure no empty loclist is in the stack.
     setloclist(0, [], 'f')
     for nr in len(stack)->range()
-        setloclist(0, [], ' ', #{
+        setloclist(0, [], ' ', {
             items: stack[nr].items,
             title: stack[nr].title,
             })
     endfor
 enddef
 def OpenLocationWindow() #{{{2
-    # `sil!` in case the stack is empty
-    :sil! 1lhi
-    sil! lwindow
+    # bail out if the stack is empty
+    if getloclist(0, {nr: '$'}).nr == 0
+        return
+    endif
+    :1lhi
+    lwindow
     if &bt == 'quickfix'
         # install a  mapping which opens a  help page explaining what  should be
         # refactored and how
-        nno <buffer><nowait><silent> g? :<c-u>exe 'h ' .. getloclist(0, #{context: 1}).context<cr>
+        nno <buffer><nowait> g? <cmd>exe 'h ' .. getloclist(0, #{context: 1}).context<cr>
     endif
     # print the whole stack of location lists so that we know that there is more
     # than what we can currently see

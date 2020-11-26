@@ -88,20 +88,20 @@ com -bar -buffer -range=% RefVim9 call vim#refactor#vim9#main(<line1>, <line2>)
 "}}}1
 " Mappings {{{1
 
-nno <buffer><nowait><silent> <c-]> :<c-u>call vim#jump_to_tag()<cr>
-nno <buffer><nowait><silent> -h :<c-u>call vim#get_helpurl()<cr>
+nno <buffer><nowait> <c-]> <cmd>call vim#jump_to_tag()<cr>
+nno <buffer><nowait> -h <cmd>call vim#get_helpurl()<cr>
 
-noremap <buffer><expr><nowait><silent> [m brackets#move#regex('fu', 0)
-noremap <buffer><expr><nowait><silent> ]m brackets#move#regex('fu', 1)
+noremap <buffer><expr><nowait> [m brackets#move#regex('fu', 0)
+noremap <buffer><expr><nowait> ]m brackets#move#regex('fu', 1)
 
-noremap <buffer><expr><nowait><silent> [M brackets#move#regex('endfu', 0)
-noremap <buffer><expr><nowait><silent> ]M brackets#move#regex('endfu', 1)
+noremap <buffer><expr><nowait> [M brackets#move#regex('endfu', 0)
+noremap <buffer><expr><nowait> ]M brackets#move#regex('endfu', 1)
 
-sil! call repmap#make#repeatable({
-    \ 'mode': '',
-    \ 'buffer': 1,
-    \ 'from': expand('<sfile>:p') .. ':' .. expand('<slnum>'),
-    \ 'motions': [
+sil! call repmap#make#repeatable(#{
+    \ mode: '',
+    \ buffer: 1,
+    \ from: expand('<sfile>:p') .. ':' .. expand('<slnum>'),
+    \ motions: [
     \     {'bwd': '[m', 'fwd': ']m'},
     \     {'bwd': '[M', 'fwd': ']M'},
     \ ]})
@@ -111,20 +111,20 @@ sil! call repmap#make#repeatable({
 nno <buffer><expr><nowait> =rb vim#refactor#bar#main()
 
 " TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
-nno <buffer><nowait><silent> =rd :<c-u>RefDot<cr>
-xno <buffer><nowait><silent> =rd :RefDot<cr>
+nno <buffer><nowait> =rd <cmd>RefDot<cr>
+xno <buffer><nowait> =rd <c-\><c-n><cmd>*RefDot<cr>
 
 nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
 nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
 nno <buffer><expr><nowait> =rm vim#refactor#method#call#main()
 nno <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
 
-nno <buffer><nowait><silent> =rq :<c-u>RefQuote<cr>
-xno <buffer><nowait><silent> =rq :RefQuote<cr>
+nno <buffer><nowait> =rq <cmd>RefQuote<cr>
+xno <buffer><nowait> =rq <c-\><c-n><cmd>*RefQuote<cr>
 
 nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 
-xno <buffer><nowait><silent> =rt :RefTernary<cr>
+xno <buffer><nowait> =rt <c-\><c-n><cmd>*RefTernary<cr>
 
 " Options {{{1
 " flp {{{2

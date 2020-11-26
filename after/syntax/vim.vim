@@ -91,6 +91,10 @@ syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains
 
 " Misc. {{{1
 
+" Problem: The new `<cmd>` pseudo-key is not highlighted.
+" Solution: Add an item in the `vimNotation` syntax group.
+syn match vimNotation '\%#=1\%(\\\|<lt>\)\=<\%(\ccmd\)>' contains=vimBracket
+
 " Problem: In `hi clear {group}`, `{group}` is not highlighted.
 " Solution: Pass `skipwhite` to `:syn keyword`.
 
@@ -164,11 +168,18 @@ syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%((\|\s*=\)\@!'
 
 " Problem: In an `:echo` command, the `->` method tokens, and functions parentheses, are wrongly highlighted.
 " Solution: Allow `vimOper` and `vimOperParen` to start in a `vimEcho` region.
+" Problem: An inline comment is not properly highlighted after an `:echo` in a Vim9 script.{{{
+"
+"     vim9script
+"     echo 1 + 1 # some comment
+"                ^------------^
+"}}}
+" Solution: Allow `vim9Comment` to be contained in `vimEcho`.
 
 syn region vimEcho oneline excludenl matchgroup=vimCommand
     \ start="\<ec\%[ho]\>" skip="\(\\\\\)*\\|" end="$\||"
-    \ contains=vimFunc,vimFuncVar,vimString,vimVar,vimOper,vimOperParen
-    "                                              ^------------------^
+    \ contains=vimFunc,vimFuncVar,vimString,vimVar,vimOper,vimOperParen,vim9Comment
+    "                                              ^------------------^ ^---------^
 
 " Problem: The `substitute()` function is wrongly highlighted as a command when used as a method.
 " Solution: Disallow `(` after `substitute`.

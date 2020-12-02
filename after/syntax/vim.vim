@@ -93,7 +93,7 @@ syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains
 
 " Problem: The new `<cmd>` pseudo-key is not highlighted.
 " Solution: Add an item in the `vimNotation` syntax group.
-syn match vimNotation '\%#=1\%(\\\|<lt>\)\=<\%(\ccmd\)>' contains=vimBracket
+syn match vimNotation '\%#=1\c\%(\\\|<lt>\)\=<cmd>' contains=vimBracket
 
 " Problem: In `hi clear {group}`, `{group}` is not highlighted.
 " Solution: Pass `skipwhite` to `:syn keyword`.

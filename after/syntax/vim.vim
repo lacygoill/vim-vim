@@ -28,32 +28,18 @@ sil! call s:Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=ital
 " Solution: Include the syntax group `vimLineComment` in the cluster `@vimOperGroup`.
 " https://github.com/vim/vim/issues/6592
 
-call vim#syntax#include_group_in_cluster('vimOperGroup', 'vimLineComment')
+call vim#syntax#tweakCluster('@vimOperGroup', 'vimLineComment')
+
+" Problem: Vim9 comment leader not highlighted on empty commented line inside dictionary inside function.
+" Solution: Include the syntax group `vim9LineComment` in the `vimOperGroup` cluster.
+
+call vim#syntax#tweakCluster('@vimOperGroup', 'vim9LineComment')
 
 " Problem: Vim9 comment leader not highlighted on empty commented line inside function.
 " Solution: Include the syntax group `vim9LineComment` in the `vimFuncBodyList` cluster.
 " https://github.com/vim/vim/issues/6600
 
-call vim#syntax#include_group_in_cluster('vimFuncBodyList', 'vim9LineComment')
-
-" Problem: Vim9 comment leader not highlighted on empty commented line inside dictionary inside function.
-" Solution: Include the syntax group `vim9LineComment` in the `vimOperGroup` cluster.
-
-call vim#syntax#include_group_in_cluster('vimOperGroup', 'vim9LineComment')
-
-" Problem: A literal dictionary at the start of a line is wrongly highlighted as a Vim9 comment{{{
-"
-"     vim9script
-"     let l = [#{},
-"         #{}]
-"         ^--^
-"         wrongly highlighted as a comment
-"}}}
-" Solution: Disallow `{` after `#`.
-
-syn clear vim9LineComment
-syn match vim9LineComment '^[ \t:]*#{\@!.*$' contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-"                                  ^---^
+call vim#syntax#tweakCluster('@vimFuncBodyList', 'vim9LineComment')
 
 " Problem: The `#` prefix in a literal dictionary is not highlighted.
 " Solution: Add a rule to highlight it.
@@ -69,10 +55,10 @@ syn clear vimCommentTitle
 syn match vimCommentTitle '["#]\s*\%([sS]:\|\h\w*#\)\=\u\w*\(\s\+\u\w*\)*:'hs=s+1
     \ contained contains=vimCommentTitleLeader,vimTodo,@vimCommentGroup
 
-" Problem: `#{` in `#{{ {` is wrongly parsed as the start of a literal dictionary.
+" Problem: `#{` in `#{{ {` is wrongly parsed as the start of a literal dictionary (which breaks all subsequent syntax).
 " Solution: Allow `{{ {` after Vim9 comment leader.
 " https://github.com/vim/vim/issues/6601
-" Problem: A title is not highlighted inside a comment at the script level.
+" Problem: A title is not highlighted inside a Vim9 comment at the script level.
 " Solution: Allow a title in a comment at the script level.{{{
 "
 " Make each `vim9Comment` item contain the `vimCommentTitle` syntax group.
@@ -83,11 +69,25 @@ syn match vimCommentTitle '["#]\s*\%([sS]:\|\h\w*#\)\=\u\w*\(\s\+\u\w*\)*:'hs=s+
 "}}}
 
 syn clear vim9Comment
-syn match vim9Comment excludenl +^#\%([^{]\|{{\%x7b\).*$+               contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-syn match vim9Comment excludenl +\s#\%([^{]\|{{\%x7b\).*$+lc=1          contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-syn match vim9Comment           +\<endif\s\+#\%([^{]\|{{\%x7b\).*$+lc=5 contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-syn match vim9Comment           +\<else\s\+#\%([^{]\|{{\%x7b\).*$+lc=4  contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+if getline(1) is# 'vim9script'
+    " FIXME: `#` is wrongly parsed as a comment leader in a legacy function in a Vim9 script.
+    " This  is  hard  to  fix,  because  the  default  syntax  plugin  does  not
+    " distinguish a `:def` function from a `:fu` one.
+    syn match vim9Comment excludenl +^#.*$+               contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment excludenl +\s#.*$+lc=1          contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\<endif\s\+#.*$+lc=5 contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\<else\s\+#.*$+lc=4  contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\s\zs#.*$+ms=s+1     contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+else
+    " FIXME: `#` is wrongly parsed as a comment leader in a legacy script.
+    " FIXME: `#{}` is wrongly parsed as a literal dictionary in a `:def` function, in a legacy script.
+    syn clear vim9Comment
+    syn match vim9Comment excludenl +^#\%([^{]\|{{\%x7b\).*$+               contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment excludenl +\s#\%([^{]\|{{\%x7b\).*$+lc=1          contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\<endif\s\+#\%([^{]\|{{\%x7b\).*$+lc=5 contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\<else\s\+#\%([^{]\|{{\%x7b\).*$+lc=4  contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+    syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains=@vimCommentGroup,vimCommentString,vimCommentTitle
+endif
 
 " Misc. {{{1
 
@@ -133,12 +133,6 @@ syn match vimGroupList contained '@\=[^ \t,]*,' nextgroup=vimGroupList contains=
 " redefine `vimHiGroup`.
 "}}}
 syn match vimHiGroup contained '\i\+'
-
-" Problem: In `var name = 123` (Vim9 script), `var` and `name` are not highlighted correctly.
-" Solution: Include `var` in the `vimLet` syntax group.
-syn clear vimLet
-syn keyword vimLet let var unl[et] skipwhite nextgroup=vimVar,vimFuncVar,vimLetHereDoc
-"                      ^^^
 
 " Problem: The default `vimUsrCmd` highlights too much.{{{
 "

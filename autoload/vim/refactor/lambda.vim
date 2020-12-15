@@ -11,7 +11,7 @@ fu vim#refactor#lambda#main(...) abort "{{{2
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
-    let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
+    let s1 = s:SearchOpeningQuote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
 
     let bang = type(a:1) == v:t_number ? a:1 : v:true
     if !vim#util#we_can_refactor(
@@ -61,7 +61,7 @@ fu s:search_closing_quote() abort "{{{2
     return search('["'']', 'bW')
 endfu
 
-def s:search_opening_quote(): number #{{{2
+def s:SearchOpeningQuote(): number #{{{2
     var char = getline('.')->strpart(col('.') - 1)[0]
     var pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')

@@ -452,7 +452,7 @@ def UselessConstructs() #{{{2
     popup_close(info[1])
 enddef
 
-var funclist: list<string> = []
+var funclist: list<string>
 
 def GetNewFunctionPrefix(): string
     var funcname = submatch(1) .. submatch(2)

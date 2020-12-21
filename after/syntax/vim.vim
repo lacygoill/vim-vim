@@ -147,17 +147,27 @@ syn match vimHiGroup contained '\i\+'
 " https://github.com/vim/vim/issues/6587
 
 syn clear vimUsrCmd
-syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%((\|\s*=\)\@!'
-"                                     ├────────────────┘{{{
-"                                     └ in a Vim9 script, don't highlight a custom Vim function
-"                                     invoked without ":call"
+syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%([(#]\|\s\+=\)\@!'
+"                                            ├┘   ├───┘ {{{
+"                                            │    │
+"                                            │    └ and don't highlight a capitalized variable name,
+"                                            │      in an assignment without declaration:
+"                                            │
+"                                            │        var MYCONSTANT: number
+"                                            │        MYCONSTANT = 123
+"                                            │        ^--------^
+"                                            │
+"                                            └ In a Vim9 script, don't highlight a custom Vim function
+"                                              invoked without ":call".
 "
-"                                     and don't highlight a capitalized variable name,
-"                                     in an assignment without declaration:
+"                                                  Func()
+"                                                  ^--^
 "
-"                                         var MYCONSTANT: number
-"                                         MYCONSTANT = 123
-"                                         ^--------^
+"                                              And don't highlight a capitalized autoload function name,
+"                                              in a function call:
+"
+"                                                 Script#func()
+"                                                 ^----^
 "}}}
 
 " Problem: In an `:echo` command, the `->` method tokens, and functions parentheses, are wrongly highlighted.

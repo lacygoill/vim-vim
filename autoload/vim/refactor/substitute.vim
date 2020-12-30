@@ -25,8 +25,8 @@ fu vim#refactor#substitute#main(...) abort "{{{2
     endif
     let view = winsaveview()
 
-    let s1 = s:search_substitution_start() | let [lnum1, col1] = getcurpos()[1:2]
-    let s2 = s:search_substitution_end() | let [lnum2, col2] = getcurpos()[1:2]
+    let s1 = s:search_substitution_start() | let [lnum1, col1] = getcurpos()[1 : 2]
+    let s2 = s:search_substitution_end() | let [lnum2, col2] = getcurpos()[1 : 2]
 
     let bang = type(a:1) == v:t_number ? a:1 : v:true
     if !vim#util#we_can_refactor(
@@ -67,7 +67,7 @@ fu s:get_old_substitution(lnum) abort "{{{2
 endfu
 
 fu s:get_new_substitution(old) abort "{{{2
-    let [range, _, pat, rep, flags] = matchlist(a:old, s:PAT)[1:5]
+    let [range, _, pat, rep, flags] = matchlist(a:old, s:PAT)[1 : 5]
     let flags = substitute(flags, 'e', '', '')
     " TODO: support case where pattern or replacement contains a single quote
     " TODO: make sure `&`, `~` and `\` are always escaped in the replacement

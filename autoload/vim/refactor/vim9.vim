@@ -1,4 +1,7 @@
-vim9script
+vim9script noclear
+
+if exists('loaded') | finish | endif
+var loaded = true
 
 import IsVim9 from 'lg.vim'
 import Popup_notification from 'lg/popup.vim'
@@ -30,6 +33,7 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
     # clear stack of location lists
     setloclist(0, [], 'f')
 
+    # TODO: `list[a:b]` → `list[a : b]`
     # TODO: should we highlight each text which is to be modified and ask for the user's confirmation?
     # TODO: should we invoke `:RefDot`?
     # TODO: check that commands starting with a range are prefixed with a colon
@@ -99,8 +103,8 @@ enddef
 #}}}1
 # Core {{{1
 def Vim9script() #{{{2
-    if getline(1) != 'vim9script' && line("'<") == 1 && line("'>") == line('$')
-        append(0, ['vim9script', ''])
+    if getline(1) !~ '^vim9script\>' && line("'<") == 1 && line("'>") == line('$')
+        append(0, ['vim9script noclear', ''])
     endif
 enddef
 
@@ -409,7 +413,7 @@ def UselessConstructs() #{{{2
     # loclist.
     #}}}
 
-    if getline(1) == 'vim9script'
+    if getline(1) =~ '^vim9script\>'
         info = Popup_notification('s:var → var')
         # We need `\%#=1` to prevent `\@>` from causing `\ze` to be ignored.
         keepj keepp lockm :*s/\%#=1\C\%(\<function(\s*['"]\s*\)\@<!\<s:\ze\h\%(\w*\)\@>(\@!//gce
@@ -462,7 +466,7 @@ def GetNewFunctionPrefix(): string
 
     var pfx = submatch(1)->toupper()
     # can not drop `s:` in the header of a Vim9 function in a legacy script
-    if getline(1) != 'vim9script' && getline('.') =~ '^\s*def\>'
+    if getline(1) !~ '^vim9script\>' && getline('.') =~ '^\s*def\>'
         return 's:' .. pfx
     # can drop `s:` in the Vim9 context
     elseif IsVim9()
@@ -647,11 +651,11 @@ def SortUniqLoclists() #{{{2
             continue
         endif
         # sort the entries in the location list according to their location
-        sort(info.items, {i, j ->
+        sort(info.items, (i, j) =>
             i.lnum > j.lnum || i.lnum == j.lnum && i.col > j.col
                 ? 1
                 : -1
-            })
+            )
         # We don't want redundant entries in the location lists.{{{
         #
         # That can happen, for example, when `GetNewFunctionPrefix()` is invoked
@@ -691,7 +695,7 @@ enddef
 # Utilities {{{1
 def In(syngroup: string, col = col('.')): bool #{{{2
     return synstack('.', col)
-        ->map({_, v -> synIDattr(v, 'name')})
+        ->map((_, v) => synIDattr(v, 'name'))
         ->match('\c' .. syngroup) != -1
 enddef
 

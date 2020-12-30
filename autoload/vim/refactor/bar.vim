@@ -45,7 +45,7 @@ fu vim#refactor#bar#main(...) abort "{{{2
 
     try
         if arg != ''
-            call s:{arg[1:]}(bang)
+            call s:{arg[1 :]}(bang)
         else
             if line =~# s:PAT_BAR
                 call s:break(bang)
@@ -162,8 +162,8 @@ fu s:we_can_refactor(lnum1, lnum2, bang, change) abort "{{{2
     " last non-whitespace on last line
     let pat2 = '\%' .. a:lnum2 .. 'l\S\s*$'
     let view = winsaveview()
-    let s1 = search(pat1, 'bc') | let [lnum1, col1] = getcurpos()[1:2]
-    let s2 = search(pat2, 'c') | let [lnum2, col2] = getcurpos()[1:2]
+    let s1 = search(pat1, 'bc') | let [lnum1, col1] = getcurpos()[1 : 2]
+    let s2 = search(pat2, 'c') | let [lnum2, col2] = getcurpos()[1 : 2]
     if !vim#util#we_can_refactor(
         \ [s1, s2],
         \ lnum1, col1,

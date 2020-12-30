@@ -10,8 +10,8 @@ fu vim#refactor#lambda#main(...) abort "{{{2
     let view = winsaveview()
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
-    let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1:2] | norm! v
-    let s1 = s:SearchOpeningQuote() | let [lnum1, col1] = getcurpos()[1:2] | norm! y
+    let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
+    let s1 = s:SearchOpeningQuote() | let [lnum1, col1] = getcurpos()[1 : 2] | norm! y
 
     let bang = type(a:1) == v:t_number ? a:1 : v:true
     if !vim#util#we_can_refactor(
@@ -69,7 +69,7 @@ enddef
 
 fu s:get_expr(captured_text) abort "{{{2
     let expr = a:captured_text
-    let quote = expr[-1:-1]
+    let quote = expr[-1 : -1]
     let is_single_quoted = quote is# "'"
     let expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted

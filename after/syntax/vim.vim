@@ -69,7 +69,7 @@ syn match vimCommentTitle '["#]\s*\%([sS]:\|\h\w*#\)\=\u\w*\(\s\+\u\w*\)*:'hs=s+
 "}}}
 
 syn clear vim9Comment
-if getline(1) is# 'vim9script'
+if getline(1) =~# '^\Cvim9script\>'
     " FIXME: `#` is wrongly parsed as a comment leader in a legacy function in a Vim9 script.
     " This  is  hard  to  fix,  because  the  default  syntax  plugin  does  not
     " distinguish a `:def` function from a `:fu` one.

@@ -26,9 +26,9 @@ fu vim#refactor#heredoc#main(...) abort "{{{2
         if marker == '' | return s:error('invalid marker') | endif
     endif
 
-    let s1 = s:search_let() | let [lnum1, col1] = getcurpos()[1:2]
-    let s2 = s:search_opening_bracket() | let [lnum2, col2] = getcurpos()[1:2]
-    let s3 = s:search_closing_bracket() | let [lnum3, col3] = getcurpos()[1:2]
+    let s1 = s:search_let() | let [lnum1, col1] = getcurpos()[1 : 2]
+    let s2 = s:search_opening_bracket() | let [lnum2, col2] = getcurpos()[1 : 2]
+    let s3 = s:search_closing_bracket() | let [lnum3, col3] = getcurpos()[1 : 2]
 
     if !vim#util#we_can_refactor(
         \ [s1, s2, s3],

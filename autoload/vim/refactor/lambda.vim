@@ -10,7 +10,7 @@ fu vim#refactor#lambda#main(...) abort "{{{2
     let view = winsaveview()
 
     " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
-    let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
+    let s2 = s:SearchClosingQuote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
     let s1 = s:SearchOpeningQuote() | let [lnum1, col1] = getcurpos()[1 : 2] | norm! y
 
     let bang = type(a:1) == v:t_number ? a:1 : v:true
@@ -35,9 +35,32 @@ fu vim#refactor#lambda#main(...) abort "{{{2
         \ lnum2, col2,
         \ )
 endfu
+
+fu vim#refactor#lambda#new(...) abort "{{{2
+    if !a:0
+        let &opfunc = 'vim#refactor#lambda#new'
+        return 'g@l'
+    endif
+    call searchpair('{', '', '}', 'bcW')
+    let start = getpos('.')
+    call searchpair('{', '', '}', 'W')
+    " delete "}"
+    call getline('.')
+        \ ->substitute('.*\zs\%' .. col('.') .. 'c.', '', '')
+        \ ->setline('.')
+    call setpos('.', start)
+    " replace "{" with "("
+    call getline('.')
+        \ ->substitute('.*\zs\%' .. col('.') .. 'c.', '(', '')
+        \ ->setline('.')
+    " replace "->" with "=>"
+    call getline('.')
+        \ ->substitute('.*\%' .. start[2] .. 'c.\{-}\zs\s*->', ') =>', '')
+        \ ->setline('.')
+endfu
 "}}}1
 " Core {{{1
-fu s:search_closing_quote() abort "{{{2
+fu s:SearchClosingQuote() abort "{{{2
     " FIXME:  The logic is wrong when we dealing with a nested `map()`/`filter()`.{{{
     "
     " Example:

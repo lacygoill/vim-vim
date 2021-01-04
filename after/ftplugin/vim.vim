@@ -116,6 +116,14 @@ xno <buffer><nowait> =rd <c-\><c-n><cmd>*RefDot<cr>
 
 nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
 nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
+" TODO: Merge `=rL` with `=rl`.{{{
+"
+" When pressing `=rl` on an eval string, it should be refactored into a legacy lambda.
+" When pressing `=rl` on a legacy lambda, it should be refactored into a Vim9 lambda.
+"
+" You'll need to merge `#new()` with `#main()`.
+"}}}
+nno <buffer><expr><nowait> =rL vim#refactor#lambda#new()
 nno <buffer><expr><nowait> =rm vim#refactor#method#call#main()
 nno <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
 

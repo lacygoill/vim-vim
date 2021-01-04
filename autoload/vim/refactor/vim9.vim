@@ -103,7 +103,7 @@ enddef
 #}}}1
 # Core {{{1
 def Vim9script() #{{{2
-    if getline(1) !~ '^vim9script\>' && line("'<") == 1 && line("'>") == line('$')
+    if getline(1) !~ '^vim9\%[script]\>' && line("'<") == 1 && line("'>") == line('$')
         append(0, ['vim9script noclear', ''])
     endif
 enddef
@@ -413,7 +413,7 @@ def UselessConstructs() #{{{2
     # loclist.
     #}}}
 
-    if getline(1) =~ '^vim9script\>'
+    if getline(1) =~ '^vim9\%[script]\>'
         info = Popup_notification('s:var → var')
         # We need `\%#=1` to prevent `\@>` from causing `\ze` to be ignored.
         keepj keepp lockm :*s/\%#=1\C\%(\<function(\s*['"]\s*\)\@<!\<s:\ze\h\%(\w*\)\@>(\@!//gce
@@ -466,7 +466,7 @@ def GetNewFunctionPrefix(): string
 
     var pfx = submatch(1)->toupper()
     # can not drop `s:` in the header of a Vim9 function in a legacy script
-    if getline(1) !~ '^vim9script\>' && getline('.') =~ '^\s*def\>'
+    if getline(1) !~ '^vim9\%[script]\>' && getline('.') =~ '^\s*def\>'
         return 's:' .. pfx
     # can drop `s:` in the Vim9 context
     elseif IsVim9()

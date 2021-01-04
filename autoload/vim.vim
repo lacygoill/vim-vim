@@ -66,6 +66,7 @@ fu vim#undo_ftplugin() abort "{{{1
     nunmap <buffer> =rd
     nunmap <buffer> =rh
     nunmap <buffer> =rl
+    nunmap <buffer> =rL
     nunmap <buffer> =rm
     nunmap <buffer> =r-
     nunmap <buffer> =rq

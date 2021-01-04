@@ -22,6 +22,23 @@ sil! call s:Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=ital
 " Whenever you find one, report the issue.
 "}}}
 
+" Vim9 {{{1
+
+" Problem: In a declaration, a variable name is not highlighted correctly if it shadows an Ex command.
+" Solution: Include the keyword `var` in the syntax group `vimLet`.{{{
+"
+" Note  that this  only fixes  the issue  in a  declaration; it  persists in  an
+" assignment:
+"
+"            ✔
+"         v------v
+"     var undolist: list<number>
+"     undolist = [1, 2, 3]
+"     ^------^
+"        ✘
+"}}}
+syn keyword vimLet var skipwhite nextgroup=vimVar,vimFuncVar,vimLetHereDoc
+
 " Comments {{{1
 
 " Problem: `:h line-continuation-comment` is not highlighted inside a dictionary.
@@ -89,6 +106,19 @@ else
     syn match vim9Comment           +\s\zs#\%([^{]\|{{\%x7b\).*$+ms=s+1     contains=@vimCommentGroup,vimCommentString,vimCommentTitle
 endif
 
+" Problem: The `? expr1` might be wrongly highlighted when written at the start of a line.{{{
+"
+" Only when using an automatic line continuation.
+" Example:
+"
+"     [prefix, size] = cmd =~ '^l'
+"         ?     ['l', getloclist(0, {size: 0}).size]
+"         :     ['c', getqflist({size: 0}).size]
+"}}}
+" Solution: Tweak `vimSearch` so that it doesn't highlight `?` as a search command anymore.
+syn clear vimSearch
+syn match vimSearch +^\s*[/].*+ contains=vimSearchDelim
+
 " Misc. {{{1
 
 " Problem: The new `<cmd>` pseudo-key is not highlighted.
@@ -147,15 +177,17 @@ syn match vimHiGroup contained '\i\+'
 " https://github.com/vim/vim/issues/6587
 
 syn clear vimUsrCmd
-syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%([(#]\|\s\+=\)\@!'
-"                                            ├┘   ├───┘ {{{
+syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%([(#]\|\s\+\%([-+*/%]\=\|\.\.\)=\)\@!'
+"                                            ├┘   ├─────────────────────────┘ {{{
 "                                            │    │
 "                                            │    └ and don't highlight a capitalized variable name,
 "                                            │      in an assignment without declaration:
 "                                            │
 "                                            │        var MYCONSTANT: number
-"                                            │        MYCONSTANT = 123
-"                                            │        ^--------^
+"                                            │        MYCONSTANT = 12
+"                                            │        MYCONSTANT += 34
+"                                            │        MYCONSTANT *= 56
+"                                            │        ...
 "                                            │
 "                                            └ In a Vim9 script, don't highlight a custom Vim function
 "                                              invoked without ":call".

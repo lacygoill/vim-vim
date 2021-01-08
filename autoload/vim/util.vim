@@ -1,89 +1,109 @@
-" Interface {{{1
-fu vim#util#search(pat, flags = '', syntomatch = '') abort "{{{2
-    let [g, s] = [0, 1]
-    let syntax_was_enabled = exists('g:syntax_on')
+vim9 noclear
+
+if exists('loaded') | finish | endif
+var loaded = true
+
+# Interface {{{1
+def vim#util#search(pat: string, flags = '', syntomatch = ''): number #{{{2
+    var syntax_was_enabled = exists('g:syntax_on')
     try
         if !syntax_was_enabled
-            call s:warn('enabling syntax to search pattern; might take some time...')
+            Warn('enabling syntax to search pattern; might take some time...')
             syn enable
         endif
-        return search(a:pat, a:flags .. 'W' .. (g == 0 ? 'c' : ''),
-            \ 0, 0, function('s:skip', [a:syntomatch]))
+        return search(pat, flags .. 'cW',
+            0, 0, function(Skip, [syntomatch]))
     finally
-        if !syntax_was_enabled | syn off | endif
+        if !syntax_was_enabled
+            syn off
+        endif
     endtry
-endfu
+    return 0
+enddef
 
-fu s:skip(syntomatch) abort
-    let syngroup = synstack('.', col('.'))->map({_, v -> synIDattr(v, 'name')})->get(-1, '')
-    if syngroup is# 'vimString'
-        return v:true
+def Skip(syntomatch: string): bool
+    var syngroup = synstack('.', col('.'))
+        ->map((_, v) => synIDattr(v, 'name'))
+        ->get(-1, '')
+    if syngroup == 'vimString'
+        return true
     endif
-    return a:syntomatch != '' && syngroup !~# '\C^\%(' .. a:syntomatch .. '\)$'
-endfu
+    return syntomatch != '' && syngroup !~ '\C^\%(' .. syntomatch .. '\)$'
+enddef
 
-fu vim#util#we_can_refactor(...) abort "{{{2
-    let [
-        \ search_results,
-        \ lnum1, col1,
-        \ lnum2, col2,
-        \ bang,
-        \ view,
-        \ this, into_that
-        \ ] = a:000
+def vim#util#weCanRefactor( #{{{2
+    search_results: list<number>,
+    lnum1: number, col1: number,
+    lnum2: number, col2: number,
+    bang: bool,
+    view: dict<number>,
+    this: string, into_that: string
+    ): bool
 
-    let [lnum0, col0] = [view.lnum, view.col]
-    let l:Finish = function('s:finish', [view])
+    var lnum0 = view.lnum
+    var col0 = view.col
+    var FinishRef = function(Finish, [view])
 
-    " Why `call()`?{{{
-    "
-    " To avoid repeating the same arguments in several function calls.
-    "}}}
-    let args = [lnum1, col1, lnum2, col2]
+    # Why `call()`?{{{
+    #
+    # To avoid repeating the same arguments in several function calls.
+    #}}}
+    var args = [lnum1, col1, lnum2, col2]
     if index(search_results, 0) >= 0
-    \ || !call('s:contains_pos', [lnum0, col0] + args)
-    \ || s:contains_empty_or_commented_line(lnum1, lnum2)
-        return l:Finish(this .. ' not found')
-    elseif !bang && call('s:confirm', ['refactor into ' .. into_that] + args) isnot# 'y'
-        return l:Finish()
+    || !call(ContainsPos, [lnum0, col0] + args)
+    || ContainsEmptyOrCommentedLine(lnum1, lnum2)
+        return FinishRef(this .. ' not found')
+    elseif !bang && call(Confirm, ['refactor into ' .. into_that] + args) != 'y'
+        return FinishRef()
     else
-        return 1
+        return true
     endif
-endfu
+enddef
 
-fu vim#util#put(...) abort "{{{2
-    let [text, lnum1, col1, lnum2, col2; linewise] = a:000
-    let [cb_save, sel_save] = [&cb, &sel]
-    let reg_save = getreginfo('"')
+def vim#util#put( #{{{2
+    text: any, # TODO(Vim9): string|list<string>
+    lnum1: number,
+    col1: number,
+    lnum2: number,
+    col2: number,
+    linewise = false
+    )
+    var cb_save = &cb
+    var sel_save = &sel
+    var reg_save = getreginfo('"')
     try
         set cb= sel=inclusive
         if type(text) == v:t_list
-            let @" = join(text, "\n")
+            @" = join(text, "\n")
         else
-            let @" = text
+            @" = text
         endif
-        call setpos('.', [0, lnum1, col1, 0])
-        exe 'norm!' .. (!empty(linewise) ? 'V' : 'v')
-        call setpos('.', [0, lnum2, col2, 0])
+        setpos('.', [0, lnum1, col1, 0])
+        exe 'norm!' .. (linewise ? 'V' : 'v')
+        setpos('.', [0, lnum2, col2, 0])
         norm! p
     finally
-        let [&cb, &sel] = [cb_save, sel_save]
-        call setreg('"', reg_save)
+        &cb = cb_save
+        &sel = sel_save
+        setreg('"', reg_save)
     endtry
-endfu
-"}}}1
-" Utilities {{{1
-fu s:warn(msg) abort "{{{2
-    " Sometimes, enabling syntax highlighting takes a few seconds.
+enddef
+#}}}1
+# Utilities {{{1
+def Warn(msg: string) #{{{2
+    # Sometimes, enabling syntax highlighting takes a few seconds.
     echohl WarningMsg
-    echo a:msg
+    echo msg
     echohl NONE
-endfu
+enddef
 
-fu s:contains_pos(...) abort "{{{2
-    " return 1 iff the position `[lnum0, col0]` is somewhere inside the
-    " characterwise text starting at `[lnum1, col1]` and ending at `[lnum2, col2]`
-    let [lnum0, col0, lnum1, col1, lnum2, col2] = a:000
+def ContainsPos( #{{{2
+    lnum0: number, col0: number,
+    lnum1: number, col1: number,
+    lnum2: number, col2: number,
+    ): bool
+    # return 1 iff the position `[lnum0, col0]` is somewhere inside the
+    # characterwise text starting at `[lnum1, col1]` and ending at `[lnum2, col2]`
     if lnum0 == lnum1 && lnum0 == lnum2
         return col0 >= (col1 - 1) && col0 <= (col2 - 1)
     else
@@ -91,58 +111,63 @@ fu s:contains_pos(...) abort "{{{2
             \ || (lnum0 == lnum1 && col0 >= (col1 - 1))
             \ || (lnum0 == lnum2 && col0 <= (col2 - 1))
     endif
-endfu
+enddef
 
-fu s:contains_empty_or_commented_line(lnum1, lnum2) abort "{{{2
-    let lines = getline(a:lnum1, a:lnum2)
+def ContainsEmptyOrCommentedLine(lnum1: number, lnum2: number): bool #{{{2
+    var lines = getline(lnum1, lnum2)
     return match(lines, '^\s*"\%(\\ \)\@!\|^\s*$') != -1
-endfu
+enddef
 
-fu s:finish(view, ...) abort "{{{2
-    " Why `winrestview()` instead of `cursor()`?{{{
-    "
-    " Restoring the cursor position does not the guarantee that the view will be
-    " preserved.  I want it preserved.
-    "}}}
-    " Why restoring the view *before* echo'ing the message?{{{
-    "
-    " If the view changes, the screen will be redrawn.
-    " And if the screen is redrawn, the message on the command-line may be erased.
-    " That should not happen since we use `winrestview()`, but better be safe.
-    "}}}
-    call winrestview(a:view)
-    " Without, the message is  erased if no list assignment is  found and if the
-    " syntax is disabled.
+def Finish(view: dict<number>, msg = ''): bool #{{{2
+    # Why `winrestview()` instead of `cursor()`?{{{
+    #
+    # Restoring the cursor position does not the guarantee that the view will be
+    # preserved.  I want it preserved.
+    #}}}
+    # Why restoring the view *before* echo'ing the message?{{{
+    #
+    # If the view changes, the screen will be redrawn.
+    # And if the screen is redrawn, the message on the command-line may be erased.
+    # That should not happen since we use `winrestview()`, but better be safe.
+    #}}}
+    winrestview(view)
+    # Without, the message is  erased if no list assignment is  found and if the
+    # syntax is disabled.
     redraw
-    if a:0 && a:1 != ''
+    if msg != ''
         echohl ErrorMsg
-        echo a:1
+        echo msg
         echohl NONE
     endif
-    return 0
-endfu
+    return false
+enddef
 
-fu s:confirm(msg, ...) abort "{{{2
-    let [lnum1, col1, lnum2, col2] = a:000
-    let fen_save = &l:fen
-    let pat = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
-    let id = matchadd('IncSearch', pat, 0)
+def Confirm( #{{{2
+    msg: string,
+    lnum1: number,
+    col1: number,
+    lnum2: number,
+    col2: number,
+    ): string
+    var fen_save = &l:fen
+    var pat = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
+    var id = matchadd('IncSearch', pat, 0)
+    var answer: string
     try
         setl nofen
         echohl Question
-        redraw | echo a:msg .. ' (y/n)?'
+        redraw | echo msg .. ' (y/n)?'
         echohl NONE
-        let answer = ''
         while index(['y', 'n', "\e"], answer) == -1
-            let answer = getchar()->nr2char()
+            answer = getchar()->nr2char()
         endwhile
         redraw!
     catch /Vim:Interrupt/
         echohl ErrorMsg | redraw | echo 'Interrupt' | echohl NONE
     finally
-        let &l:fen = fen_save
-        call matchdelete(id)
+        &l:fen = fen_save
+        matchdelete(id)
     endtry
     return answer
-endfu
+enddef
 

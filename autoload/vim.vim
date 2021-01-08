@@ -1,57 +1,63 @@
+vim9 noclear
+
+if exists('loaded') | finish | endif
+var loaded = true
+
 import Catch from 'lg.vim'
 
-fu vim#jump_to_tag() abort "{{{1
-    let [isk_save, bufnr] = [&l:isk, bufnr('%')]
-    " Some tags may contain a colon (ex: `s:some_function()`).
-    "                                      ^
-    " When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
-    " characters inside 'isk'.
+def vim#jumpToTag() #{{{1
+    var isk_save = &l:isk
+    var bufnr = bufnr('%')
+    # Some tags may contain a colon (ex: `s:some_function()`).
+    #                                      ^
+    # When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
+    # characters inside 'isk'.
     setl isk+=:
     try
         exe "norm! \<c-]>"
         norm! zvzz
     catch
-        return s:Catch()
+        Catch()
     finally
-        " Why not simply `let &l:isk = isk_save`?{{{
-        "
-        " We may have jumped to another buffer.
-        "}}}
-        call setbufvar(bufnr, '&isk', isk_save)
+        # Why not simply `&l:isk = isk_save`?{{{
+        #
+        # We may have jumped to another buffer.
+        #}}}
+        setbufvar(bufnr, '&isk', isk_save)
     endtry
-endfu
+enddef
 
-fu vim#get_helpurl() abort "{{{1
-    let winid = win_getid()
-    " use our custom `K` which is smarter than the builtin one
+def vim#getHelpurl() #{{{1
+    var winid = win_getid()
+    # use our custom `K` which is smarter than the builtin one
     norm K
-    if expand('%:p') !~# '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
+    if expand('%:p') !~ '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
         return
     endif
-    let fname = expand('%:p')->fnamemodify(':t')
-    let tag = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
-    if &ft is# 'help'
+    var fname = expand('%:p')->fnamemodify(':t')
+    var tag = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
+    if &ft == 'help'
         close
     endif
-    call win_gotoid(winid)
-    let value = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
-        \ tag,
-        \ fname,
-        \ tag,
-        \ )
-    call setreg('h', value, 'a')
-    call getreg('h', v:true, v:true)
-        \ ->popup_notification(#{
-        \ time: 2000,
-        \ pos: 'topright',
-        \ line: 1,
-        \ col: &columns,
-        \ borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
-        \ })
-endfu
+    win_gotoid(winid)
+    var value = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
+        tag,
+        fname,
+        tag,
+        )
+    setreg('h', value, 'a')
+    getreg('h', true, true)
+        ->popup_notification({
+            time: 2'000,
+            pos: 'topright',
+            line: 1,
+            col: &columns,
+            borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
+            })
+enddef
 
-fu vim#undo_ftplugin() abort "{{{1
-    set flp<
+def vim#undoFtplugin() #{{{1
+    set cms< flp<
     unlet! b:mc_chain
 
     unmap <buffer> [m
@@ -86,5 +92,5 @@ fu vim#undo_ftplugin() abort "{{{1
     delc RefTernary
     delc RefVim9
     delc Refactor
-endfu
+enddef
 

@@ -1,4 +1,4 @@
-vim9script noclear
+vim9 noclear
 
 if exists('loaded') | finish | endif
 var loaded = true
@@ -104,7 +104,7 @@ enddef
 # Core {{{1
 def Vim9script() #{{{2
     if getline(1) !~ '^vim9\%[script]\>' && line("'<") == 1 && line("'>") == line('$')
-        append(0, ['vim9script noclear', ''])
+        append(0, ['vim9 noclear', ''])
     endif
 enddef
 
@@ -447,7 +447,7 @@ def UselessConstructs() #{{{2
         # Beyond that, Vim overwrites the oldest loclists.
         # We don't want to lose any loclist.
         #}}}
-        exe 'noa sil! lvimgrepadd /\C\<' .. funcname .. '\>(/gj %'
+        exe 'sil! lvimgrepadd /\C\<' .. funcname .. '\>(/gj %'
         setloclist(0, [], 'a', {
             title: 'capitalize function name at call sites',
             context: 'Vim9-capitalize-function-names',
@@ -609,7 +609,7 @@ def Misc() #{{{2
         pat = anchor .. entry.pat .. anchor
         # `:noa` suppresses an  autocmd from opening the qf window;  we need to stay
         # in the current window, for the next `:lvim` to be run in the right context
-        exe 'noa sil! lvim /' .. pat .. '/gj %'
+        exe 'sil! lvim /' .. pat .. '/gj %'
         setloclist(0, [], 'a', {
             title: entry.title,
             context: entry.helptag,

@@ -1,3 +1,8 @@
+vim9 noclear
+
+if exists('loaded') | finish | endif
+var loaded = true
+
 def vim#syntax#tweakCluster(acluster: string, group: string, action = 'include')
     var cluster = substitute(acluster, '^@', '', '')
     cluster = execute('syn list @' .. cluster)

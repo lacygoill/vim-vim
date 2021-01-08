@@ -1,107 +1,130 @@
-" Interface {{{1
-fu vim#refactor#lambda#main(...) abort "{{{2
-    if !a:0
-        let &opfunc = 'vim#refactor#lambda#main'
+vim9 noclear
+
+if exists('loaded') | finish | endif
+var loaded = true
+
+# Interface {{{1
+def vim#refactor#lambda#main(type: any = ''): string #{{{2
+    if type(type) == v:t_string && type == ''
+        &opfunc = 'vim#refactor#lambda#main'
         return 'g@l'
     endif
 
-    " TODO: A lambda is not always better than an eval string.
-    " Make the function support the reverse refactoring (`{_, v -> v}` → `'v:val'`).
-    let view = winsaveview()
+    # TODO: A lambda is not always better than an eval string.
+    # Make the function support the reverse refactoring (`{_, v -> v}` → `'v:val'`).
+    var view = winsaveview()
 
-    " TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
-    let s2 = s:SearchClosingQuote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
-    let s1 = s:SearchOpeningQuote() | let [lnum1, col1] = getcurpos()[1 : 2] | norm! y
+    # TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
+    var s2 = SearchClosingQuote()
+    var lnum2: number
+    var col2: number
+    [lnum2, col2] = getcurpos()[1 : 2]
+    norm! v
 
-    let bang = type(a:1) == v:t_number ? a:1 : v:true
-    if !vim#util#we_can_refactor(
-        \ [s1, s2],
-        \ lnum1, col1,
-        \ lnum2, col2,
-        \ bang,
-        \ view,
-        \ 'map/filter {expr2}', 'lambda',
-        \ ) | return | endif
+    var s1 = SearchOpeningQuote()
+    var lnum1: number
+    var col1: number
+    [lnum1, col1] = getcurpos()[1 : 2]
+    norm! y
 
-    if @" =~# '\Cv:key'
-        let new_expr = '{i, v -> ' .. s:get_expr(@") .. '}'
+    var bang = type(type) == v:t_bool ? type : true
+    if !vim#util#weCanRefactor(
+        [s1, s2],
+        lnum1, col1,
+        lnum2, col2,
+        bang,
+        view,
+        'map/filter {expr2}', 'lambda',
+        )
+        return ''
+    endif
+
+    var new_expr: string
+    if @" =~ '\Cv:key'
+        new_expr = '{i, v -> ' .. GetExpr(@") .. '}'
     else
-        let new_expr = '{_, v -> ' .. s:get_expr(@") .. '}'
+        new_expr = '{_, v -> ' .. GetExpr(@") .. '}'
     endif
 
-    call vim#util#put(
-        \ new_expr,
-        \ lnum1, col1,
-        \ lnum2, col2,
-        \ )
-endfu
+    vim#util#put(
+        new_expr,
+        lnum1, col1,
+        lnum2, col2,
+        )
+    return ''
+enddef
 
-fu vim#refactor#lambda#new(...) abort "{{{2
-    if !a:0
-        let &opfunc = 'vim#refactor#lambda#new'
+def vim#refactor#lambda#new(type = ''): string #{{{2
+    if type == ''
+        &opfunc = 'vim#refactor#lambda#new'
         return 'g@l'
     endif
-    call searchpair('{', '', '}', 'bcW')
-    let start = getpos('.')
-    call searchpair('{', '', '}', 'W')
-    " delete "}"
-    call getline('.')
-        \ ->substitute('.*\zs\%' .. col('.') .. 'c.', '', '')
-        \ ->setline('.')
-    call setpos('.', start)
-    " replace "{" with "("
-    call getline('.')
-        \ ->substitute('.*\zs\%' .. col('.') .. 'c.', '(', '')
-        \ ->setline('.')
-    " replace "->" with "=>"
-    call getline('.')
-        \ ->substitute('.*\%' .. start[2] .. 'c.\{-}\zs\s*->', ') =>', '')
-        \ ->setline('.')
-endfu
-"}}}1
-" Core {{{1
-fu s:SearchClosingQuote() abort "{{{2
-    " FIXME:  The logic is wrong when we dealing with a nested `map()`/`filter()`.{{{
-    "
-    " Example:
-    "
-    "     filter(map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
-    "                                                                     ^
-    "                                                                     cursor position
-    "
-    " Press `=rl`:  the refactoring fails.
-    " This is not a big issue though.  We should first refactor this line to get
-    " rid of the nesting, using the `->` method token:
-    "
-    "     map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)')->filter('len(v:val)')
-    "
-    " Then, the current logic is correct, and `=rl` works as expected.
-    "}}}
-    if !vim#util#search('\m\C\<\%(map\|filter\)(', 'be') | return 0 | endif
-    let pos = getcurpos()
+    searchpair('{.*->', '', '}', 'bcW')
+    var start = getpos('.')
+    searchpair('{', '', '}', 'W')
+    # delete "}"
+    getline('.')
+        ->substitute('.*\zs\%' .. col('.') .. 'c.', '', '')
+        ->setline('.')
+    setpos('.', start)
+    # replace "{" with "("
+    getline('.')
+        ->substitute('.*\zs\%' .. col('.') .. 'c.', '(', '')
+        ->setline('.')
+    # replace "->" with "=>"
+    getline('.')
+        ->substitute('.*\%' .. start[2] .. 'c.\{-}\zs\s*->', ') =>', '')
+        ->setline('.')
+    return ''
+enddef
+#}}}1
+# Core {{{1
+def SearchClosingQuote(): number #{{{2
+    # FIXME:  The logic is wrong when we dealing with a nested `map()`/`filter()`.{{{
+    #
+    # Example:
+    #
+    #     filter(map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
+    #                                                                     ^
+    #                                                                     cursor position
+    #
+    # Press `=rl`:  the refactoring fails.
+    # This is not a big issue though.  We should first refactor this line to get
+    # rid of the nesting, using the `->` method token:
+    #
+    #     map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)')->filter('len(v:val)')
+    #
+    # Then, the current logic is correct, and `=rl` works as expected.
+    #}}}
+    if vim#util#search('\m\C\<\%(map\|filter\)(', 'be') == 0
+        return 0
+    endif
+    var pos = getcurpos()
     norm! %
-    if getcurpos() == pos | return 0 | endif
+    if getcurpos() == pos
+        return 0
+    endif
     return search('["'']', 'bW')
-endfu
+enddef
 
-def s:SearchOpeningQuote(): number #{{{2
+def SearchOpeningQuote(): number #{{{2
     var char = getline('.')->strpart(col('.') - 1)[0]
     var pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')
 enddef
 
-fu s:get_expr(captured_text) abort "{{{2
-    let expr = a:captured_text
-    let quote = expr[-1 : -1]
-    let is_single_quoted = quote is# "'"
-    let expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
+def GetExpr(captured_text: string): string #{{{2
+    var expr = captured_text
+    var quote = expr[-1 : -1]
+    var is_single_quoted = quote == "'"
+    expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted
-        let expr = substitute(expr, "''", "'", 'g')
+        expr = substitute(expr, "''", "'", 'g')
     else
-        let expr = eval('"' .. expr .. '"')
+        expr = eval('"' .. expr .. '"')
     endif
-    let expr = substitute(expr, 'v:val', 'v', 'g')
-    let expr = substitute(expr, 'v:key', 'i', 'g')
     return expr
-endfu
+        ->substitute('v:val', 'v', 'g')
+        ->substitute('v:key', 'i', 'g')
+enddef
 

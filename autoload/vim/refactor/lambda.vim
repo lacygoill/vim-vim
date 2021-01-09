@@ -115,7 +115,7 @@ enddef
 
 def GetExpr(captured_text: string): string #{{{2
     var expr = captured_text
-    var quote = expr[-1 : -1]
+    var quote = expr[-1]
     var is_single_quoted = quote == "'"
     expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted

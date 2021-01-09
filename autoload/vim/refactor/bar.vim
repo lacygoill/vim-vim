@@ -84,7 +84,7 @@ def Break(bang: bool) #{{{2
     var line = getline('.')
     var word = matchstr(line, '^\s*\zs\w\+')
         ->Normalize()
-    if index(['if', 'elseif', 'try'], word) != -1
+    if index(['if', 'elseif', 'try', 'echohl'], word) != -1
         # Perform this transformation:{{{
         #
         #     if 1 | echo 'true' | endif

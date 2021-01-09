@@ -7,7 +7,7 @@ def vim#syntax#tweakCluster(acluster: string, group: string, action = 'include')
     var cluster = substitute(acluster, '^@', '', '')
     cluster = execute('syn list @' .. cluster)
         ->split('\n')
-        ->filter((_, v) => v =~# '^' .. cluster)[0]
+        ->filter((_, v) => v =~ '^' .. cluster)[0]
     var cmd = 'syn cluster ' .. substitute(cluster, 'cluster=', 'contains=', '')
     cmd = substitute(cmd, '\s*$', '', '')
     if action == 'include'

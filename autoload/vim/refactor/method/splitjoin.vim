@@ -3,7 +3,9 @@ vim9 noclear
 if exists('loaded') | finish | endif
 var loaded = true
 
-const ARROW_PAT = '\S\zs\ze\%\({\s*\%(\%\(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
+# the negative lookbehind tries  to prevent a match when the arrow  is used in a
+# legacy lambda
+const ARROW_PAT = '\S\zs\ze\%({\s*\%(\%(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
 
 import IsVim9 from 'lg.vim'
 
@@ -73,8 +75,8 @@ def GetRange(): list<number> #{{{2
     var firstlnum = search(patfirst, 'bcnW')
     var lastlnum = search(patlast, 'cnW')
     if firstlnum == 0 || lastlnum == 0
-        var curlnum = line('.')
-        if search(ARROW_PAT, 'nW', curlnum) > 0
+        if getline('.')->match(ARROW_PAT) >= 0
+            var curlnum = line('.')
             return [curlnum, curlnum]
         else
             return []
@@ -103,7 +105,7 @@ def ShouldSplit(range: list<number>): bool #{{{2
     var lnum2 = range[1]
     var curpos = getcurpos()
     cursor(lnum1, 1)
-    var result = search(ARROW_PAT .. '.*' .. ARROW_PAT, 'nW', lnum2)
+    var result = search(ARROW_PAT, 'nW', lnum2)
     setpos('.', curpos)
     return result > 0
 enddef

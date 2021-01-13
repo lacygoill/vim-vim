@@ -23,7 +23,7 @@ enddef
 
 def Skip(syntomatch: string): bool
     var syngroup = synstack('.', col('.'))
-        ->map((_, v) => synIDattr(v, 'name'))
+        ->mapnew((_, v) => synIDattr(v, 'name'))
         ->get(-1, '')
     if syngroup == 'vimString'
         return true

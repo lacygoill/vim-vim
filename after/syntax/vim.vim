@@ -108,8 +108,15 @@ if getline(1) =~ '^\Cvim9\%[script]\>'
     #         ]
     #}}}
     # Solution: Clear `vimLineComment`.
-    # FIXME: This doesn't work in a `:def` function in a legacy Vim script.
+    # FIXME: This doesn't work in a `:def` function in a legacy Vim script.{{{
+    #
     # We really need a different syntax group for `:def` functions.
+    #
+    # ---
+    #
+    # Also, this breaks a legacy comment in  a legacy function in a Vim9 script,
+    # when the comment leader is on the very first column.
+    #}}}
     syn clear vimLineComment
 else
     # FIXME: `#` is wrongly parsed as a comment leader in a legacy script.

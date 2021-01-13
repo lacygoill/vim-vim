@@ -84,15 +84,15 @@ def SearchClosingQuote(): number #{{{2
     #
     # Example:
     #
-    #     filter(map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
-    #                                                                     ^
-    #                                                                     cursor position
+    #     filter(mapnew(fzf#vim#_buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
+    #                                                                        ^
+    #                                                                        cursor position
     #
     # Press `=rl`:  the refactoring fails.
     # This is not a big issue though.  We should first refactor this line to get
     # rid of the nesting, using the `->` method token:
     #
-    #     map(fzf#vim#_buflisted_sorted(), 'bufname(v:val)')->filter('len(v:val)')
+    #     mapnew(fzf#vim#_buflisted_sorted(), 'bufname(v:val)')->filter('len(v:val)')
     #
     # Then, the current logic is correct, and `=rl` works as expected.
     #}}}

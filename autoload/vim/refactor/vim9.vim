@@ -695,7 +695,7 @@ enddef
 # Utilities {{{1
 def In(syngroup: string, col = col('.')): bool #{{{2
     return synstack('.', col)
-        ->map((_, v) => synIDattr(v, 'name'))
+        ->mapnew((_, v) => synIDattr(v, 'name'))
         ->match('\c' .. syngroup) != -1
 enddef
 

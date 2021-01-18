@@ -8,15 +8,15 @@ import Popup_notification from 'lg/popup.vim'
 
 # Interface {{{1
 def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
-    var view = winsaveview()
+    var view: dict<number> = winsaveview()
 
     # we might need to inspect the syntax under the cursor
-    var syntax_was_on = exists('g:syntax_on')
+    var syntax_was_on: bool = exists('g:syntax_on')
     if !syntax_was_on
         syntax on
     endif
     # folding might interfere
-    var folding_was_on = &l:fen
+    var folding_was_on: bool = &l:fen
     setl nofen
 
     # Warning: Do *not* use `:silent` before a substitution command to which you pass the `c` flag.{{{
@@ -26,7 +26,7 @@ def vim#refactor#vim9#main(lnum1: number, lnum2: number) #{{{2
     #     replace with X (y/n/a/q/l/^E/^Y)?
     #}}}
 
-    var visual_marks = [getpos("'<"), getpos("'>")]
+    var visual_marks: list<list<number>> = [getpos("'<"), getpos("'>")]
     setpos("'<", [0, lnum1, 0, 0])
     setpos("'>", [0, lnum2, 0, 0])
 
@@ -168,11 +168,11 @@ def ImportNoReinclusionGuard() #{{{2
     #    > next time the same script is imported.  It will not be read again.
     #}}}
     if expand('%:p') =~ '/import/'
-        var pat = '\C\<if\>\s*.*\<\(g:[a-zA-Z0-9_#]*loaded[a-zA-Z0-9_#]*\).*'
+        var pat: string = '\C\<if\>\s*.*\<\(g:[a-zA-Z0-9_#]*loaded[a-zA-Z0-9_#]*\).*'
             .. '\n\s*finish'
             .. '\nendif'
             .. '\nlet\s*\1\s*='
-        exe 'sil! :0/' .. pat .. '/;+4 d_'
+        exe 'sil! :0/' .. pat .. '/;+4 d _'
     endif
 enddef
 
@@ -234,7 +234,7 @@ def RemoveInvalid() #{{{2
         echom v:exception
         echohl NONE
     endtry
-    var info = Popup_notification('a:funcarg → funcarg')
+    var info: list<number> = Popup_notification('a:funcarg → funcarg')
     keepj keepp lockm :*s/\C\<a:\ze\D//gce
     keepj keepp lockm :*s/\%x01/a/ge
     popup_close(info[1])
@@ -255,7 +255,7 @@ def NoPublicVarDeclaration() #{{{2
     # E1016: Cannot declare a global variable: g:var
     # You can declare a script-local variable at  the script level, but not in a
     # `:def` function.
-    var info = Popup_notification('var g:var = 123 → g:var = 123')
+    var info: list<number> = Popup_notification('var g:var = 123 → g:var = 123')
     keepj keepp lockm :*s/\C\zs\<var\s\+\ze[bgtvw]:\S//gce
     popup_close(info[1])
 
@@ -266,13 +266,13 @@ def NoPublicVarDeclaration() #{{{2
 enddef
 
 def NoScriptLocalVarDeclarationInDef() #{{{2
-    var lines =<< trim END
+    var lines: list<string> =<< trim END
         # in `:def` function
         var s:var = 123
         →
         s:var = 123
     END
-    var info = Popup_notification(lines)
+    var info: list<number> = Popup_notification(lines)
     keepj keepp lockm sil :*s/\C\<\%(var\|const\=\)\s\+\zes:\S/\=MaybeRemoveDeclaration()/gce
     popup_close(info[1])
 enddef
@@ -285,12 +285,12 @@ def MaybeRemoveDeclaration(): string
 enddef
 
 def ProperWhitespace() #{{{2
-    var lines =<< trim END
+    var lines: list<string> =<< trim END
         {_,v -> ...}
         →
         {_, v -> ...}
     END
-    var info = Popup_notification(lines)
+    var info: list<number> = Popup_notification(lines)
     keepj keepp lockm :*s/{\s*[^ ,]\+,\zs\ze[^ ,]\+\s*->/ /gce
     popup_close(info[1])
 
@@ -356,7 +356,7 @@ def UselessConstructs() #{{{2
     #
     # Try to refactor each of these blocks into a single function call.
     #}}}
-    var info = Popup_notification('==# → ==')
+    var info: list<number> = Popup_notification('==# → ==')
     keepj keepp lockm :*s/[!=][=~]\zs#//gce
     # What about the `?` family of comparison operators?{{{
     #
@@ -374,7 +374,7 @@ def UselessConstructs() #{{{2
     popup_close(info[1])
 
     info = Popup_notification(':call → ∅')
-    var pat = printf('\%(^\%(\s*%s\>\)\@!.*\)\@<=\C\<call\>\s\+\ze\S\+(', MAPCMDPAT)
+    var pat: string = printf('\%(^\%(\s*%s\>\)\@!.*\)\@<=\C\<call\>\s\+\ze\S\+(', MAPCMDPAT)
     exe 'keepj keepp lockm :*s/' .. pat .. '//gce'
     popup_close(info[1])
 
@@ -459,12 +459,12 @@ enddef
 var funclist: list<string>
 
 def GetNewFunctionPrefix(): string
-    var funcname = submatch(1) .. submatch(2)
+    var funcname: string = submatch(1) .. submatch(2)
     if submatch(1) =~ '[[:lower:]]'
         funclist += [funcname]
     endif
 
-    var pfx = submatch(1)->toupper()
+    var pfx: string = submatch(1)->toupper()
     # can not drop `s:` in the header of a Vim9 function in a legacy script
     if getline(1) !~ '^vim9\%[script]\>' && getline('.') =~ '^\s*def\>'
         return 's:' .. pfx
@@ -477,7 +477,7 @@ def GetNewFunctionPrefix(): string
     endif
 enddef
 
-const MAPCMDS =<< trim END
+const MAPCMDS: list<string> =<< trim END
     map
     nm\%[ap]
     vm\%[ap]
@@ -501,7 +501,7 @@ const MAPCMDS =<< trim END
     cno\%[remap]
     tno\%[remap]
 END
-const MAPCMDPAT = '\%(' .. join(MAPCMDS, '\|') .. '\)'
+const MAPCMDPAT: string = '\%(' .. join(MAPCMDS, '\|') .. '\)'
 
 def Misc() #{{{2
     # Warning: Do not add too many loclists.{{{
@@ -525,7 +525,7 @@ def Misc() #{{{2
     # Remember that in `GetNewFunctionPrefix()`, we already add 1 loclist on the
     # stack.
     #}}}
-    var db = [{
+    var db: list<dict<string>> = [{
         pat: '^\C\s*def.*,\s*\zs\.\.\.\s*)',
         title: 'refactor ... from legacy function''s header',
         helptag: 'Vim9-refactoring-...',
@@ -570,7 +570,7 @@ def Misc() #{{{2
 
     var cmd: string
     var pat: string
-    var anchor = '\%>' .. (line("'<") - 1) .. 'l\%<' .. (line("'>") + 1) .. 'l'
+    var anchor: string = '\%>' .. (line("'<") - 1) .. 'l\%<' .. (line("'>") + 1) .. 'l'
     # TODO: For each location list, write a help tag documenting what should be refactored and how.{{{
     #
     # About `:var` assignments:
@@ -619,14 +619,14 @@ enddef
 
 # a `return` statement in a `:def` function which returns some value
 # (not a simple `return` statement used to end a function's execution)
-const FUNCRETPAT = '^\C\s*def\>!\=\s\+\S\+('
+const FUNCRETPAT: string = '^\C\s*def\>!\=\s\+\S\+('
     .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
     .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
     .. '\_.\{-}\n\s*enddef\s*\%(\%(\n\|\%$\)\)\@='
 
 # a `return` statement in a `:def` function which returns some value
 # followed by a `return` statement which does not return any value
-const MISSINGRETPAT = '^\C\s*def\>!\=\s\+\S\+('
+const MISSINGRETPAT: string = '^\C\s*def\>!\=\s\+\S\+('
     .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
     .. '\%(^\s*#\s.*\)\@<!\<return\>\s\+[ \n|]\@!'
     .. '\%(\%(\<enddef\>\)\@!\_.\)\{-}'
@@ -644,7 +644,7 @@ const MISSINGRETPAT = '^\C\s*def\>!\=\s\+\S\+('
 def SortUniqLoclists() #{{{2
     var stack: list<dict<any>>
     var info: dict<any>
-    var loclistsNumbers = range(1, getloclist(0, {nr: '$'}).nr)
+    var loclistsNumbers: list<number> = range(1, getloclist(0, {nr: '$'}).nr)
     for nr in loclistsNumbers
         info = getloclist(0, {nr: nr, items: true, title: true})
         if info.items == []

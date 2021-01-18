@@ -5,7 +5,7 @@ var loaded = true
 
 # the negative lookbehind tries  to prevent a match when the arrow  is used in a
 # legacy lambda
-const ARROW_PAT = '\S\zs\ze\%({\s*\%(\%(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
+const ARROW_PAT: string = '\S\zs\ze\%({\s*\%(\%(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
 
 import IsVim9 from 'lg.vim'
 
@@ -15,7 +15,7 @@ def vim#refactor#method#splitjoin#main(type = ''): string #{{{2
         &opfunc = 'vim#refactor#method#splitjoin#main'
         return 'g@l'
     endif
-    var range = GetRange()
+    var range: list<number> = GetRange()
     if !IsValid(range)
         return ''
     endif
@@ -30,11 +30,11 @@ enddef
 #}}}1
 # Core {{{1
 def Split(range: list<number>) #{{{2
-    var lnum1 = range[0]
-    var lnum2 = range[1]
-    var indent = getline('.')->matchstr('^\s*')
-    var rep = "\x01" .. indent .. repeat(' ', &l:sw) .. (IsVim9() ? '' : '\\ ')
-    var new = getline(lnum1, lnum2)
+    var lnum1: number = range[0]
+    var lnum2: number = range[1]
+    var indent: string = getline('.')->matchstr('^\s*')
+    var rep: string = "\x01" .. indent .. repeat(' ', &l:sw) .. (IsVim9() ? '' : '\\ ')
+    var new: string = getline(lnum1, lnum2)
         ->map((_, v) => substitute(v, ARROW_PAT, rep, 'g')->split("\x01"))
         ->flatten()
         ->join("\n")
@@ -47,15 +47,15 @@ def Split(range: list<number>) #{{{2
 enddef
 
 def Join() #{{{2
-    var isvim9 = IsVim9()
-    var pat = '^\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a'
+    var isvim9: bool = IsVim9()
+    var pat: string = '^\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a'
     search('^\%(\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a\)\@!', 'bcW')
-    var lastlnum = search(pat .. '.*\n\%(' .. pat .. '\)\@!', 'cnW')
+    var lastlnum: number = search(pat .. '.*\n\%(' .. pat .. '\)\@!', 'cnW')
     if isvim9
-        var range = ':.+,' .. lastlnum
+        var range: string = ':.+,' .. lastlnum
         exe range .. 's/^\s*//'
     else
-        var range = ':.+,' .. lastlnum
+        var range: string = ':.+,' .. lastlnum
         exe range .. 's/^\s*\\\s*//'
     endif
     :'[-,']j!
@@ -72,11 +72,11 @@ def GetRange(): list<number> #{{{2
         patfirst = '^\%(\s*\\\s*->\a\)\@!.*\n\s*\\\s*->\a'
         patlast = '^\s*\\\s*->\a.*\n\%(\s*\\\s*->\a\)\@!'
     endif
-    var firstlnum = search(patfirst, 'bcnW')
-    var lastlnum = search(patlast, 'cnW')
+    var firstlnum: number = search(patfirst, 'bcnW')
+    var lastlnum: number = search(patlast, 'cnW')
     if firstlnum == 0 || lastlnum == 0
         if getline('.')->match(ARROW_PAT) >= 0
-            var curlnum = line('.')
+            var curlnum: number = line('.')
             return [curlnum, curlnum]
         else
             return []
@@ -90,22 +90,22 @@ def IsValid(lnums: list<number>): bool #{{{2
         return false
     endif
     # a valid range must not contain an empty line
-    var lnum1 = lnums[0]
-    var lnum2 = lnums[1]
-    var curpos = getcurpos()
+    var lnum1: number = lnums[0]
+    var lnum2: number = lnums[1]
+    var curpos: list<number> = getcurpos()
     cursor(lnum1, 1)
-    var has_emptyline = search('^\s*$', 'nW', lnum2)
+    var has_emptyline: bool = search('^\s*$', 'nW', lnum2) != 0
     setpos('.', curpos)
     return !has_emptyline
 enddef
 
 def ShouldSplit(range: list<number>): bool #{{{2
     # we should split iff we can find 2 `->` method calls on the same line inside the range
-    var lnum1 = range[0]
-    var lnum2 = range[1]
-    var curpos = getcurpos()
+    var lnum1: number = range[0]
+    var lnum2: number = range[1]
+    var curpos: list<number> = getcurpos()
     cursor(lnum1, 1)
-    var result = search(ARROW_PAT, 'nW', lnum2)
+    var result: number = search(ARROW_PAT, 'nW', lnum2)
     setpos('.', curpos)
     return result > 0
 enddef

@@ -6,8 +6,8 @@ var loaded = true
 import Catch from 'lg.vim'
 
 def vim#jumpToTag() #{{{1
-    var isk_save = &l:isk
-    var bufnr = bufnr('%')
+    var isk_save: string = &l:isk
+    var bufnr: number = bufnr('%')
     # Some tags may contain a colon (ex: `s:some_function()`).
     #                                      ^
     # When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
@@ -18,6 +18,7 @@ def vim#jumpToTag() #{{{1
         norm! zvzz
     catch
         Catch()
+        return
     finally
         # Why not simply `&l:isk = isk_save`?{{{
         #
@@ -28,19 +29,19 @@ def vim#jumpToTag() #{{{1
 enddef
 
 def vim#getHelpurl() #{{{1
-    var winid = win_getid()
+    var winid: number = win_getid()
     # use our custom `K` which is smarter than the builtin one
     norm K
     if expand('%:p') !~ '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
         return
     endif
-    var fname = expand('%:p')->fnamemodify(':t')
-    var tag = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
+    var fname: string = expand('%:p')->fnamemodify(':t')
+    var tag: string = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
     if &ft == 'help'
         close
     endif
     win_gotoid(winid)
-    var value = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
+    var value: string = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
         tag,
         fname,
         tag,

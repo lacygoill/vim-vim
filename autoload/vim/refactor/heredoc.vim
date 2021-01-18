@@ -13,7 +13,7 @@ def vim#refactor#heredoc#main( #{{{2
         &opfunc = 'vim#refactor#heredoc#main'
         return 'g@l'
     endif
-    var view = winsaveview()
+    var view: dict<number> = winsaveview()
 
     var bang: bool
     # opfunc
@@ -40,17 +40,17 @@ def vim#refactor#heredoc#main( #{{{2
         endif
     endif
 
-    var s1 = SearchLet()
+    var s1: number = SearchLet()
     var lnum1: number
     var col1: number
     [lnum1, col1] = getcurpos()[1 : 2]
 
-    var s2 = SearchOpeningBracket()
+    var s2: number = SearchOpeningBracket()
     var lnum2: number
     var col2: number
     [lnum2, col2] = getcurpos()[1 : 2]
 
-    var s3 = SearchClosingBracket()
+    var s3: number = SearchClosingBracket()
     var lnum3: number
     var col3: number
     [lnum3, col3] = getcurpos()[1 : 2]
@@ -66,11 +66,11 @@ def vim#refactor#heredoc#main( #{{{2
         return ''
     endif
 
-    var indent = getline(lnum2)->matchstr('^\s*')
+    var indent: string = getline(lnum2)->matchstr('^\s*')
     BreakBar(lnum3, indent)
 
-    var items = GetItems(lnum1, lnum3)
-    var new_assignment = GetNewAssignment(items, notrim, marker, indent)
+    var items: list<string> = GetItems(lnum1, lnum3)
+    var new_assignment: list<string> = GetNewAssignment(items, notrim, marker, indent)
     vim#util#put(
         new_assignment,
         lnum2, col2,
@@ -87,7 +87,7 @@ enddef
 #}}}1
 # Core {{{1
 def PrintHelp() #{{{2
-    var help =<< trim END
+    var help: list<string> =<< trim END
         Usage: RefHeredoc[!] [-help] [-notrim] [marker]
         Refactor current list assignment into a heredoc (see `:h :let-heredoc`).
 
@@ -116,8 +116,8 @@ def Error(msg: string) #{{{2
 enddef
 
 def GetArgs(cmdarg: string): list<any> #{{{2
-    var notrim = stridx(cmdarg, '-notrim') >= 0
-    var marker = substitute(cmdarg, '\C-\%(help\|notrim\)', '', 'g')
+    var notrim: bool = stridx(cmdarg, '-notrim') >= 0
+    var marker: string = substitute(cmdarg, '\C-\%(help\|notrim\)', '', 'g')
         ->matchstr('\S\+\s*$')
     if marker == ''
         marker = 'END'
@@ -136,7 +136,7 @@ def SearchOpeningBracket(): number #{{{2
 enddef
 
 def SearchClosingBracket(): number #{{{2
-    var s = vim#util#search('=[ \t\n\\]*\[', 'e')
+    var s: number = vim#util#search('=[ \t\n\\]*\[', 'e')
     if s > 0
         norm! %
     endif
@@ -167,16 +167,17 @@ def BreakBar(lnum: number, indent: string) #{{{2
 enddef
 
 def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
-    var lines = getline(lnum1, lnum3)
+    var lines: list<string> = getline(lnum1, lnum3)
     # remove possible comments inside the list (`:h line-continuation-comment`)
     filter(lines, (_, v) => v !~ '^\s*"\\ ')
-    var list_value = join(lines)
-    var pat = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
+    var list_value: string = join(lines)
+    var pat: string = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
     var items: list<string> = []
-    var Item = (m) => m[1] == "'"
-        ? substitute(m[0], "''", "'", 'g')
-        : eval('"' .. m[0] .. '"')
-    var Rep = (m) => add(items, Item(m))[0]
+    var Item: func = (m: list<string>): string =>
+        m[1] == "'"
+        ?     substitute(m[0], "''", "'", 'g')
+        :     eval('"' .. m[0] .. '"')
+    var Rep: func = (m: list<string>) => add(items, Item(m))[0]
     substitute(list_value, pat, Rep, 'g')
     map(items, (_, v) => v != '' ? repeat(' ', shiftwidth()) .. v : v)
     return items
@@ -188,7 +189,7 @@ def GetNewAssignment( #{{{2
     marker: string,
     indent: string
     ): list<string>
-    var assignment =
+    var assignment: list<string> =
         [printf('=<< %s%s', notrim ? '' : 'trim ', marker)]
         + items
         + [marker]

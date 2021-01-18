@@ -5,39 +5,39 @@ var loaded = true
 
 # Init {{{1
 
-var pat_map_tokens = [
-    'no\%[remap]',
-    'nn\%[oremap]',
-    'vn\%[oremap]',
-    'xn\%[oremap]',
-    'snor\%[emap]',
-    'ono\%[remap]',
-    'no\%[remap]!',
-    'ino\%[remap]',
-    'ln\%[oremap]',
-    'cno\%[remap]',
-    'tno\%[remap]',
-    'map',
-    'nm\%[ap]',
-    'vm\%[ap]',
-    'xm\%[ap]',
-    'smap',
-    'om\%[ap]',
-    'map!',
-    'im\%[ap]',
-    'lm\%[ap]',
-    'cm\%[ap]',
-    'tma\%[p]',
-    ]
+var pat_map_tokens: list<string> =<< trim END
+    no\%[remap]
+    nn\%[oremap]
+    vn\%[oremap]
+    xn\%[oremap]
+    snor\%[emap]
+    ono\%[remap]
+    no\%[remap]!
+    ino\%[remap]
+    ln\%[oremap]
+    cno\%[remap]
+    tno\%[remap]
+    map
+    nm\%[ap]
+    vm\%[ap]
+    xm\%[ap]
+    smap
+    om\%[ap]
+    map!
+    im\%[ap]
+    lm\%[ap]
+    cm\%[ap]
+    tma\%[p]
+END
 
-const PAT_MAP = '\%(' .. join(pat_map_tokens, '\|') .. '\)'
+const PAT_MAP: string = '\%(' .. join(pat_map_tokens, '\|') .. '\)'
 
 def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
-    var range = ':' .. lnum1 .. ',' .. lnum2
-    var modifiers = 'keepj keepp '
-    var view = winsaveview()
+    var range: string = ':' .. lnum1 .. ',' .. lnum2
+    var modifiers: string = 'keepj keepp '
+    var view: dict<number> = winsaveview()
 
-    var substitutions = {
+    var substitutions: dict<dict<string>> = {
         au:    {pat: '^\s*\zsaut\%[ocmd]\ze!\=\%( \|$\)', rep: 'au'},
         lower: {pat: '\C<\%(C-\a\|CR\|SID\|Plug\)>', rep: '\L\0'},
         com:   {pat: '^\s*\zscomm\%[and]!\= ', rep: 'com '},
@@ -59,7 +59,7 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
 
     sil! exe modifiers .. 'norm! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
     for sbs in values(substitutions)
-        var cmd = modifiers .. range .. 's/' .. sbs.pat .. '/' .. sbs.rep .. '/ge'
+        var cmd: string = modifiers .. range .. 's/' .. sbs.pat .. '/' .. sbs.rep .. '/ge'
         if bang
             sil exe cmd
         else
@@ -69,8 +69,9 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
 
     # format the arguments of a mapping, so that there's no space between them,
     # and they are sorted
-    var pat = PAT_MAP .. '\zs\s\+\%(<\%(buffer\|expr\|nowait\|silent\|unique\)>\s*\)\+'
-    var Rep = () => ' ' .. submatch(0)->split('\s\+\|>\zs\ze<')->sort()->join('') .. ' '
+    var pat: string = PAT_MAP .. '\zs\s\+\%(<\%(buffer\|expr\|nowait\|silent\|unique\)>\s*\)\+'
+    var Rep: func = (): string =>
+        ' ' .. submatch(0)->split('\s\+\|>\zs\ze<')->sort()->join('') .. ' '
     sil exe ':%s/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`

@@ -51,7 +51,9 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "         \ bang,
     "         \ view,
     "         \ 'map/filter {expr2}', 'lambda',
-    "         \ ) | return | endif
+    "         \ )
+    "         return
+    "     endif
 
     "     if @" =~# '\Cv:key'
     "         let new_expr = '{i, v -> ' .. s:get_expr(@") .. '}'

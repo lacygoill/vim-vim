@@ -6,24 +6,24 @@ var loaded = true
 # Interface {{{1
 def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     search('^\s*\<\%(let\|var\|const\|return\)\>', 'cW', lnum2)
-    var kwd = getline('.')->matchstr('let\|var\|const\|return')
+    var kwd: string = getline('.')->matchstr('let\|var\|const\|return')
     if kwd == ''
         return
     endif
-    var expr = getline('.')->matchstr({
+    var expr: string = getline('.')->matchstr({
         let: '\m\Clet\s\+\zs.\{-}\ze\s*=',
         var: '\m\Cvar\s\+\zs.\{-}\ze\s*=',
         const: '\m\Cconst\s\+\zs.\{-}\ze\s*=',
         return: '\m\Creturn\s\+\zs.*',
         }[kwd])
 
-    var tests = GetTestsOrValues(lnum1, lnum2,
+    var tests: list<string> = GetTestsOrValues(lnum1, lnum2,
         '\<if\>',
         '\<if\>\s\+\zs.*',
         '\<\%(else\|elseif\)\>',
         '\<\%(else\|elseif\)\>\s\+\zs.*')
 
-    var values = GetTestsOrValues(lnum1, lnum2,
+    var values: list<string> = GetTestsOrValues(lnum1, lnum2,
         '\<' .. kwd .. '\>',
         '\<' .. kwd .. '\>\s\+' .. (kwd != 'return' ? '.\{-}=\s*' : '') .. '\zs.*',
         '\<' .. kwd .. '\>',
@@ -55,8 +55,8 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     # It doesn't cover the cases where condition1 and condition2
     # are false.
     #}}}
-    var n_values = len(values)
-    var n_tests = len(tests)
+    var n_values: number = len(values)
+    var n_tests: number = len(tests)
     if n_tests == n_values
         return
     endif
@@ -78,10 +78,10 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
             #}}}
 
     # make sure our new block is indented like the original one
-    var indent_block = getline(lnum1)->matchstr('^\s*')
+    var indent_block: string = getline(lnum1)->matchstr('^\s*')
     map(assignment, (_, v) => indent_block .. v)
 
-    var reg_save = getreginfo('"')
+    var reg_save: dict<any> = getreginfo('"')
     @" = join(assignment, "\n")
     try
         exe 'norm! ' .. lnum1 .. 'G' .. 'V' .. lnum2 .. 'Gp'
@@ -101,8 +101,10 @@ def GetTestsOrValues( #{{{2
     ): list<string>
 
     cursor(lnum1, 1)
-    var expressions = [search(pat1, 'cW', lnum2)->getline()->matchstr(pat2)]
-    var guard = 0
+    var expressions: list<string> = [
+        search(pat1, 'cW', lnum2)->getline()->matchstr(pat2)
+        ]
+    var guard: number = 0
     while search(pat3, 'W', lnum2) > 0 && guard <= 30
         expressions += [getline('.')->matchstr(pat4)]
         guard += 1

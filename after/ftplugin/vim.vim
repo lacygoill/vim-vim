@@ -93,11 +93,11 @@ com -bar -buffer -range=% RefVim9 vim#refactor#vim9#main(<line1>, <line2>)
 nno <buffer><nowait> <c-]> <cmd>call vim#jumpToTag()<cr>
 nno <buffer><nowait> -h <cmd>call vim#getHelpurl()<cr>
 
-noremap <buffer><expr><nowait> [m brackets#move#regex('fu', 0)
-noremap <buffer><expr><nowait> ]m brackets#move#regex('fu', 1)
+noremap <buffer><expr><nowait> [m brackets#move#regex('fu', v:false)
+noremap <buffer><expr><nowait> ]m brackets#move#regex('fu', v:true)
 
-noremap <buffer><expr><nowait> [M brackets#move#regex('endfu', 0)
-noremap <buffer><expr><nowait> ]M brackets#move#regex('endfu', 1)
+noremap <buffer><expr><nowait> [M brackets#move#regex('endfu', v:false)
+noremap <buffer><expr><nowait> ]M brackets#move#regex('endfu', v:true)
 
 sil! repmap#make#repeatable({
     mode: '',
@@ -106,7 +106,7 @@ sil! repmap#make#repeatable({
     motions: [
         {bwd: '[m', fwd: ']m'},
         {bwd: '[M', fwd: ']M'},
-    ]})
+        ]})
 
 # TODO: When should we install visual mappings?
 

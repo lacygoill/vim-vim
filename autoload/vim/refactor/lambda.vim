@@ -12,22 +12,22 @@ def vim#refactor#lambda#main(type: any = ''): string #{{{2
 
     # TODO: A lambda is not always better than an eval string.
     # Make the function support the reverse refactoring (`{_, v -> v}` → `'v:val'`).
-    var view = winsaveview()
+    var view: dict<number> = winsaveview()
 
     # TODO: Sanity check: make sure the found quotes are *after* `map(`/`filter(`.
-    var s2 = SearchClosingQuote()
+    var s2: number = SearchClosingQuote()
     var lnum2: number
     var col2: number
     [lnum2, col2] = getcurpos()[1 : 2]
     norm! v
 
-    var s1 = SearchOpeningQuote()
+    var s1: number = SearchOpeningQuote()
     var lnum1: number
     var col1: number
     [lnum1, col1] = getcurpos()[1 : 2]
     norm! y
 
-    var bang = type(type) == v:t_bool ? type : true
+    var bang: bool = type(type) == v:t_bool ? type : true
     if !vim#util#weCanRefactor(
         [s1, s2],
         lnum1, col1,
@@ -60,7 +60,7 @@ def vim#refactor#lambda#new(type = ''): string #{{{2
         return 'g@l'
     endif
     searchpair('{.*->', '', '}', 'bcW')
-    var start = getpos('.')
+    var start: list<number> = getpos('.')
     searchpair('{', '', '}', 'W')
     # delete "}"
     getline('.')
@@ -99,7 +99,7 @@ def SearchClosingQuote(): number #{{{2
     if vim#util#search('\m\C\<\%(map\|filter\)(', 'be') == 0
         return 0
     endif
-    var pos = getcurpos()
+    var pos: list<number> = getcurpos()
     norm! %
     if getcurpos() == pos
         return 0
@@ -108,15 +108,15 @@ def SearchClosingQuote(): number #{{{2
 enddef
 
 def SearchOpeningQuote(): number #{{{2
-    var char = getline('.')->strpart(col('.') - 1)[0]
-    var pat = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
+    var char: string = getline('.')->strpart(col('.') - 1)[0]
+    var pat: string = char == '"' ? '\\\@1<!"' : "'\\@1<!''\\@!"
     return search(pat, 'bW')
 enddef
 
 def GetExpr(captured_text: string): string #{{{2
-    var expr = captured_text
-    var quote = expr[-1]
-    var is_single_quoted = quote == "'"
+    var expr: string = captured_text
+    var quote: string = expr[-1]
+    var is_single_quoted: bool = quote == "'"
     expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted
         expr = substitute(expr, "''", "'", 'g')

@@ -7,7 +7,7 @@ var loaded = true
 
 import Catch from 'lg.vim'
 
-var PAT_BAR =
+var PAT_BAR: string =
     # outside a single-quoted string
     '\%(^\%(''[^'']*''\|[^'']\)*\)\@<='
     # outside a double-quoted string
@@ -15,9 +15,11 @@ var PAT_BAR =
     #
     # Because of this, if you press `=rb` on this line, it doesn't get broken:
     #
-    #     if line =~# '^\s*["#]' | return | endif
-    #                       ^
     #                       ✘
+    #                       v
+    #     if line =~# '^\s*["#]'
+    #         return
+    #     endif
     #
     # The issue comes from the double quote.
     # Our  regex  wrongly  thinks  that   the  bars  are  inside  an  unfinished
@@ -29,7 +31,7 @@ var PAT_BAR =
     # a bar (!= `||`)
     .. '\s*|\@1<!||\@!\s*'
 lockvar! PAT_BAR
-const MAX_JOINED_LINES = 5
+const MAX_JOINED_LINES: number = 5
 
 # Interface {{{1
 def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
@@ -38,11 +40,11 @@ def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
         return 'g@l'
     endif
 
-    var line = getline('.')
+    var line: string = getline('.')
     if line =~ '^\s*["#]'
         return ''
     endif
-    var pos = getcurpos()
+    var pos: list<number> = getcurpos()
 
     var bang: bool
     # opfunc
@@ -65,6 +67,7 @@ def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
         endif
     catch
         Catch()
+        return ''
     finally
         setpos('.', pos)
     endtry
@@ -77,12 +80,12 @@ enddef
 #}}}1
 # Core {{{1
 def Break(bang: bool) #{{{2
-    var lnum = line('.')
+    var lnum: number = line('.')
     if !WeCanRefactor(lnum, lnum, bang, 'break')
         return
     endif
-    var line = getline('.')
-    var word = matchstr(line, '^\s*\zs\w\+')
+    var line: string = getline('.')
+    var word: string = matchstr(line, '^\s*\zs\w\+')
         ->Normalize()
     if index(['if', 'elseif', 'try', 'echohl'], word) != -1
         # Perform this transformation:{{{
@@ -111,19 +114,19 @@ def Break(bang: bool) #{{{2
     else
         return
     endif
-    var range = ':' .. (line("'[") + 1) .. ',' .. line("']")
+    var range: string = ':' .. (line("'[") + 1) .. ',' .. line("']")
     exe range .. 'norm! =='
 enddef
 
 def Join(bang: bool) #{{{2
-    var line = getline('.')
-    var word = matchstr(line, '^\s*\zs\w\+')
+    var line: string = getline('.')
+    var word: string = matchstr(line, '^\s*\zs\w\+')
         ->Normalize()
     if index(['au', 'if', 'try'], word) == -1 || line =~ '\C\send\%(if\|try\)\s*$'
         return
     endif
-    var mods = 'keepj keepp'
-    var lnum1 = line('.')
+    var mods: string = 'keepj keepp'
+    var lnum1: number = line('.')
     var range: string
     # Perform this transformation:{{{
     #
@@ -136,7 +139,7 @@ def Join(bang: bool) #{{{2
     #     if 1 | echo 'true' | endif
     #}}}
     if word == 'if' || word == 'try'
-        var lnum2 = search('^\s*\Cend\%(if\|try\)\s*$', 'nW')
+        var lnum2: number = search('^\s*\Cend\%(if\|try\)\s*$', 'nW')
         # if too many lines are going to be joined, it's probably an error; bail out
         if lnum2 - lnum1 + 1 > MAX_JOINED_LINES
             return
@@ -157,7 +160,7 @@ def Join(bang: bool) #{{{2
     #     au User test if 1 | do sth | endif
         #}}}
     elseif word == 'au'
-        var lnum2 = search('^\s*\\\s*|\s*\Cend\%(if\|try\)\s*$', 'nW')
+        var lnum2: number = search('^\s*\\\s*|\s*\Cend\%(if\|try\)\s*$', 'nW')
         if lnum2 - lnum1 + 1 > MAX_JOINED_LINES
             return
         endif
@@ -185,19 +188,19 @@ def WeCanRefactor( #{{{2
     change: string
     ): bool
     # first non-whitespace on first line
-    var pat1 = '^\%' .. arg_lnum1 .. 'l\s*\zs\S'
+    var pat1: string = '^\%' .. arg_lnum1 .. 'l\s*\zs\S'
     # last non-whitespace on last line
-    var pat2 = '\%' .. arg_lnum2 .. 'l\S\s*$'
-    var view = winsaveview()
+    var pat2: string = '\%' .. arg_lnum2 .. 'l\S\s*$'
+    var view: dict<number> = winsaveview()
 
     var lnum1: number
     var col1: number
-    var s1 = search(pat1, 'bc')
+    var s1: number = search(pat1, 'bc')
     [lnum1, col1] = getcurpos()[1 : 2]
 
     var lnum2: number
     var col2: number
-    var s2 = search(pat2, 'c')
+    var s2: number = search(pat2, 'c')
     [lnum2, col2] = getcurpos()[1 : 2]
     if !vim#util#weCanRefactor(
         [s1, s2],

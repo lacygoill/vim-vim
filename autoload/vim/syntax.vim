@@ -4,11 +4,11 @@ if exists('loaded') | finish | endif
 var loaded = true
 
 def vim#syntax#tweakCluster(acluster: string, group: string, action = 'include')
-    var cluster = substitute(acluster, '^@', '', '')
+    var cluster: string = substitute(acluster, '^@', '', '')
     cluster = execute('syn list @' .. cluster)
         ->split('\n')
         ->filter((_, v) => v =~ '^' .. cluster)[0]
-    var cmd = 'syn cluster ' .. substitute(cluster, 'cluster=', 'contains=', '')
+    var cmd: string = 'syn cluster ' .. substitute(cluster, 'cluster=', 'contains=', '')
     cmd = substitute(cmd, '\s*$', '', '')
     if action == 'include'
         cmd ..= ',' .. group

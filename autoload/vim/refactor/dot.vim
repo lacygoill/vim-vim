@@ -4,7 +4,7 @@ if exists('loaded') | finish | endif
 var loaded = true
 
 def vim#refactor#dot#main(bang: bool, lnum1: number, lnum2: number)
-    var pat =
+    var pat: string =
         # outside a single-quoted string
         '\%(^\%(''[^'']*''\|[^'']\)*\)\@<='
         # outside a double-quoted string
@@ -48,7 +48,7 @@ def vim#refactor#dot#main(bang: bool, lnum1: number, lnum2: number)
     # the `c` flag of `:s` when there are many matches and you're tired).
     #}}}
 
-    var range = ':' .. lnum1 .. ',' .. lnum2
+    var range: string = ':' .. lnum1 .. ',' .. lnum2
     exe range .. 's/' .. pat .. '/ .. /ge' .. (bang ? '' : 'c')
     # `.=` assignment → `..=`
     exe range .. 's/\s\zs\.=\ze\s/..=/ge' .. (bang ? '' : 'c')

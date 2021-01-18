@@ -5,7 +5,7 @@ var loaded = true
 
 # Interface {{{1
 def vim#util#search(pat: string, flags = '', syntomatch = ''): number #{{{2
-    var syntax_was_enabled = exists('g:syntax_on')
+    var syntax_was_enabled: bool = exists('g:syntax_on')
     try
         if !syntax_was_enabled
             Warn('enabling syntax to search pattern; might take some time...')
@@ -22,7 +22,7 @@ def vim#util#search(pat: string, flags = '', syntomatch = ''): number #{{{2
 enddef
 
 def Skip(syntomatch: string): bool
-    var syngroup = synstack('.', col('.'))
+    var syngroup: string = synstack('.', col('.'))
         ->mapnew((_, v) => synIDattr(v, 'name'))
         ->get(-1, '')
     if syngroup == 'vimString'
@@ -40,15 +40,15 @@ def vim#util#weCanRefactor( #{{{2
     this: string, into_that: string
     ): bool
 
-    var lnum0 = view.lnum
-    var col0 = view.col
-    var FinishRef = function(Finish, [view])
+    var lnum0: number = view.lnum
+    var col0: number = view.col
+    var FinishRef: func(?string): bool = function(Finish, [view])
 
     # Why `call()`?{{{
     #
     # To avoid repeating the same arguments in several function calls.
     #}}}
-    var args = [lnum1, col1, lnum2, col2]
+    var args: list<number> = [lnum1, col1, lnum2, col2]
     if index(search_results, 0) >= 0
     || !call(ContainsPos, [lnum0, col0] + args)
     || ContainsEmptyOrCommentedLine(lnum1, lnum2)
@@ -68,9 +68,9 @@ def vim#util#put( #{{{2
     col2: number,
     linewise = false
     )
-    var cb_save = &cb
-    var sel_save = &sel
-    var reg_save = getreginfo('"')
+    var cb_save: string = &cb
+    var sel_save: string = &sel
+    var reg_save: dict<any> = getreginfo('"')
     try
         set cb= sel=inclusive
         if type(text) == v:t_list
@@ -114,7 +114,7 @@ def ContainsPos( #{{{2
 enddef
 
 def ContainsEmptyOrCommentedLine(lnum1: number, lnum2: number): bool #{{{2
-    var lines = getline(lnum1, lnum2)
+    var lines: list<string> = getline(lnum1, lnum2)
     return match(lines, '^\s*"\%(\\ \)\@!\|^\s*$') != -1
 enddef
 
@@ -149,9 +149,9 @@ def Confirm( #{{{2
     lnum2: number,
     col2: number,
     ): string
-    var fen_save = &l:fen
-    var pat = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
-    var id = matchadd('IncSearch', pat, 0)
+    var fen_save: bool = &l:fen
+    var pat: string = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
+    var id: number = matchadd('IncSearch', pat, 0)
     var answer: string
     try
         setl nofen

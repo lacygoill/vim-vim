@@ -9,7 +9,7 @@ import IsVim9 from 'lg.vim'
 # Update: Nope.  It's too slow.
 # Try to replace `foo` with `bar` in our vimrc.  It's about 20 times slower with
 # `setline()`+`substitute()`+`getline()`+`map()`, compared to `:s`.
-const PAT =
+const PAT: string =
     # the substitution could be in a sequence of commands separated by bars
     '\C^\%(.*|\)\='
     # modifiers
@@ -25,14 +25,14 @@ def vim#refactor#substitute#main(type: any = ''): string #{{{2
         &opfunc = 'vim#refactor#substitute#main'
         return 'g@l'
     endif
-    var view = winsaveview()
+    var view: dict<number> = winsaveview()
 
-    var s1 = SearchSubstitutionStart()
+    var s1: number = SearchSubstitutionStart()
     var lnum1: number
     var col1: number
     [lnum1, col1] = getcurpos()[1 : 2]
 
-    var s2 = SearchSubstitutionEnd()
+    var s2: number = SearchSubstitutionEnd()
     var lnum2: number
     var col2: number
     [lnum2, col2] = getcurpos()[1 : 2]
@@ -55,8 +55,8 @@ def vim#refactor#substitute#main(type: any = ''): string #{{{2
         return ''
     endif
 
-    var old = GetOldSubstitution(lnum1)
-    var new = GetNewSubstitution(old)
+    var old: string = GetOldSubstitution(lnum1)
+    var new: string = GetNewSubstitution(old)
 
     vim#util#put(
         new,
@@ -96,9 +96,10 @@ def GetNewSubstitution(old: string): string #{{{2
     # TODO: make sure `&`, `~` and `\` are always escaped in the replacement
     # TODO: use the  method  call  operator to  refactor  the new  substitution
     # command to make it more readable; make sure to update the tests
-    var lnum = {'': "'.'", '-': "line('.') - 1"}[range]
-    var format = (IsVim9() ? '' : 'call ') .. "getline(%s)->substitute('%s', '%s', '%s')->setline(%s)"
-    var new = printf(format, lnum, pat, rep, flags, lnum)
+    var lnum: string = {'': "'.'", '-': "line('.') - 1"}[range]
+    var format: string = (IsVim9() ? '' : 'call ')
+        .. "getline(%s)->substitute('%s', '%s', '%s')->setline(%s)"
+    var new: string = printf(format, lnum, pat, rep, flags, lnum)
     return new
 enddef
 

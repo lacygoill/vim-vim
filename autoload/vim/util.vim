@@ -93,7 +93,7 @@ enddef
 def Warn(msg: string) #{{{2
     # Sometimes, enabling syntax highlighting takes a few seconds.
     echohl WarningMsg
-    echo msg
+    echom msg
     echohl NONE
 enddef
 
@@ -136,7 +136,7 @@ def Finish(view: dict<number>, msg = ''): bool #{{{2
     redraw
     if msg != ''
         echohl ErrorMsg
-        echo msg
+        echom msg
         echohl NONE
     endif
     return false

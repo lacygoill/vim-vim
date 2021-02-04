@@ -37,7 +37,7 @@ def Split(range: list<number>) #{{{2
     var rep: string = "\x01" .. indent .. repeat(' ', &l:sw) .. (IsVim9() ? '' : '\\ ')
     var new: string = getline(lnum1, lnum2)
         ->mapnew((_, v) => substitute(v, ARROW_PAT, rep, 'g')->split("\x01"))
-        ->flatten()
+        ->flattennew()
         ->join("\n")
     vim#util#put(
         new,
@@ -66,7 +66,8 @@ enddef
 def GetRange(): list<number> #{{{2
     var patfirst: string
     var patlast: string
-    if IsVim9()
+    var is_vim9: bool = IsVim9()
+    if is_vim9
         patfirst = '^\%(\s*->\a\)\@!.*\n\s*->\a'
         patlast = '^\s*->\a.*\n\%(\s*->\a\)\@!'
     else
@@ -75,7 +76,14 @@ def GetRange(): list<number> #{{{2
     endif
     var firstlnum: number = search(patfirst, 'bcnW')
     var lastlnum: number = search(patlast, 'cnW')
-    if firstlnum == 0 || lastlnum == 0
+
+    if firstlnum == 0
+    || lastlnum == 0
+    # we did find a possible start and  end, but the range is invalid because it
+    # contains a line which doesn't start with a method call
+    || getline(firstlnum, lastlnum)
+        ->match('^\%(\s*' .. (is_vim9 ? '' : '\\\s*') .. '->\a\)\@!', 0, 2) >= 0
+
         if getline('.')->match(ARROW_PAT) >= 0
             var curlnum: number = line('.')
             return [curlnum, curlnum]
@@ -95,7 +103,7 @@ def IsValid(lnums: list<number>): bool #{{{2
     var lnum2: number = lnums[1]
     var curpos: list<number> = getcurpos()
     cursor(lnum1, 1)
-    var has_emptyline: bool = search('^\s*$', 'nW', lnum2) != 0
+    var has_emptyline: bool = search('^\s*$', 'nW', lnum2) > 0
     setpos('.', curpos)
     return !has_emptyline
 enddef

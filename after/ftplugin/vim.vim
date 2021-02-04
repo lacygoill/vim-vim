@@ -139,7 +139,7 @@ xno <buffer><nowait> =rt <c-\><c-n><cmd>*RefTernary<cr>
 # Options {{{1
 # cms {{{2
 
-if getline(1) =~# '^vim9\%[script]\>'
+if getline(1) =~ '^vim9\%[script]\>'
     setl cms=#%s
     &l:com = 'sO:# -,mO:#  ,eO:##,:#'
 endif

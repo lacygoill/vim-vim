@@ -115,7 +115,7 @@ enddef
 
 def ContainsEmptyOrCommentedLine(lnum1: number, lnum2: number): bool #{{{2
     var lines: list<string> = getline(lnum1, lnum2)
-    return match(lines, '^\s*"\%(\\ \)\@!\|^\s*$') != -1
+    return match(lines, '^\s*"\%(\\ \)\@!\|^\s*$') >= 0
 enddef
 
 def Finish(view: dict<number>, msg = ''): bool #{{{2

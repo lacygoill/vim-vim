@@ -305,14 +305,12 @@ def ProperWhitespace() #{{{2
     popup_close(info[1])
 
     info = Popup_notification('var name = 234# Error!')
-    # TODO: In the future, `#{}` might be parsed as a comment.
-    # If that happens, consider removing `#` from the regex used in the pattern field.
-    keepj keepp lockm :*s/\C\<var\s\+.*=.*\S\~\@1<!\zs\ze#{\@!\s\+/ /gce
-    #                                                         ^--^{{{
-    #                                                         technically, we should remove this, but:
-    #                                                         - in practice, it probably won't matter
-    #                                                         - it should remove false positives
-    #                                                         (e.g. # inside a string)
+    keepj keepp lockm :*s/\C\<var\s\+.*=.*\S\~\@1<!\zs\ze#\s\+/ /gce
+    #                                                     ^--^{{{
+    #                                                     technically, we should remove this, but:
+    #                                                     - in practice, it probably won't matter
+    #                                                     - it should remove false positives
+    #                                                     (e.g. # inside a string)
     #}}}
     popup_close(info[1])
 
@@ -333,7 +331,7 @@ def ProperWhitespace() #{{{2
     #     var d = {'a': 1 , 'b': 2 , 'c': 3} # Error!
     #     var d = {'a' : 1, 'b' : 2, 'c' : 3} # Error!
     #
-    #     if index(win_in_this_tab , 1) != -1
+    #     if index(win_in_this_tab , 1) >= 0
     #                             ^
     #                             ✘
     #}}}
@@ -684,7 +682,7 @@ def OpenLocationWindow() #{{{2
     if &bt == 'quickfix'
         # install a  mapping which opens a  help page explaining what  should be
         # refactored and how
-        nno <buffer><nowait> g? <cmd>exe 'h ' .. getloclist(0, #{context: 1}).context<cr>
+        nno <buffer><nowait> g? <cmd>exe 'h ' .. getloclist(0, {'context': 1}).context<cr>
     endif
     # print the whole stack of location lists so that we know that there is more
     # than what we can currently see
@@ -696,6 +694,6 @@ enddef
 def In(syngroup: string, col: number = col('.')): bool #{{{2
     return synstack('.', col)
         ->mapnew((_, v) => synIDattr(v, 'name'))
-        ->match('\c' .. syngroup) != -1
+        ->match('\c' .. syngroup) >= 0
 enddef
 

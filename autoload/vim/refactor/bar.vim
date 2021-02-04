@@ -15,9 +15,9 @@ var PAT_BAR: string =
     #
     # Because of this, if you press `=rb` on this line, it doesn't get broken:
     #
-    #                       ✘
-    #                       v
-    #     if line =~# '^\s*["#]'
+    #                      ✘
+    #                      v
+    #     if line =~ '^\s*["#]'
     #         return
     #     endif
     #
@@ -87,7 +87,7 @@ def Break(bang: bool) #{{{2
     var line: string = getline('.')
     var word: string = matchstr(line, '^\s*\zs\w\+')
         ->Normalize()
-    if index(['if', 'elseif', 'try', 'echohl'], word) != -1
+    if index(['if', 'elseif', 'try', 'echohl'], word) >= 0
         # Perform this transformation:{{{
         #
         #     if 1 | echo 'true' | endif

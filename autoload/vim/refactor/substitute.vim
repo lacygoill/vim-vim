@@ -21,7 +21,7 @@ const PAT: string =
 
 # Interface {{{1
 def vim#refactor#substitute#main(type: any = ''): string #{{{2
-    if type(type) == v:t_string && type == ''
+    if typename(type) == 'string' && type == ''
         &opfunc = 'vim#refactor#substitute#main'
         return 'g@l'
     endif
@@ -38,7 +38,7 @@ def vim#refactor#substitute#main(type: any = ''): string #{{{2
     [lnum2, col2] = getcurpos()[1 : 2]
 
     var bang: bool
-    if type(type) == v:t_bool
+    if typename(type) == 'bool'
         bang = type
     else
         bang = true

@@ -27,7 +27,7 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "
     " If so, here's the code:
     "
-    "     let opening_bracket = getline('.')[col('.') - 1]
+    "     let opening_bracket = getline('.')->strpart(col('.') - 1)[0]
     "     if index(['<', '(', '[', '{'], opening_bracket) == -1
     "         return
     "     endif
@@ -43,7 +43,7 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
     "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1 : 2] | norm! y
 
-    let bang = type(a:1) == v:t_number ? a:1 : v:true
+    let bang = typename(a:1) == 'number' ? a:1 : v:true
     "     if !vim#util#weCanRefactor(
     "         \ [s1, s2],
     "         \ lnum1, col1,

@@ -73,7 +73,7 @@ def vim#util#put( #{{{2
     var reg_save: dict<any> = getreginfo('"')
     try
         set cb= sel=inclusive
-        if type(text) == v:t_list
+        if typename(text) =~ '^list'
             @" = join(text, "\n")
         else
             @" = text

@@ -5,7 +5,7 @@ var loaded = true
 
 # Interface {{{1
 def vim#refactor#lambda#main(type: any = ''): string #{{{2
-    if type(type) == v:t_string && type == ''
+    if typename(type) == 'string' && type == ''
         &opfunc = 'vim#refactor#lambda#main'
         return 'g@l'
     endif
@@ -27,7 +27,7 @@ def vim#refactor#lambda#main(type: any = ''): string #{{{2
     [lnum1, col1] = getcurpos()[1 : 2]
     norm! y
 
-    var bang: bool = type(type) == v:t_bool ? type : true
+    var bang: bool = typename(type) == 'bool' ? type : true
     if !vim#util#weCanRefactor(
         [s1, s2],
         lnum1, col1,

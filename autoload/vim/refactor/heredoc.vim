@@ -9,7 +9,7 @@ def vim#refactor#heredoc#main( #{{{2
     arg = '',
     ): string
 
-    if type(type) == v:t_string && type == ''
+    if typename(type) == 'string' && type == ''
         &opfunc = 'vim#refactor#heredoc#main'
         return 'g@l'
     endif
@@ -17,7 +17,7 @@ def vim#refactor#heredoc#main( #{{{2
 
     var bang: bool
     # opfunc
-    if type(type) == v:t_string && type != ''
+    if typename(type) == 'string' && type != ''
         bang = true
     # Ex cmd
     else

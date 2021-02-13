@@ -35,7 +35,7 @@ const MAX_JOINED_LINES: number = 5
 
 # Interface {{{1
 def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
-    if type(type) == v:t_string && type == ''
+    if typename(type) == 'string' && type == ''
         &opfunc = 'vim#refactor#bar#main'
         return 'g@l'
     endif
@@ -48,7 +48,7 @@ def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
 
     var bang: bool
     # opfunc
-    if type(type) == v:t_string && type != ''
+    if typename(type) == 'string' && type != ''
         bang = true
     # Ex cmd
     else

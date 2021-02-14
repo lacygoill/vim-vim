@@ -1,4 +1,4 @@
-vim9
+vim9script
 
 # Don't re-indent a continuation line.{{{
 #

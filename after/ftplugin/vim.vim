@@ -1,4 +1,4 @@
-vim9
+vim9script
 
 # TODO: Check whether some refactoring commands could be turned into operators.{{{
 #
@@ -139,7 +139,7 @@ xno <buffer><nowait> =rt <c-\><c-n><cmd>*RefTernary<cr>
 # Options {{{1
 # cms {{{2
 
-if getline(1) =~ '^vim9\%[script]\>'
+if getline(1) =~ '^vim9s\%[cript]\>'
     setl cms=#%s
     &l:com = 'sO:# -,mO:#  ,eO:##,:#'
 endif

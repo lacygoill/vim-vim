@@ -1,4 +1,4 @@
-vim9
+vim9script
 
 import Derive from 'lg/syntax.vim'
 # Make Vim highlight custom commands – like `:Plug` – in a similar way as for builtin Ex commands.{{{
@@ -101,7 +101,7 @@ if getline(1) =~ '^\Cvim9\%[script]\>'
 
     # Problem: A string in an automatic continuation line is wrongly highlighted as a comment.{{{
     #
-    #     vim9
+    #     vim9script
     #
     #     var l = [
     #        "highlighted as a comment, while it is a string"
@@ -232,7 +232,7 @@ syn cluster vimFuncBodyList add=vimUsrCmd
 # Solution: Allow `vimOper` and `vimOperParen` to start in a `vimEcho` region.
 # Problem: An inline comment is not properly highlighted after an `:echo` in a Vim9 script.{{{
 #
-#     vim9
+#     vim9script
 #     echo 1 + 1 # some comment
 #                ^------------^
 #}}}

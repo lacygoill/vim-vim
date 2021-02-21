@@ -19,7 +19,7 @@ def vim#refactor#method#splitjoin#main(type = ''): string #{{{2
     if !IsValid(range)
         return ''
     endif
-    var pos = getcurpos()
+    var pos: list<number> = getcurpos()
     if ShouldSplit(range)
         Split(range)
     else
@@ -36,7 +36,7 @@ def Split(range: list<number>) #{{{2
     var indent: string = getline('.')->matchstr('^\s*')
     var rep: string = "\x01" .. indent .. repeat(' ', &l:sw) .. (IsVim9() ? '' : '\\ ')
     var new: string = getline(lnum1, lnum2)
-        ->mapnew((_, v) => substitute(v, ARROW_PAT, rep, 'g')->split("\x01"))
+        ->mapnew((_, v: string): list<string> => substitute(v, ARROW_PAT, rep, 'g')->split("\x01"))
         ->flattennew()
         ->join("\n")
     vim#util#put(

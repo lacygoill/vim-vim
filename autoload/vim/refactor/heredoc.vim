@@ -168,8 +168,8 @@ enddef
 
 def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
     var lines: list<string> = getline(lnum1, lnum3)
-    # remove possible comments inside the list (`:h line-continuation-comment`)
-    filter(lines, (_, v) => v !~ '^\s*"\\ ')
+        # remove possible comments inside the list (`:h line-continuation-comment`)
+        ->filter((_, v: string): bool => v !~ '^\s*"\\ ')
     var list_value: string = join(lines)
     var pat: string = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
     var items: list<string> = []
@@ -179,8 +179,8 @@ def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
         :     eval('"' .. m[0] .. '"')
     var Rep: func = (m: list<string>) => add(items, Item(m))[0]
     substitute(list_value, pat, Rep, 'g')
-    map(items, (_, v) => v != '' ? repeat(' ', shiftwidth()) .. v : v)
     return items
+        ->map((_, v: string): string => v != '' ? repeat(' ', shiftwidth()) .. v : v)
 enddef
 
 def GetNewAssignment( #{{{2
@@ -193,9 +193,12 @@ def GetNewAssignment( #{{{2
         [printf('=<< %s%s', notrim ? '' : 'trim ', marker)]
         + items
         + [marker]
-    map(assignment, (i, v) => i == 0 || v == '' ? v : indent .. v)
+    map(assignment, (i: number, v: string): string =>
+        i == 0 || v == ''
+        ?     v
+        :     indent .. v)
     if notrim
-        map(assignment, (_, v) => trim(v, " \t"))
+        map(assignment, (_, v: string): string => trim(v, " \t"))
     endif
     return assignment
 enddef

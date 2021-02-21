@@ -33,7 +33,9 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
         return
     endif
 
-    var assignment = [kwd .. ' ' .. (kwd == 'let' || kwd == 'var' ? expr .. ' = ' : '')]
+    var assignment: list<string> = [
+        kwd .. ' ' .. (kwd == 'let' || kwd == 'var' ? expr .. ' = ' : '')
+        ]
     # TODO(Vim9): Simplify once we can write this:{{{
     #
     #     assignment[0] ..= tests[0]
@@ -79,7 +81,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
 
     # make sure our new block is indented like the original one
     var indent_block: string = getline(lnum1)->matchstr('^\s*')
-    map(assignment, (_, v) => indent_block .. v)
+    map(assignment, (_, v: string): string => indent_block .. v)
 
     var reg_save: dict<any> = getreginfo('"')
     @" = join(assignment, "\n")
@@ -109,6 +111,6 @@ def GetTestsOrValues( #{{{2
         expressions += [getline('.')->matchstr(pat4)]
         guard += 1
     endwhile
-    return filter(expressions, (_, v) => v != '')
+    return filter(expressions, (_, v: string): bool => v != '')
 enddef
 

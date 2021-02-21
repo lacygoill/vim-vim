@@ -71,7 +71,10 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
     # and they are sorted
     var pat: string = PAT_MAP .. '\zs\s\+\%(<\%(buffer\|expr\|nowait\|silent\|unique\)>\s*\)\+'
     var Rep: func = (): string =>
-        ' ' .. submatch(0)->split('\s\+\|>\zs\ze<')->sort()->join('') .. ' '
+        ' ' .. submatch(0)
+            ->split('\s\+\|>\zs\ze<')
+            ->sort()
+            ->join('') .. ' '
     sil exe ':%s/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`

@@ -649,7 +649,7 @@ def SortUniqLoclists() #{{{2
             continue
         endif
         # sort the entries in the location list according to their location
-        sort(info.items, (i, j) =>
+        sort(info.items, (i: dict<any>, j: dict<any>): number =>
             i.lnum > j.lnum || i.lnum == j.lnum && i.col > j.col
                 ? 1
                 : -1
@@ -693,7 +693,7 @@ enddef
 # Utilities {{{1
 def In(syngroup: string, col: number = col('.')): bool #{{{2
     return synstack('.', col)
-        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->mapnew((_, v: number): string => synIDattr(v, 'name'))
         ->match('\c' .. syngroup) >= 0
 enddef
 

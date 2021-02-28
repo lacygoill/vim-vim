@@ -84,9 +84,6 @@ com -bang -bar -buffer RefSubstitute vim#refactor#substitute#main#main(<bang>0)
 
 com -bar -buffer -range RefTernary vim#refactor#ternary#main(<line1>, <line2>)
 #}}}2
-# RefVim9 {{{2
-
-com -bar -buffer -range=% RefVim9 vim#refactor#vim9#main(<line1>, <line2>)
 #}}}1
 # Mappings {{{1
 

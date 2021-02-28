@@ -10,7 +10,7 @@ import Derive from 'lg/syntax.vim'
 #
 #     hi link vimUsrCmd vimCommand
 #}}}
-sil! Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=italic')
+Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=italic')
 
 # TODO: The next rules try to fix various issues.{{{
 #
@@ -200,30 +200,38 @@ syn match vimHiGroup contained '\i\+'
 # https://github.com/vim/vim/issues/6587
 
 syn clear vimUsrCmd
-syn match vimUsrCmd '^\s*\zs\u\%(\w*\)\@>\%([(#]\|\s\+\%([-+*/%]\=\|\.\.\)=\)\@!'
-#                                            ├┘   ├─────────────────────────┘ {{{
-#                                            │    │
-#                                            │    └ and don't highlight a capitalized variable name,
-#                                            │      in an assignment without declaration:
-#                                            │
-#                                            │        var MYCONSTANT: number
-#                                            │        MYCONSTANT = 12
-#                                            │        MYCONSTANT += 34
-#                                            │        MYCONSTANT *= 56
-#                                            │        ...
-#                                            │
-#                                            └ In a Vim9 script, don't highlight a custom Vim function
-#                                              invoked without ":call".
-#
-#                                                  Func()
-#                                                  ^--^
-#
-#                                              And don't highlight a capitalized autoload function name,
-#                                              in a function call:
-#
-#                                                 Script#func()
-#                                                 ^----^
-#}}}
+exe 'syn match vimUsrCmd '
+    .. '"^\s*\zs\u\%(\w*\)\@>'
+    .. '\%('
+    # Don't highlight a custom Vim function invoked without ":call".{{{
+    #
+    #     Func()
+    #     ^--^
+    #}}}
+    # Don't highlight a capitalized autoload function name, in a function call:{{{
+    #
+    #     Script#func()
+    #     ^----^
+    #}}}
+    # Don't highlight the member of a list/dictionary:{{{
+    #
+    #     var NAME: list<number> = [1]
+    #     NAME[0] = 2
+    #     ^--^
+    #}}}
+    ..     '[(#[]'
+    .. '\|'
+    # Don't highlight a capitalized variable name, in an assignment without declaration:{{{
+    #
+    #     var MYCONSTANT: number
+    #     MYCONSTANT = 12
+    #     MYCONSTANT += 34
+    #     MYCONSTANT *= 56
+    #     ...
+    #}}}
+    ..     '\s\+\%([-+*/%]\=\|\.\.\)='
+    .. '\)\@!"'
+
 # Problem: A custom command name is not highlighted inside a function.
 # Solution: Include `vimUsrCmd` inside the `vimFuncBodyList` cluster.
 syn cluster vimFuncBodyList add=vimUsrCmd

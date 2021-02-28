@@ -172,7 +172,7 @@ def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
         ->filter((_, v: string): bool => v !~ '^\s*"\\ ')
     var list_value: string = join(lines)
     var pat: string = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
-    var items: list<string> = []
+    var items: list<string>
     var Item: func = (m: list<string>): string =>
         m[1] == "'"
         ?     substitute(m[0], "''", "'", 'g')

@@ -91,7 +91,6 @@ def vim#undoFtplugin() #{{{1
     delc RefQuote
     delc RefSubstitute
     delc RefTernary
-    delc RefVim9
     delc Refactor
 enddef
 

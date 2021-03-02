@@ -117,7 +117,8 @@ enddef
 
 def GetArgs(cmdarg: string): list<any> #{{{2
     var notrim: bool = stridx(cmdarg, '-notrim') >= 0
-    var marker: string = substitute(cmdarg, '\C-\%(help\|notrim\)', '', 'g')
+    var marker: string = cmdarg
+        ->substitute('\C-\%(help\|notrim\)', '', 'g')
         ->matchstr('\S\+\s*$')
     if marker == ''
         marker = 'END'
@@ -128,7 +129,7 @@ def GetArgs(cmdarg: string): list<any> #{{{2
 enddef
 
 def SearchLet(): number #{{{2
-    return vim#util#search('\m\C\<\%(let\|var\|const\=\)\>', 'b', 'vimLet')
+    return vim#util#search('\C\<\%(let\|var\|const\=\)\>', 'b', 'vimLet')
 enddef
 
 def SearchOpeningBracket(): number #{{{2
@@ -175,12 +176,16 @@ def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
     var items: list<string>
     var Item: func = (m: list<string>): string =>
         m[1] == "'"
-        ?     substitute(m[0], "''", "'", 'g')
+        ?     m[0]->substitute("''", "'", 'g')
         :     eval('"' .. m[0] .. '"')
     var Rep: func = (m: list<string>) => add(items, Item(m))[0]
-    substitute(list_value, pat, Rep, 'g')
+    list_value->substitute(pat, Rep, 'g')
     return items
-        ->map((_, v: string): string => v != '' ? repeat(' ', shiftwidth()) .. v : v)
+        ->map((_, v: string): string =>
+                  v != ''
+                ?     repeat(' ', shiftwidth()) .. v
+                :     v
+        )
 enddef
 
 def GetNewAssignment( #{{{2
@@ -193,12 +198,14 @@ def GetNewAssignment( #{{{2
         [printf('=<< %s%s', notrim ? '' : 'trim ', marker)]
         + items
         + [marker]
-    map(assignment, (i: number, v: string): string =>
-        i == 0 || v == ''
-        ?     v
-        :     indent .. v)
+    assignment
+        ->map((i: number, v: string): string =>
+            i == 0 || v == ''
+            ?     v
+            :     indent .. v
+        )
     if notrim
-        map(assignment, (_, v: string): string => trim(v, " \t"))
+        assignment->map((_, v: string): string => trim(v, " \t"))
     endif
     return assignment
 enddef

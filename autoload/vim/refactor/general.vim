@@ -71,18 +71,23 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
     # and they are sorted
     var pat: string = PAT_MAP .. '\zs\s\+\%(<\%(buffer\|expr\|nowait\|silent\|unique\)>\s*\)\+'
     var Rep: func = (): string =>
-        ' ' .. submatch(0)
+        ' '
+        .. submatch(0)
             ->split('\s\+\|>\zs\ze<')
             ->sort()
-            ->join('') .. ' '
+            ->join('')
+        .. ' '
     sil exe ':%s/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`
-    sil exe ':%s/' .. PAT_MAP .. '\s\+<buffer>\%(<expr>\)\=\zs\%(\%(<expr>\)\=<nowait>\)\@!/<nowait>/ge'
-    #                                 ├───────────────────┘   ├───────────────────────────┘
-    #                                 │                       └ but not followed by `<nowait>`
-    #                                 │                        neither by `<expr><nowait>`
-    #                                 └ look for `<buffer>` may be followed by `<expr>`
+    sil exe ':%s'
+        .. '/' .. PAT_MAP .. '\s\+'
+            # look for `<buffer>` (might be followed by `<expr>`)
+            .. '<buffer>\%(<expr>\)\='
+            .. '\zs'
+            # but not followed by `<nowait>` neither by `<expr><nowait>`
+            .. '\%(\%(<expr>\)\=<nowait>\)\@!'
+        .. '/<nowait>/ge'
 
     winrestview(view)
 enddef

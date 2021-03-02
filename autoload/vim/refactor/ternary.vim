@@ -10,11 +10,12 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     if kwd == ''
         return
     endif
-    var expr: string = getline('.')->matchstr({
-        let: '\m\Clet\s\+\zs.\{-}\ze\s*=',
-        var: '\m\Cvar\s\+\zs.\{-}\ze\s*=',
-        const: '\m\Cconst\s\+\zs.\{-}\ze\s*=',
-        return: '\m\Creturn\s\+\zs.*',
+    var expr: string = getline('.')
+        ->matchstr({
+            let: '\Clet\s\+\zs.\{-}\ze\s*=',
+            var: '\Cvar\s\+\zs.\{-}\ze\s*=',
+            const: '\Cconst\s\+\zs.\{-}\ze\s*=',
+            return: '\Creturn\s\+\zs.*',
         }[kwd])
 
     var tests: list<string> = GetTestsOrValues(lnum1, lnum2,
@@ -81,7 +82,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
 
     # make sure our new block is indented like the original one
     var indent_block: string = getline(lnum1)->matchstr('^\s*')
-    map(assignment, (_, v: string): string => indent_block .. v)
+    assignment->map((_, v: string): string => indent_block .. v)
 
     var reg_save: dict<any> = getreginfo('"')
     @" = join(assignment, "\n")
@@ -111,6 +112,6 @@ def GetTestsOrValues( #{{{2
         expressions += [getline('.')->matchstr(pat4)]
         guard += 1
     endwhile
-    return filter(expressions, (_, v: string): bool => v != '')
+    return expressions->filter((_, v: string): bool => v != '')
 enddef
 

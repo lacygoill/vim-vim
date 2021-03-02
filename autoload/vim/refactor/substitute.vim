@@ -91,7 +91,7 @@ def GetNewSubstitution(old: string): string #{{{2
     var rep: string
     var flags: string
     [range, _, pat, rep, flags] = matchlist(old, PAT)[1 : 5]
-    flags = substitute(flags, 'e', '', '')
+    flags = flags->substitute('e', '', '')
     # TODO: support case where pattern or replacement contains a single quote
     # TODO: make sure `&`, `~` and `\` are always escaped in the replacement
     # TODO: use the  method  call  operator to  refactor  the new  substitution

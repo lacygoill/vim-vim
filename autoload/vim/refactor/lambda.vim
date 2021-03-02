@@ -96,7 +96,7 @@ def SearchClosingQuote(): number #{{{2
     #
     # Then, the current logic is correct, and `=rl` works as expected.
     #}}}
-    if vim#util#search('\m\C\<\%(map\|filter\)(', 'be') == 0
+    if vim#util#search('\C\<\%(map\|filter\)(', 'be') == 0
         return 0
     endif
     var pos: list<number> = getcurpos()
@@ -117,9 +117,9 @@ def GetExpr(captured_text: string): string #{{{2
     var expr: string = captured_text
     var quote: string = expr[-1]
     var is_single_quoted: bool = quote == "'"
-    expr = substitute(expr, '^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
+    expr = expr->substitute('^\s*' .. quote .. '\|' .. quote .. '\s*$', '', 'g')
     if is_single_quoted
-        expr = substitute(expr, "''", "'", 'g')
+        expr = expr->substitute("''", "'", 'g')
     else
         expr = eval('"' .. expr .. '"')
     endif

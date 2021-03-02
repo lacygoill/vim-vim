@@ -230,6 +230,22 @@ exe 'syn match vimUsrCmd '
     #     ...
     #}}}
     ..     '\s\+\%([-+*/%]\=\|\.\.\)='
+    # Don't highlight a funcref expression at the start of a line.{{{
+    #
+    #     def Foo(): string
+    #         return 'some text'
+    #     enddef
+    #
+    #     def Bar(F: func): string
+    #         return F()
+    #     enddef
+    #
+    #     # should NOT be highlighted as an Ex command
+    #     vvv
+    #     Foo->Bar()
+    #        ->setline(1)
+    #}}}
+    .. '\|\s*->'
     .. '\)\@!"'
 
 # Problem: A custom command name is not highlighted inside a function.

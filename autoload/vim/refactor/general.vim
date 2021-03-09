@@ -70,17 +70,17 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
     # format the arguments of a mapping, so that there's no space between them,
     # and they are sorted
     var pat: string = PAT_MAP .. '\zs\s\+\%(<\%(buffer\|expr\|nowait\|silent\|unique\)>\s*\)\+'
-    var Rep: func = (): string =>
+    Rep = (): string =>
         ' '
         .. submatch(0)
             ->split('\s\+\|>\zs\ze<')
             ->sort()
             ->join('')
         .. ' '
-    sil exe ':%s/' .. pat .. '/\=Rep()/ge'
+    sil exe range .. 's/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`
-    sil exe ':%s'
+    sil exe range .. 's'
         .. '/' .. PAT_MAP .. '\s\+'
             # look for `<buffer>` (might be followed by `<expr>`)
             .. '<buffer>\%(<expr>\)\='
@@ -92,3 +92,4 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
     winrestview(view)
 enddef
 
+var Rep: func

@@ -1,7 +1,7 @@
-if exists('g:autoloaded_vim#refactor#method#call')
+if exists('s:loaded')
     finish
 endif
-let g:autoloaded_vim#refactor#method#call = v:true
+let s:loaded = v:true
 
 const s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')
     \ ->filter({_, v -> v =~# '^[a-z][^#]*\%((\|()\)$'})

@@ -4,7 +4,12 @@ if exists('loaded') | finish | endif
 var loaded = true
 
 # Interface {{{1
-def vim#util#search(pat: string, flags = '', syntomatch = ''): number #{{{2
+def vim#util#search( #{{{2
+    pat: string,
+    flags = '',
+    syntomatch = ''
+): number
+
     var syntax_was_enabled: bool = exists('g:syntax_on')
     try
         if !syntax_was_enabled
@@ -38,7 +43,7 @@ def vim#util#weCanRefactor( #{{{2
     bang: bool,
     view: dict<number>,
     this: string, into_that: string
-    ): bool
+): bool
 
     var lnum0: number = view.lnum
     var col0: number = view.col
@@ -67,14 +72,14 @@ def vim#util#put( #{{{2
     lnum2: number,
     col2: number,
     linewise = false
-    )
+)
     var cb_save: string = &cb
     var sel_save: string = &sel
     var reg_save: dict<any> = getreginfo('"')
     try
         set cb= sel=inclusive
         if typename(text) =~ '^list'
-            @" = join(text, "\n")
+            @" = text->join("\n")
         else
             @" = text
         endif
@@ -101,7 +106,8 @@ def ContainsPos( #{{{2
     lnum0: number, col0: number,
     lnum1: number, col1: number,
     lnum2: number, col2: number,
-    ): bool
+): bool
+
     # return 1 iff the position `[lnum0, col0]` is somewhere inside the
     # characterwise text starting at `[lnum1, col1]` and ending at `[lnum2, col2]`
     if lnum0 == lnum1 && lnum0 == lnum2
@@ -148,7 +154,8 @@ def Confirm( #{{{2
     col1: number,
     lnum2: number,
     col2: number,
-    ): string
+): string
+
     var fen_save: bool = &l:fen
     var pat: string = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
     var id: number = matchadd('IncSearch', pat, 0)
@@ -159,7 +166,11 @@ def Confirm( #{{{2
         redraw | echo msg .. ' (y/n)?'
         echohl NONE
         while index(['y', 'n', "\e"], answer) == -1
-            answer = getchar()->nr2char()
+            var c: any = getchar()
+            if typename(c) != 'number'
+                continue
+            endif
+            answer = nr2char(c)
         endwhile
         redraw!
     catch /Vim:Interrupt/

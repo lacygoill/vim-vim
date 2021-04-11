@@ -74,8 +74,8 @@ def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
     return ''
 enddef
 
-def vim#refactor#bar#complete(...l: any): string #{{{2
-    return join(['-break', '-join'], "\n")
+def vim#refactor#bar#complete(_, _, _): string #{{{2
+    return ['-break', '-join']->join("\n")
 enddef
 #}}}1
 # Core {{{1
@@ -186,7 +186,8 @@ def WeCanRefactor( #{{{2
     arg_lnum2: number,
     bang: bool,
     change: string
-    ): bool
+): bool
+
     # first non-whitespace on first line
     var pat1: string = '^\%' .. arg_lnum1 .. 'l\s*\zs\S'
     # last non-whitespace on last line
@@ -210,7 +211,7 @@ def WeCanRefactor( #{{{2
         view,
         change == 'break' ? 'bar-separated commands' : 'multiline block',
         change == 'break' ? 'multiline block' : 'bar-separated commands',
-        )
+    )
         return false
     endif
     return true

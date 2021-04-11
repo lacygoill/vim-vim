@@ -36,12 +36,8 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
 
     var assignment: list<string> = [
         kwd .. ' ' .. (kwd == 'let' || kwd == 'var' ? expr .. ' = ' : '')
-        ]
-    # TODO(Vim9): Simplify once we can write this:{{{
-    #
-    #     assignment[0] ..= tests[0]
-    #}}}
-    assignment[0] = assignment[0] .. tests[0]
+    ]
+    assignment[0] ..= tests[0]
 
     # The function should not operate on something like this:{{{
     #
@@ -85,7 +81,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     assignment->map((_, v: string): string => indent_block .. v)
 
     var reg_save: dict<any> = getreginfo('"')
-    @" = join(assignment, "\n")
+    @" = assignment->join("\n")
     try
         exe 'norm! ' .. lnum1 .. 'G' .. 'V' .. lnum2 .. 'Gp'
     finally
@@ -101,12 +97,12 @@ def GetTestsOrValues( #{{{2
     pat2: string,
     pat3: string,
     pat4: string
-    ): list<string>
+): list<string>
 
     cursor(lnum1, 1)
     var expressions: list<string> = [
         search(pat1, 'cW', lnum2)->getline()->matchstr(pat2)
-        ]
+    ]
     var guard: number = 0
     while search(pat3, 'W', lnum2) > 0 && guard <= 30
         expressions += [getline('.')->matchstr(pat4)]

@@ -35,7 +35,7 @@ def vim#refactor#lambda#main(type: any = ''): string #{{{2
         bang,
         view,
         'map/filter {expr2}', 'lambda',
-        )
+    )
         return ''
     endif
 
@@ -50,7 +50,7 @@ def vim#refactor#lambda#main(type: any = ''): string #{{{2
         new_expr,
         lnum1, col1,
         lnum2, col2,
-        )
+    )
     return ''
 enddef
 

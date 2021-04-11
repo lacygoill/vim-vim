@@ -46,7 +46,7 @@ def Split(range: list<number>) #{{{2
         lnum1, 1,
         lnum2, 1,
         true
-        )
+    )
 enddef
 
 def Join() #{{{2

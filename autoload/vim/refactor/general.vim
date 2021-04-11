@@ -30,9 +30,13 @@ var pat_map_tokens: list<string> =<< trim END
     tma\%[p]
 END
 
-const PAT_MAP: string = '\%(' .. join(pat_map_tokens, '\|') .. '\)'
+const PAT_MAP: string = '\%(' .. pat_map_tokens->join('\|') .. '\)'
 
-def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
+def vim#refactor#general#main( #{{{1
+    lnum1: number,
+    lnum2: number,
+    bang: bool
+)
     var range: string = ':' .. lnum1 .. ',' .. lnum2
     var modifiers: string = 'keepj keepp '
     var view: dict<number> = winsaveview()
@@ -55,7 +59,7 @@ def vim#refactor#general#main(lnum1: number, lnum2: number, bang: bool) #{{{1
         abort: {pat: '^\%(.*)\s*abort\)\@!\s*fu\%[nction]!\=.*)'
                   .. '\zs\ze\%(\s*"{{' .. '{\d*\)\=',
                 rep: ' abort'},
-        }
+    }
 
     sil! exe modifiers .. 'norm! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
     for sbs in values(substitutions)

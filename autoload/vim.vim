@@ -45,7 +45,7 @@ def vim#getHelpurl() #{{{1
         tag,
         fname,
         tag,
-        )
+    )
     setreg('h', value, 'a')
     getreg('h', true, true)
         ->popup_notification({
@@ -54,7 +54,7 @@ def vim#getHelpurl() #{{{1
             line: 1,
             col: &columns,
             borderchars: ['─', '│', '─', '│', '┌', '┐', '┘', '└'],
-            })
+        })
 enddef
 
 def vim#undoFtplugin() #{{{1

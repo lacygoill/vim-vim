@@ -3,7 +3,14 @@ vim9script noclear
 if exists('loaded') | finish | endif
 var loaded = true
 
-def vim#syntax#tweakCluster(acluster: string, group: string, action = 'include')
+var builtin_funcnames: string
+var event_names: string
+
+def vim#syntax#tweakCluster( #{{{1
+    acluster: string,
+    group: string,
+    action = 'include'
+)
     var cluster: string = acluster->substitute('^@', '', '')
     cluster = execute('syn list @' .. cluster)
         ->split('\n')
@@ -29,3 +36,26 @@ def vim#syntax#tweakCluster(acluster: string, group: string, action = 'include')
     endif
     exe cmd
 enddef
+
+def vim#syntax#GetBuiltinFunctionNames(): string #{{{1
+    if builtin_funcnames != ''
+        return builtin_funcnames
+    else
+        builtin_funcnames = getcompletion('*', 'function')
+            ->filter((_, v: string): bool => v[0] =~ '[a-z]' && v !~ '#')
+            ->map((_, v: string): string => trim(v, '()'))
+            ->join(' ')
+    endif
+    return builtin_funcnames
+enddef
+
+def vim#syntax#GetEventNames(): string #{{{1
+    if event_names != ''
+        return event_names
+    else
+        event_names = getcompletion('*', 'event')
+            ->join(' ')
+    endif
+    return event_names
+enddef
+

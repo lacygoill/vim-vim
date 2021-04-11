@@ -51,7 +51,7 @@ def vim#refactor#substitute#main(type: any = ''): string #{{{2
         bang,
         view,
         'substitution command', 'setline()+substitute()',
-        )
+    )
         return ''
     endif
 
@@ -62,7 +62,7 @@ def vim#refactor#substitute#main(type: any = ''): string #{{{2
         new,
         lnum1, col1,
         lnum2, col2,
-        )
+    )
 
     winrestview(view)
     return ''
@@ -86,7 +86,6 @@ enddef
 
 def GetNewSubstitution(old: string): string #{{{2
     var range: string
-    var _: any
     var pat: string
     var rep: string
     var flags: string

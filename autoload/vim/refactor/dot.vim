@@ -3,7 +3,11 @@ vim9script noclear
 if exists('loaded') | finish | endif
 var loaded = true
 
-def vim#refactor#dot#main(bang: bool, lnum1: number, lnum2: number)
+def vim#refactor#dot#main(
+    bang: bool,
+    lnum1: number,
+    lnum2: number
+)
     var pat: string =
         # outside a single-quoted string
         '\%(^\%(''[^'']*''\|[^'']\)*\)\@<='

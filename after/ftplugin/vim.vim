@@ -103,7 +103,7 @@ sil! repmap#make#repeatable({
     motions: [
         {bwd: '[m', fwd: ']m'},
         {bwd: '[M', fwd: ']M'},
-        ]})
+    ]})
 
 # TODO: When should we install visual mappings?
 

@@ -7,7 +7,7 @@ var loaded = true
 def vim#refactor#heredoc#main( #{{{2
     type: any = '',
     arg = '',
-    ): string
+): string
 
     if typename(type) == 'string' && type == ''
         &opfunc = 'vim#refactor#heredoc#main'
@@ -62,7 +62,7 @@ def vim#refactor#heredoc#main( #{{{2
         bang,
         view,
         'list assignment', 'heredoc',
-        )
+    )
         return ''
     endif
 
@@ -75,14 +75,14 @@ def vim#refactor#heredoc#main( #{{{2
         new_assignment,
         lnum2, col2,
         lnum3, col3,
-        )
+    )
 
     winrestview(view)
     return ''
 enddef
 
-def vim#refactor#heredoc#complete(...l: any): string #{{{2
-    return join(['-help', '-notrim'], "\n")
+def vim#refactor#heredoc#complete(_, _, _): string #{{{2
+    return ['-help', '-notrim']->join("\n")
 enddef
 #}}}1
 # Core {{{1
@@ -102,7 +102,7 @@ def PrintHelp() #{{{2
           RefHeredoc MyCustomMarker
           RefHeredoc! -notrim MyCustomMarker
     END
-    echo join(help, "\n")
+    echo help->join("\n")
 enddef
 
 def SyntaxIsCorrect(arg: string): bool #{{{2
@@ -193,7 +193,8 @@ def GetNewAssignment( #{{{2
     notrim: bool,
     marker: string,
     indent: string
-    ): list<string>
+): list<string>
+
     var assignment: list<string> =
         [printf('=<< %s%s', notrim ? '' : 'trim ', marker)]
         + items
@@ -205,7 +206,7 @@ def GetNewAssignment( #{{{2
             :     indent .. v
         )
     if notrim
-        assignment->map((_, v: string): string => trim(v, " \t"))
+        assignment->map((_, v: string): string => v->trim(" \t"))
     endif
     return assignment
 enddef

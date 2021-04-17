@@ -547,7 +547,27 @@ syn cluster vimFuncBodyList add=vimLuaRegion
 " Synchronize (speed) {{{2
 
 syn sync maxlines=60
-syn sync linecont '^\s\+\\'
+" TODO: We need `silent!` to suppress a possible E403 error.{{{
+"
+" To reproduce, write this text in `/tmp/md.md`:
+" https://raw.githubusercontent.com/k-takata/minpac/master/README.md
+"
+" Then, open the `/tmp/md.md` file:
+"
+"     Error detected while processing BufRead Autocommands for "*.md"
+"         ..FileType Autocommands for "*"
+"         ..Syntax Autocommands for "*"
+"         ..function <SNR>24_SynSet[25]
+"         ..script ~/.vim/pack/markdown/opt/markdown/syntax/markdown.vim[835]
+"         ..function markdown#highlightLanguages[57]
+"         ..script ~/.vim/pack/vim/opt/vim/syntax/vim.vim:
+"     line  553:
+"     E403: syntax sync: line continuations pattern specified twice
+"
+" Is  there something  wrong in  how we  syntax highlight  fenced codeblocks  in
+" markdown files?  Is there a better fix?
+"}}}
+sil! syn sync linecont '^\s\+\\'
 syn sync match vimAugroupSyncA  groupthere NONE '\<aug\%[roup]\>\s\+[eE][nN][dD]'
 "}}}1
 

@@ -33,7 +33,7 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "     endif
     "     let closing_bracket = {'<': '>', '(': ')', '[': ']', '{': '}'}[opening_bracket]
     "     call searchpair(opening_bracket, '', closing_bracket,
-    "         \ 'W', 'synID(".", col("."), 1)->synIDattr("name") =~? "comment\\|string"')
+    "         \ 'W', 'synID(".", col("."), 1)->synIDattr("name") =~ "\\ccomment\\|string"')
     "
     " But I'm not sure we need it.
     " Maybe `vim#util#search(')')` is enough...

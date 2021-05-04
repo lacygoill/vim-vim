@@ -61,11 +61,11 @@ def vim#refactor#general#main( #{{{1
                 rep: ' abort'},
     }
 
-    sil! exe modifiers .. 'norm! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
+    exe 'sil! ' .. modifiers .. 'norm! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
     for sbs in values(substitutions)
         var cmd: string = modifiers .. range .. 's/' .. sbs.pat .. '/' .. sbs.rep .. '/ge'
         if bang
-            sil exe cmd
+            exe 'sil ' .. cmd
         else
             exe cmd .. 'c'
         endif
@@ -81,10 +81,10 @@ def vim#refactor#general#main( #{{{1
             ->sort()
             ->join('')
         .. ' '
-    sil exe range .. 's/' .. pat .. '/\=Rep()/ge'
+    exe 'sil ' .. range .. 's/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`
-    sil exe range .. 's'
+    exe 'sil ' .. range .. 's'
         .. '/' .. PAT_MAP .. '\s\+'
             # look for `<buffer>` (might be followed by `<expr>`)
             .. '<buffer>\%(<expr>\)\='

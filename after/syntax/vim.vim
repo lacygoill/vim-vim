@@ -1,7 +1,7 @@
 vim9script
 
 import Derive from 'lg/syntax.vim'
-# Make Vim highlight custom commands – like `:Plug` – in a similar way as for builtin Ex commands.{{{
+# Make Vim highlight custom commands in a similar way as for builtin Ex commands.{{{
 #
 # With a  twist: we  want them  to be italicized,  so that  we can't  conflate a
 # custom command with a builtin one.

@@ -106,7 +106,7 @@ def GetTestsOrValues( #{{{2
     var guard: number = 0
     while search(pat3, 'W', lnum2) > 0 && guard <= 30
         expressions += [getline('.')->matchstr(pat4)]
-        guard += 1
+        ++guard
     endwhile
     return expressions->filter((_, v: string): bool => v != '')
 enddef

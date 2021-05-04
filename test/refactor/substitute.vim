@@ -8,4 +8,4 @@
     call getline(1, 2)->map({_, v -> v->substitute('[─┴┬├┤┼└┘┐┌]', '', 'g')})->setline(1)
     call getline(1, 2)->map('v:val->substitute(''[─┴┬├┤┼└┘┐┌]'', '''', ''g'')')->setline(1)
 
-    sil exe lnum1 .. ',' .. lnum2 .. 's/[─┴┬├┤┼└┘┐┌]//ge'
+    exe 'sil ' .. lnum1 .. ',' .. lnum2 .. 's/[─┴┬├┤┼└┘┐┌]//ge'

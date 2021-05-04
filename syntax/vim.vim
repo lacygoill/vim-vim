@@ -2,6 +2,9 @@ if exists('b:current_syntax')
     finish
 endif
 
+" TODO: Are there good things to borrow from this plugin:
+" https://github.com/vim-jp/syntax-vim-ex
+
 " Automatically generated keyword lists: {{{1
 " vimTodo: contains common special-notices for comments {{{2
 " Use the vimCommentGroup cluster to add your own.
@@ -53,7 +56,7 @@ syn match   vimOption contained "t_k;"
 " AutoCmd Events {{{2
 
 syn case ignore
-exe 'syn keyword vimAutoEvent contained ' .. vim#syntax#GetEventNames()
+exe 'syn keyword vimAutoEvent contained ' .. vim#syntax#getEventNames()
 
 " Highlight commonly used Groupnames {{{2
 syn keyword vimGroup contained  Comment Constant String Character Number Boolean Float Identifier Function Statement Conditional Repeat Label Operator Keyword Exception PreProc Include Define Macro PreCondit Type StorageClass Structure Typedef Special SpecialChar Tag Delimiter SpecialComment Debug Underlined Ignore Error Todo
@@ -65,7 +68,7 @@ syn case match
 
 " Function Names {{{2
 
-exe 'syn keyword vimFuncName contained ' .. vim#syntax#GetBuiltinFunctionNames()
+exe 'syn keyword vimFuncName contained ' .. vim#syntax#getBuiltinFunctionNames()
 "}}}1
 " Special Vim Highlighting (not automatic) {{{1
 " commands not picked up by the generator (due to non-standard format) {{{2
@@ -558,9 +561,9 @@ syn sync maxlines=60
 "         ..FileType Autocommands for "*"
 "         ..Syntax Autocommands for "*"
 "         ..function <SNR>24_SynSet[25]
-"         ..script ~/.vim/pack/markdown/opt/markdown/syntax/markdown.vim[835]
+"         ..script ~/.vim/pack/mine/opt/markdown/syntax/markdown.vim[835]
 "         ..function markdown#highlightLanguages[57]
-"         ..script ~/.vim/pack/vim/opt/vim/syntax/vim.vim:
+"         ..script ~/.vim/pack/mine/opt/vim/syntax/vim.vim:
 "     line  553:
 "     E403: syntax sync: line continuations pattern specified twice
 "

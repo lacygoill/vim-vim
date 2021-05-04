@@ -85,7 +85,7 @@ def Break(bang: bool) #{{{2
         return
     endif
     var line: string = getline('.')
-    var word: string = matchstr(line, '^\s*\zs\w\+')
+    var word: string = line->matchstr('^\s*\zs\w\+')
         ->Normalize()
     if index(['if', 'elseif', 'try', 'echohl'], word) >= 0
         # Perform this transformation:{{{
@@ -110,7 +110,7 @@ def Break(bang: bool) #{{{2
         #         \ | echo 'do sth'
         #         \ | endif
         #}}}
-        sil exe 'keepj keepp s/' .. PAT_BAR .. '/\="\r\\ | "/ge'
+        exe 'sil keepj keepp s/' .. PAT_BAR .. '/\="\r\\ | "/ge'
     else
         return
     endif
@@ -120,7 +120,7 @@ enddef
 
 def Join(bang: bool) #{{{2
     var line: string = getline('.')
-    var word: string = matchstr(line, '^\s*\zs\w\+')
+    var word: string = line->matchstr('^\s*\zs\w\+')
         ->Normalize()
     if index(['au', 'if', 'try'], word) == -1 || line =~ '\C\send\%(if\|try\)\s*$'
         return

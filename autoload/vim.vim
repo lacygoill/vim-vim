@@ -37,7 +37,7 @@ def vim#getHelpurl() #{{{1
     endif
     var fname: string = expand('%:p')->fnamemodify(':t')
     var tag: string = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
-    if &ft == 'help'
+    if &filetype == 'help'
         close
     endif
     win_gotoid(winid)

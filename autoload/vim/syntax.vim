@@ -37,7 +37,7 @@ def vim#syntax#tweakCluster( #{{{1
     exe cmd
 enddef
 
-def vim#syntax#GetBuiltinFunctionNames(): string #{{{1
+def vim#syntax#getBuiltinFunctionNames(): string #{{{1
     if builtin_funcnames != ''
         return builtin_funcnames
     else
@@ -49,7 +49,7 @@ def vim#syntax#GetBuiltinFunctionNames(): string #{{{1
     return builtin_funcnames
 enddef
 
-def vim#syntax#GetEventNames(): string #{{{1
+def vim#syntax#getEventNames(): string #{{{1
     if event_names != ''
         return event_names
     else

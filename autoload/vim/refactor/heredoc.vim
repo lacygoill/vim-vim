@@ -178,7 +178,7 @@ def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
         m[1] == "'"
         ?     m[0]->substitute("''", "'", 'g')
         :     eval('"' .. m[0] .. '"')
-    var Rep: func = (m: list<string>) => add(items, Item(m))[0]
+    var Rep: func = (m: list<string>) => items->add(Item(m))[0]
     list_value->substitute(pat, Rep, 'g')
     return items
         ->map((_, v: string): string =>

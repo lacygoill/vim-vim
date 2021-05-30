@@ -12,35 +12,16 @@ var term_option_names_nonkw: string
 var event_names: string
 var builtin_funcnames: string
 
-def vim#syntax#tweakCluster( #{{{1
-    acluster: string,
-    group: string,
-    action = 'include'
-)
-    var cluster: string = acluster->substitute('^@', '', '')
-    cluster = execute('syn list @' .. cluster)
-        ->split('\n')
-        ->filter((_, v: string): bool => v =~ '^' .. cluster)[0]
-    var cmd: string = 'syn cluster '
-        .. cluster
-            ->substitute('cluster=', 'contains=', '')
-            ->substitute('\s*$', '', '')
-    if action == 'include'
-        cmd ..= ',' .. group
-    elseif action == 'exclude'
-        cmd = cmd
-            ->substitute(
-                # pattern matching the group to remove be it:{{{
-                #
-                #  - in the middle of the cluster
-                #  - at the start of the cluster
-                #  - in the end of the cluster
-                #
-                #}}}
-                printf(',%s\|=\zs%s,\|,%s$', group, group, group),
-                '', 'g')
+def vim#syntax#getBuiltinFunctionNames(): string #{{{1
+    if builtin_funcnames != ''
+        return builtin_funcnames
+    else
+        builtin_funcnames = getcompletion('*', 'function')
+            ->filter((_, v: string): bool => v[0] =~ '[a-z]' && v !~ '#')
+            ->map((_, v: string): string => v->trim('()'))
+            ->join(' ')
     endif
-    exe cmd
+    return builtin_funcnames
 enddef
 
 def vim#syntax#getCommandNames(): string #{{{1
@@ -79,7 +60,24 @@ def vim#syntax#getCommandNames(): string #{{{1
         final
         finall[y]
     END
-    for cmd in deprecated + need_fix
+    # `:s` is a special case.{{{
+    #
+    # We need it to be matched with a `:syn match` rule;
+    # not with a `:syn keyword` one.
+    # Otherwise, we wouldn't be able to  correctly highlight the `s:` scope in a
+    # function's header; that's because a  `:syn keyword` rule has priority over
+    # all `:syn match` rules, regardless of the orderin which they're installed.
+    #
+    # ---
+    #
+    # Don't worry, `:s` will be still highlighted thanks to a `:syn match` rule.
+    #}}}
+    # Same thing for `:g`.
+    var problematic: list<string> =<< trim END
+        g[lobal]
+        s[ubstitute]
+    END
+    for cmd in deprecated + need_fix + problematic
         var i: number = cmds->index(cmd)
         if i == -1
             continue
@@ -96,6 +94,16 @@ def vim#syntax#getCommandNames(): string #{{{1
 
     command_names = cmds->join()
     return command_names
+enddef
+
+def vim#syntax#getEventNames(): string #{{{1
+    if event_names != ''
+        return event_names
+    else
+        event_names = getcompletion('*', 'event')
+            ->join(' ')
+    endif
+    return event_names
 enddef
 
 def vim#syntax#getOptionNames(): string #{{{1
@@ -158,27 +166,5 @@ def vim#syntax#getTerminalOptionNames(keyword_only = true): string #{{{1
         term_option_names_nonkw = '/' .. opts->join('\|') .. '/'
         return term_option_names_nonkw
     endif
-enddef
-
-def vim#syntax#getEventNames(): string #{{{1
-    if event_names != ''
-        return event_names
-    else
-        event_names = getcompletion('*', 'event')
-            ->join(' ')
-    endif
-    return event_names
-enddef
-
-def vim#syntax#getBuiltinFunctionNames(): string #{{{1
-    if builtin_funcnames != ''
-        return builtin_funcnames
-    else
-        builtin_funcnames = getcompletion('*', 'function')
-            ->filter((_, v: string): bool => v[0] =~ '[a-z]' && v !~ '#')
-            ->map((_, v: string): string => trim(v, '()'))
-            ->join(' ')
-    endif
-    return builtin_funcnames
 enddef
 

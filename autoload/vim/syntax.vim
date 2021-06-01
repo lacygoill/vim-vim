@@ -3,7 +3,11 @@ vim9script noclear
 if exists('loaded') | finish | endif
 var loaded = true
 
+# Config {{{1
+
 const OPTFILE: list<string> = readfile($VIMRUNTIME .. '/doc/options.txt')
+
+# Init {{{1
 
 var command_names: string
 var option_names: string
@@ -12,19 +16,45 @@ var term_option_names_nonkw: string
 var event_names: string
 var builtin_funcnames: string
 
-def vim#syntax#getBuiltinFunctionNames(): string #{{{1
+# list of functions whose names can be confused with Ex commands
+# (e.g. `:eval` vs `eval()`)
+var ambiguous_funcnames: list<string>
+def Ambiguous()
+    var cmds: list<string> = getcompletion('', 'command')
+        ->filter((_, v: string): bool => v =~ '^[a-z]')
+    var funcs: list<string> = getcompletion('', 'function')
+        ->map((_, v: string): string => v->substitute('()\=', '', '$'))
+    for func in funcs
+        if cmds->index(func) != -1
+            ambiguous_funcnames->add(func)
+        endif
+    endfor
+enddef
+Ambiguous()
+
+# Functions {{{1
+def vim#syntax#getBuiltinFunctionNames(only_ambiguous = false): string #{{{2
+    if only_ambiguous
+        return ambiguous_funcnames->join('\|')
+    endif
+
     if builtin_funcnames != ''
         return builtin_funcnames
     else
-        builtin_funcnames = getcompletion('*', 'function')
+        var builtin_funclist: list<string> = getcompletion('*', 'function')
+            # keep only builtin functions
             ->filter((_, v: string): bool => v[0] =~ '[a-z]' && v !~ '#')
-            ->map((_, v: string): string => v->trim('()'))
-            ->join(' ')
+            # remove noisy trailing parens
+            ->map((_, v: string): string => v->substitute('()\=$', '', ''))
+            # if a function name can also be parsed as an Ex command, remove it
+            ->filter((_, v: string): bool => ambiguous_funcnames->index(v) == - 1)
+
+        builtin_funcnames = builtin_funclist->join(' ')
     endif
     return builtin_funcnames
 enddef
 
-def vim#syntax#getCommandNames(): string #{{{1
+def vim#syntax#getCommandNames(): string #{{{2
     if command_names != ''
         return command_names
     endif
@@ -96,7 +126,7 @@ def vim#syntax#getCommandNames(): string #{{{1
     return command_names
 enddef
 
-def vim#syntax#getEventNames(): string #{{{1
+def vim#syntax#getEventNames(): string #{{{2
     if event_names != ''
         return event_names
     else
@@ -106,7 +136,7 @@ def vim#syntax#getEventNames(): string #{{{1
     return event_names
 enddef
 
-def vim#syntax#getOptionNames(): string #{{{1
+def vim#syntax#getOptionNames(): string #{{{2
     if option_names != ''
         return option_names
     endif
@@ -143,7 +173,7 @@ def vim#syntax#getOptionNames(): string #{{{1
     return option_names
 enddef
 
-def vim#syntax#getTerminalOptionNames(keyword_only = true): string #{{{1
+def vim#syntax#getTerminalOptionNames(keyword_only = true): string #{{{2
     if keyword_only
         if term_option_names != ''
             return term_option_names

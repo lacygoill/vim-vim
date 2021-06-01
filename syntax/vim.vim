@@ -34,7 +34,56 @@ endif
 # the code here and there.
 #}}}
 
-# TODO(lgc): We should highlight `#{{\@!` as an error; not as a comment.
+# TODO(lgc): Try  to nest  all function  names, option  names, event  names, ...
+# inside  a match.   Use  the match  to  assert some  lookarounds  and fix  some
+# spurious highlightings.  For  example, try to assert that an  option name must
+# always  be preceded  by `&`  or `:set`,  and a  function name  must always  be
+# followed by a paren.
+
+# TODO(lgc): We should check the validity of data types.
+# TODO(lgc): We should highlight obvious  errors (e.g. missing whitespace around
+# binary operators; look for "error" at  `:h vim9`).  Usage of `:let` instead of
+# `:var` to declare a variable.
+
+# TODO(lgc): Should we highlight these commands like rules similar to `vimVar`?{{{
+#
+#    - :lockvar
+#    - :unlet
+#    - :unlockvar
+#}}}
+# TODO(lgc): Extend the syntax rule(s) for `:echo` to these commands:{{{
+#
+#    - :caddexpr
+#    - :cexpr
+#    - :cgetexpr
+#    - :echoconsole
+#    - :echoerr
+#    - :echomsg
+#    - :echon
+#    - :elseif
+#    - :eval
+#    - :execute
+#    - :for
+#    - :if
+#    - :laddexpr
+#    - :lexpr
+#    - :lgetexpr
+#    - :return
+#    - :throw
+#    - :while
+#
+# Rationale: It makes sense; they all expect an expression as argument.
+# This should help  reducing the number of occurrences where  a variable name is
+# not highlighted correctly.
+#
+# ---
+#
+# Unrelated: Find the commands which expect a pattern as argument.
+# Highlight it as a string.
+#
+# Also, find the commands which expect another command as argument.
+# Handle them specially and consistently.
+#}}}
 # TODO(lgc): When referring to a variable (outside of a declaration), it might not be highlighted correctly.{{{
 #
 # Worse, it might be highlighted as an Ex command name if you chose a name which
@@ -56,129 +105,17 @@ endif
 #                ^------^
 #                   ✘
 #}}}
-# TODO(lgc): Highlight argument names inside :def function header.{{{
-#}}}
-# TODO(lgc): Highlight statements inside lambda.{{{
-#
-#     var lambda = {
-#         command1
-#         command2
-#         ...
-#     }
-#}}}
-# TODO(lgc): Are there good things to borrow from this plugin?{{{
-#
-# https://github.com/vim-jp/syntax-vim-ex
-#}}}
 
-# Automatically generated keyword lists: {{{1
-# vimTodo: contains common special-notices for comments {{{2
-# Use the `vimCommentGroup` cluster to add your own.
+# All vimCommands are contained by vimIsCommand. {{{1
 
-syn keyword vimTodo FIXME TODO contained
-syn cluster vimCommentGroup contains=@Spell,vimCommentString,vimCommentTitle,vimTodo
-
-# regular vim commands {{{2
-
-exe 'syn keyword vimCommand ' .. vim#syntax#getCommandNames() .. ' contained'
-syn match vimCommand '\<z[-+^.=]\=\>' contained
-
-# vimOptions are caught only when contained in a vimSet {{{2
-
-exe 'syn keyword vimOption ' .. vim#syntax#getOptionNames() .. ' contained'
-
-# termcap codes (which can also be set) {{{2
-
-exe 'syn keyword vimOption ' .. vim#syntax#getTerminalOptionNames() .. ' contained'
-exe 'syn match vimOption ' .. vim#syntax#getTerminalOptionNames(false) .. ' contained'
-
-# AutoCmd Events {{{2
-
-syn case ignore
-exe 'syn keyword vimAutoEvent ' .. vim#syntax#getEventNames() .. ' contained'
-syn case match
-
-# Highlight commonly used Groupnames {{{2
-
-syn case ignore
-syn keyword vimGroup contained
-    \ Comment Constant String Character Number Boolean Float Identifier Function
-    \ Statement Conditional Repeat Label Operator Keyword Exception PreProc
-    \ Include Define Macro PreCondit Type StorageClass Structure Typedef Special
-    \ SpecialChar Tag Delimiter SpecialComment Debug Underlined Ignore Error Todo
-syn case match
-
-# Default highlighting groups {{{2
-
-syn case ignore
-syn keyword vimHLGroup contained
-    \ ColorColumn Cursor CursorColumn CursorIM CursorLine CursorLineNr DiffAdd
-    \ DiffChange DiffDelete DiffText Directory EndOfBuffer ErrorMsg FoldColumn
-    \ Folded IncSearch LineNr LineNrAbove LineNrBelow MatchParen Menu ModeMsg
-    \ MoreMsg NonText Normal Pmenu PmenuSbar PmenuSel PmenuThumb Question
-    \ QuickFixLine Scrollbar Search SignColumn SpecialKey SpellBad SpellCap
-    \ SpellLocal SpellRare StatusLine StatusLineNC StatusLineTerm TabLine
-    \ TabLineFill TabLineSel Terminal Title Tooltip VertSplit Visual VisualNOS
-    \ WarningMsg WildMenu
-
-syn match vimHLGroup 'Conceal' contained
-syn case match
-
-# Function Names {{{2
-
-exe 'syn keyword vimFuncName ' .. vim#syntax#getBuiltinFunctionNames() .. ' contained'
-#}}}1
-# Special Vim Highlighting (not automatic) {{{1
-# Numbers {{{2
-
-syn match vimNumber '\<\d\+\%(\.\d\+\%([eE][+-]\=\d\+\)\=\)\='
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '-\d\+\%(\.\d\+\%([eE][+-]\=\d\+\)\=\)\='
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '\<0[xX]\x\+'
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '\%(^\|\A\)\zs#\x\{6}'
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '\<0[zZ][a-zA-Z0-9.]\+'
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '0o\=[0-7]\+'
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-syn match vimNumber '0b[01]\+'
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-# It is possible to use single quotes inside numbers to make them easier to read:{{{
-#
-#     echo 1'000'000
-#
-# Highlight them as part of a number.
-#}}}
-syn match vimNumber /\d\@1<='\d\@=/
-    \ nextgroup=vimGlobal,vimSubst,vimCommand,vimComment
-    \ skipwhite
-
-# All vimCommands are contained by vimIsCommand. {{{2
-
-# NOTE(lgc): We have to  include our custom `vimDataType` group  inside the list
-# of groups passed to the `nextgroup`  argument, so that the types are correctly
+# We  have  to  include  our  custom `vimDataType`  group  inside  the  list  of
+# groups passed  to the `nextgroup`  argument, so  that the types  are correctly
 # highlighted in a declaration/assignment at the script level.
 syn match vimCmdSep '[:|]\+'
     \ skipwhite
     \ nextgroup=
     \vimAddress,vimAutoCmd,vimDataType,vimEcho,vimExtCmd,vimFilter,vimIsCommand
-    \,vimLet,vimMap,vimMark,vimSet,vimSyntax,vimUserCmd
+    \,vimDeclare,vimMap,vimMark,vimSet,vimSyntax,vimUserCommand
 
 # The default plugin includes `vimSynType` inside `@vimFuncBodyList`.  Don't do the same.{{{
 #
@@ -216,15 +153,212 @@ syn match vimCmdSep '[:|]\+'
 #           we don't want that to be highlighted as a command
 #         \ ...
 #}}}
+# Order: `vimIsCommand` must be sourced *before* `vimAugroup`.
 syn match vimIsCommand '\<\h\w*\>\%($\|[! \t]\@=\)' contains=vimCommand
-syn match vimVar '\<\h[a-zA-Z0-9#_]*\>' contained
-syn match vimVar '\<[bwglstav]:\h[a-zA-Z0-9#_]*\>'
+
+# vimTodo: contains common special-notices for comments {{{1
+# Use the `vimCommentGroup` cluster to add your own.
+
+syn keyword vimTodo FIXME TODO contained
+syn cluster vimCommentGroup contains=@Spell,vimCommentString,vimCommentTitle,vimDictLiteralLegacyError,vimTodo
+
+# regular vim commands {{{1
+
+exe 'syn keyword vimCommand ' .. vim#syntax#getCommandNames() .. ' contained'
+syn match vimCommand '\<z[-+^.=]\=\>' contained
+
+# vimOptions are caught only when contained in a vimSet {{{1
+
+exe 'syn keyword vimOption ' .. vim#syntax#getOptionNames() .. ' contained'
+
 # Note that an option value can be written right at the start of the line.{{{
 #
 #     &guioptions = 'M'
 #     ^---------^
 #}}}
-syn match vimVar '\%(^\|\s\)\zs&[a-z_0-9:]\+\>' containedin=vimFuncBody
+syn match vimOption '\%(^\|[ \t([]\)\@1<=&[a-zA-Z0-9_:]\+\>' containedin=vimFuncBody,vimOperParen
+
+# termcap codes (which can also be set) {{{1
+
+exe 'syn keyword vimOption ' .. vim#syntax#getTerminalOptionNames() .. ' contained'
+exe 'syn match vimOption ' .. vim#syntax#getTerminalOptionNames(false) .. ' contained'
+
+# Augroup: vimAugroupError removed because long augroups caused sync'ing problems. {{{1
+# Trade-off: Increasing synclines with slower editing vs augroup END error checking.
+
+syn cluster vimAugroupList contains=
+    \vimAddress,vimAugroup,vimAutoCmd,vimCallFuncName,vimCmplxRepeat,vimComment
+    \,vimContinue,vimCtrlChar,vimDict,vimEnvVar,vimExecute,vimFilter
+    \,vimBuiltinFuncName,vimFuncVar,vimUserFunctionHeader,vimFunctionError
+    \,vimIsCommand,vimLegacyFunction,vimDeclare,vimMap,vimMark,vimNotFunc
+    \,vimNotation,vimNumber,vimOper,vimOperParen,vimOption,vimRegion,vimRegister
+    \,vimSet,vimSpecFile,vimString,vimSubst,vimSynLine,vimUserCommand
+
+# Actually, the case of `END` does not matter.{{{
+#
+# Also, the name of an augroup can contain any keyword character.
+# But in both cases, I prefer to enforce widely adopted conventions.
+#}}}
+# `keepend` is necessary to prevent `vimIsCommand` from consuming `END`.{{{
+#
+# This would force Vim to wrongly extend  the augroup/region to find a new match
+# for the region's end.
+#}}}
+# The  `end`  pattern needs  `^\s*`  to  prevent a  wrong  match  on a  possible
+# commented augroup inside the current augroup.
+syn region vimAugroup
+    \ start='\<aug\%[roup]\s\+\%(END\)\@!\h\%(\w\|-\)\+'
+    \ matchgroup=vimAugroupEnd
+    \ end='^\s*aug\%[roup]\s\+\zsEND\>'
+    \ containedin=vimFuncBody
+    \ contains=@vimAugroupList
+    \ keepend
+
+# Autocmd {{{1
+
+syn match vimAutoEventList '\%(!\s\+\)\=\%(\a\+,\)*\a\+'
+    \ contained
+    \ contains=vimAutoEvent
+    \ nextgroup=vimAutoCmdSpace
+
+syn match vimAutoCmdSpace '\s\+' contained nextgroup=vimAutoCmdSfxList
+syn match vimAutoCmdSfxList '\S*' contained nextgroup=vimAutoCmdMod skipwhite
+
+syn keyword vimAutoCmd au[tocmd] do[autocmd] doautoa[ll]
+    \ nextgroup=vimAutoEventList,vimAutocmdMod
+    \ skipwhite
+
+syn match vimAutoCmdMod '++\%(nested\|once\)'
+syn match vimAutoCmdMod '<nomodeline>' nextgroup=vimAutoEventList skipwhite
+
+# AutoCmd Events {{{1
+
+syn case ignore
+exe 'syn keyword vimAutoEvent ' .. vim#syntax#getEventNames() .. ' contained'
+syn case match
+
+# Highlight commonly used Groupnames {{{1
+
+syn case ignore
+syn keyword vimGroup contained
+    \ Comment Constant String Character Number Boolean Float Identifier Function
+    \ Statement Conditional Repeat Label Operator Keyword Exception PreProc
+    \ Include Define Macro PreCondit Type StorageClass Structure Typedef Special
+    \ SpecialChar Tag Delimiter SpecialComment Debug Underlined Ignore Error Todo
+syn case match
+
+# Default highlighting groups {{{1
+
+syn case ignore
+syn keyword vimHLGroup contained
+    \ ColorColumn Cursor CursorColumn CursorIM CursorLine CursorLineNr DiffAdd
+    \ DiffChange DiffDelete DiffText Directory EndOfBuffer ErrorMsg FoldColumn
+    \ Folded IncSearch LineNr LineNrAbove LineNrBelow MatchParen Menu ModeMsg
+    \ MoreMsg NonText Normal Pmenu PmenuSbar PmenuSel PmenuThumb Question
+    \ QuickFixLine Scrollbar Search SignColumn SpecialKey SpellBad SpellCap
+    \ SpellLocal SpellRare StatusLine StatusLineNC StatusLineTerm TabLine
+    \ TabLineFill TabLineSel Terminal Title Tooltip VertSplit Visual VisualNOS
+    \ WarningMsg WildMenu
+
+syn match vimHLGroup 'Conceal' contained
+syn case match
+
+# Function Names {{{1
+
+# Install a `:syn keyword` rule to highlight *most* function names.{{{
+#
+# Except  the ones  which  are too  ambiguous,  and match  an  Ex command  (e.g.
+# `eval()`, `execute()`, `function()`, ...).
+#
+# Rationale: We don't want to wrongly highlight `:eval` as a function.
+# To remove any ambiguity, we need to assert the presence of an open paren after
+# the function name.  That's only possible with a separate `:syn match` rule.
+#
+# NOTE: We  don't  want to  assert  the  paren  for  *all* function  names;  the
+# necessary regex would be too costly.
+#}}}
+exe 'syn keyword vimBuiltinFuncName '
+    .. vim#syntax#getBuiltinFunctionNames()
+    .. ' contained'
+
+exe 'syn match vimBuiltinFuncName '
+    .. '/\<\%('
+    ..     vim#syntax#getBuiltinFunctionNames(true)
+    .. '\)'
+    .. '(\@='
+    .. '/'
+    .. ' contained'
+
+# Numbers {{{1
+
+syn match vimNumber '\<\d\+\%(\.\d\+\%([eE][+-]\=\d\+\)\=\)\='
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '-\d\+\%(\.\d\+\%([eE][+-]\=\d\+\)\=\)\='
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '\<0[xX]\x\+'
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '\%(^\|\A\)\zs#\x\{6}'
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '\<0[zZ][a-zA-Z0-9.]\+'
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '0o\=[0-7]\+'
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+syn match vimNumber '0b[01]\+'
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+# It is possible to use single quotes inside numbers to make them easier to read:{{{
+#
+#     echo 1'000'000
+#
+# Highlight them as part of a number.
+#}}}
+syn match vimNumber /\d\@1<='\d\@=/
+    \ nextgroup=vimCommand,vimComment,vimGlobal,vimSubst
+    \ skipwhite
+
+# Var/Const/Final {{{1
+
+syn keyword vimDeclare cons[t] final unl[et] var
+    \ nextgroup=vimFuncVar,vimHereDoc,vimVar
+    \ skipwhite
+
+# NOTE: In the default syntax plugin, `vimLetHereDoc` contains `vimComment` and `vim9Comment`.{{{
+#
+# That's wrong.
+#
+# It causes  any text  following a double  quote at  the start of  a line  to be
+# highlighted as a Vim comment.  But that's  not a comment; that's a part of the
+# heredoc; i.e. a string.
+#
+# Besides, we apply various styles inside comments, such as bold or italics.
+# It would be unexpected and distracting to see those styles in a heredoc.
+#}}}
+syn region vimHereDoc
+    \ matchgroup=vimHereDocStart
+    \ start='=<<\s\+\%(trim\>\)\=\s*\z(\L\S*\)'
+    \ matchgroup=vimHereDocStop
+    \ end='^\s*\z1\s*$'
+
+# Variables {{{1
+
+syn match vimVar '\<\h[a-zA-Z0-9#_]*\>' contained
+syn match vimConstant /\<[A-Z_][A-Z0-9#_]*\>/ containedin=vimVar
+# don't highlight `_` as a constant
+syn match vimVarIgnored /\<_\>/ containedin=vimVar
+syn match vimVar '\<[bwgstv]:\h[a-zA-Z0-9_#]*\>'
 
 # We need to allow `true/false/null` to start
 #   inside `vimFuncBody`:{{{
@@ -245,41 +379,25 @@ syn match vimVar '\%(^\|\s\)\zs&[a-z_0-9:]\+\>' containedin=vimFuncBody
 #              ^--^
 #     enddef
 #}}}
-syn match vimVar '\%(v:\)\=\<\%(null\|true\|false\)\>' containedin=vimFuncBody,vimOperParen
+syn keyword vimBool false true containedin=vimFuncBody,vimOperParen,vimDict
+syn keyword vimNull null containedin=vimFuncBody,vimOperParen,vimDict
 
-syn match vimFBVar '\<[bwglstav]:\h[a-zA-Z0-9#_]*\>' contained
+syn match vimFBVar '\<[bwgstv]:\h[a-zA-Z0-9#_]*\>' contained
 
-# Filetypes {{{2
+syn match vimEnvVar '\$\I\i*'
+syn match vimEnvVar '\${\I\i*}'
+
+# Filetypes {{{1
 
 syn match vimFiletype '\<filet\%[ype]\%(\s\+\I\i*\)*'
-    \ contains=vimFTCmd,vimFTOption,vimFTError
+    \ contains=vimFTCmd,vimFTError,vimFTOption
     \ skipwhite
 
 syn match vimFTError '\I\i*' contained
 syn keyword vimFTCmd filet[ype] contained
 syn keyword vimFTOption detect indent off on plugin contained
 
-# Augroup : vimAugroupError removed because long augroups caused sync'ing problems. {{{2
-# Trade-off: Increasing synclines with slower editing vs augroup END error checking.
-
-syn cluster vimAugroupList contains=
-    \vimAddress,vimAugroup,vimAutoCmd,vimCmplxRepeat,vimComment,vimContinue
-    \,vimCtrlChar,vimExecute,vimFilter,vimFuncName,vimFuncVar,vimFunction
-    \,vimFunctionError,vimIsCommand,vimLegacyFunction,vimLet,vimMap,vimMark
-    \,vimNotFunc,vimNotFunc,vimNotation,vimNumber,vimOper,vimOperParen,vimOption
-    \,vimRegion,vimRegister,vimSet,vimSetEqual,vimSpecFile,vimString,vimSubst
-    \,vimSynLine,vimUserCmd
-
-syn region vimAugroup
-    \ matchgroup=vimAugroupKey
-    \ start='\<aug\%[roup]\>\ze\s\+\K\k*'
-    \ end='\<aug\%[roup]\>\ze\s\+[eE][nN][dD]\>'
-    \ contains=vimAutoCmd,@vimAugroupList
-
-syn match vimAugroup 'aug\%[roup]!' contains=vimAugroupKey
-syn keyword vimAugroupKey aug[roup] contained
-
-# Operators: {{{2
+# Operators {{{1
 
 # `vimLineComment` needs to be in `@vimOperGroup`.{{{
 #
@@ -287,15 +405,16 @@ syn keyword vimAugroupKey aug[roup] contained
 # dictionary inside a function.
 #}}}
 syn cluster vimOperGroup contains=
-    \vimComment,vimContinue,vimEnvvar,vimFunc,vimFuncVar,vimLineComment
-    \,vimNumber,vimOper,vimOperParen,vimRegister,vimString
+    \vimComment,vimContinue,vimDict,vimEnvVar,vimCallFuncName,vimFBVar
+    \,vimFuncVar,vimLineComment,vimNumber,vimOper,vimOperParen,vimRegister
+    \,vimString,vimVar
 
-syn match vimOper '\%(==\|!=\|>=\|<=\|=\~\|!\~\|>\|<\|=\)[?#]\{0,2}'
-    \ nextgroup=vimString,vimSpecFile
+syn match vimOper '\s\@1<=\%(==\|!=\|>=\|<=\|=\~\|!\~\|>\|<\|=\)[?#]\{0,2}\s\@='
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
-syn match vimOper '\%(\<is\|\<isnot\)[?#]\{0,2}\>'
-    \ nextgroup=vimString,vimSpecFile
+syn match vimOper '\s\@1<=\%(is\|isnot\)\s\@='
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
 # We want to assert the presence of surrounding whitespace.{{{
@@ -332,27 +451,34 @@ syn match vimOper '\%(\<is\|\<isnot\)[?#]\{0,2}\>'
 # in an `!~` operator.
 #}}}
 syn match vimOper '\s\@1<=\%(||\|&&\|[-+*/%!]=\=\|\.\.=\=\|??\=\)\s\@='
-    \ nextgroup=vimString,vimSpecFile
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
 # methods and increment/decrement operators
 syn match vimOper '->\|++\|--'
-    \ nextgroup=vimString,vimSpecFile
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
 # logical not{{{
-#
-# The  negative lookahead  is necessary  to not  break the  highlighting of  `~`
-# inside the operator `!~`.
 #
 # The positive  lookbehind is necessary to  not highlight `!` when  used after a
 # command name:
 #
 #     packadd!
 #            ^
+#
+# ---
+#
+# The  negative lookahead  is necessary  to not  break the  highlighting of  `~`
+# inside the operator `!~`.
+#
+# ---
+#
+# The `!*` quantifier  is necessary to support  a double not (`!!`),  which is a
+# syntax we sometimes use to turn any type of expression into a boolean.
 #}}}
-syn match vimOper '\s\@<=!\~\@!'
-    \ nextgroup=vimString,vimSpecFile
+syn match vimOper '\s\@1<=![~=]\@!!*'
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
 # support `:` when used inside conditional `?:` operator
@@ -378,28 +504,66 @@ syn match vimOper '\s\@<=!\~\@!'
 #         ^
 #}}}
 syn match vimOper '\%(?[^[]*\s\|^\s\+\)\@<=:\s\@='
-    \ nextgroup=vimString,vimSpecFile
+    \ nextgroup=vimSpecFile,vimString
     \ skipwhite
 
 syn region vimOperParen
     \ matchgroup=vimParenSep
     \ start='('
     \ end=')'
-    \ contains=vimoperStar,@vimOperGroup
-
-syn region vimOperParen
-    \ matchgroup=vimSep
-    \ start='#\={'
-    \ end='}'
     \ contains=@vimOperGroup
-    \ nextgroup=vimVar,vimFuncVar
 
 syn match vimOperError ')'
 
-# Functions : Tag is provided for those who wish to highlight tagged functions {{{2
+# Dictionaries {{{1
+
+# Order: This rule must be sourced before `vimBlock`.
+syn region vimDict
+    \ matchgroup=vimSep
+    \ start='{'
+    \ end='}'
+    \ containedin=vimFuncBody
+    \ contains=@vimOperGroup
+    \ nextgroup=vimFuncVar,vimVar
+
+# in literal dictionary, highlight keys as strings
+syn match vimDictLiteralKey /\%(^\|[ \t{]\)\@1<=[^ {]\+\ze:\@=/
+    \ contained
+    \ containedin=vimDict
+    \ contains=vimDictLiteralKeyValid
+    \ keepend
+
+# check the validity of the key
+syn match vimDictLiteralKeyValid /\%(\w\|-\)\+/
+    \ contained
+    \ containedin=vimDictLiteralKey
+
+# support expressions as keys (`[expr]`).
+syn match vimDictExprKey /\[.*]:\@=/
+    \ contained
+    \ containedin=vimDict
+    \ contains=@vimOperGroup
+    \ keepend
+
+# dict.key
+#     syn match vimDictDotKey '\<\w\+\.\w\+\>' containedin=vimVar contains=vimDictDot
+#     syn match vimDictDot '\.' containedin=vimDictDotKey
+#     hi link vimDictDot Delimiter
+#     hi link vimDictDotKey vimVar
+# TODO(lgc): Commented because it might wrongly highlight some command arguments:{{{
+#
+# Examples:
+#
+#     packadd! fzf.vim
+#     e file.txt
+#
+# Revisit this issue once we've handled the highlighting of variables.
+#}}}
+#}}}1
+# Functions {{{1
 
 syn cluster vimFuncList
-    \ contains=vimCommand,vimFunctionError,vimFuncKey,Tag,vimFuncScope
+    \ contains=vimCommand,vimDefKey,vimFuncScope,vimFunctionError
 
 # `vimLineComment` needs to be in `@vimFuncBodyList`.{{{
 #
@@ -407,16 +571,16 @@ syn cluster vimFuncList
 # function.
 #}}}
 syn cluster vimFuncBodyList contains=
-    \vimAbb,vimAddress,vimAugroupKey,vimAutoCmd,vimCmplxRepeat,vimComment
-    \,vimContinue,vimCtrlChar,vimEcho,vimEchoHL,vimEnvvar,vimExecute,vimFBVar
-    \,vimFunc,vimFuncVar,vimFunction,vimGlobal,vimHighlight,vimIsCommand
-    \,vimIsCommand,vimLegacyFunction,vimLet,vimLetHereDoc,vimLineComment,vimMap
+    \vimAbb,vimAddress,vimAutoCmd,vimCmplxRepeat,vimComment,vimContinue
+    \,vimCtrlChar,vimEcho,vimEchoHL,vimEnvVar,vimExecute,vimFBVar
+    \,vimCallFuncName,vimFuncVar,vimUserFunctionHeader,vimGlobal,vimHighlight
+    \,vimIsCommand,vimLegacyFunction,vimDeclare,vimHereDoc,vimLineComment,vimMap
     \,vimMark,vimNorm,vimNotFunc,vimNotation,vimNumber,vimOper,vimOperParen
     \,vimRegion,vimRegister,vimSearch,vimSet,vimSpecFile,vimString,vimSubst
-    \,vimSynLine,vimUnmap,vimUserCommand
+    \,vimSynLine,vimUnmap
 
-exe 'syn match vimFunction'
-    .. ' /\C'
+exe 'syn match vimUserFunctionHeader'
+    .. ' /'
     .. '\<def!\='
     .. '\s\+\%([gs]:\)\='
     .. '\%(\i\|[#.]\)*'
@@ -426,7 +590,7 @@ exe 'syn match vimFunction'
     .. ' nextgroup=vimFuncBody'
 
 exe 'syn match vimLegacyFunction'
-    .. ' /\C'
+    .. ' /'
     .. '\<fu\%[nction]!\='
     .. '\s\+\%([gs]:\)\='
     .. '\%(\i\|[#.]\)*'
@@ -449,13 +613,22 @@ syn region vimLegacyFuncBody
     \ contained
 
 syn match vimFuncVar 'a:\%(\K\k*\|\d\+\)' contained
-syn match vimFuncScope '\C\<[gs]:' contained
-syn keyword vimFuncKey def fu[nction] contained
+syn match vimFuncScope '\<[gs]:' contained
+syn keyword vimDefKey def fu[nction] contained
 syn match vimFuncBlank '\s\+' contained
 
 syn keyword vimPattern start skip end contained
 
-# Special Filenames, Modifiers, Extension Removal: {{{2
+syn match vimLambdaArrow /\s\@1<==>\%(\s\|\n\)\@=/ containedin=vimFuncBody,vimOperParen
+
+syn region vimBlock
+    \ matchgroup=Statement
+    \ start=/\s\+=>\s\+{\|^\s*{$/
+    \ end='^\s*}'
+    \ containedin=vimFuncBody,vimOperParen
+    \ contains=vimBuiltinFuncName,vimCommand,vimOper,vimOperParen,vimString,vimVar
+
+# Special Filenames, Modifiers, Extension Removal {{{1
 
 syn match vimSpecFile '<c\%(word\|WORD\)>' nextgroup=vimSpecFileMod,vimSubst
 
@@ -489,29 +662,27 @@ syn match vimSpecFile '\s%<'ms=s+1,me=e-1 nextgroup=vimSpecFileMod,vimSubst
 syn match vimSpecFile '#\d\+\|[#%]<\>' nextgroup=vimSpecFileMod,vimSubst
 syn match vimSpecFileMod '\%(:[phtre]\)\+' contained
 
-# User-Specified Commands: {{{2
+# User-Specified Commands {{{1
 
 syn cluster vimUserCmdList contains=
     \vimAddress,vimAutoCmd,vimCmplxRepeat,vimComment,vimCtrlChar,vimEscapeBrace
-    \,vimFunc,vimFuncName,vimFunction,vimFunctionError,vimHighlight,vimIsCommand
-    \,vimLegacyFunction,vimLet,vimMark,vimNotation,vimNumber,vimOper,vimRegion
-    \,vimRegister,vimSet,vimSetEqual,vimSetString,vimSpecFile,vimString,vimSubst
-    \,vimSubstRange,vimSubstRep,vimSynLine,vimSyntax
+    \,vimCallFuncName,vimBuiltinFuncName,vimUserFunctionHeader,vimFunctionError
+    \,vimHighlight,vimIsCommand,vimLegacyFunction,vimDeclare,vimMark,vimNotation
+    \,vimNumber,vimOper,vimRegion,vimRegister,vimSet,vimSetString,vimSpecFile
+    \,vimString,vimSubst,vimSubstRange,vimSubstRep,vimSynLine,vimSyntax
 
-syn keyword vimUserCommand com[mand] contained
-
-syn match vimUserCmd '\<com\%[mand]!\=\>.*$' contains=
-    \@vimUserCmdList,vimComFilter,vimUserAttrb,vimUserAttrbError,vimUserCommand
+syn match vimUserCommand '\<com\%[mand]\>.*$' contains=
+    \@vimUserCmdList,vimComFilter,vimUserAttrb,vimUserAttrbError
 
 syn match vimUserAttrbError '-\a\+\ze\s' contained
 
 syn match vimUserAttrb '-nargs=[01*?+]'
     \ contained
-    \ contains=vimUserAttrbKey,vimOper
+    \ contains=vimOper,vimUserAttrbKey
 
 syn match vimUserAttrb '-complete='
     \ contained
-    \ contains=vimUserAttrbKey,vimOper
+    \ contains=vimOper,vimUserAttrbKey
     \ nextgroup=vimUserAttrbCmplt,vimUserCmdError
 
 syn match vimUserAttrb
@@ -553,14 +724,14 @@ syn keyword vimUserAttrbCmplt contained
     \ nextgroup=vimUserAttrbCmpltFunc,vimUserCmdError
 
 syn match vimUserAttrbCmpltFunc
-    \ ',\%([sS]:\|<[sS][iI][dD]>\)\=\%(\h\w*\%(#\h\w*\)\+\|\h\w*\)'hs=s+1
+    \ ',\%(s:\)\=\%(\h\w*\%(#\h\w*\)\+\|\h\w*\)'hs=s+1
     \ contained
     \ nextgroup=vimUserCmdError
 
 syn case match
 syn match vimUserAttrbCmplt 'custom,\u\w*' contained
 
-# Lower Priority Comments: after some vim commands... {{{2
+# Lower Priority Comments: after some vim commands... {{{1
 
 syn region vimCommentString start='\%(\S\s\+\)\@<="' end='"' contained oneline
 
@@ -569,24 +740,18 @@ syn match vimComment '\s\@1<=#.*$'
     \ contains=@vimCommentGroup
     \ excludenl
 
-syn match vimComment '\%(\<endif\)\@5<=\s\+#.*$'
-    \ contains=@vimCommentGroup
-
-syn match vimComment '\%(\<else\)\@4<=\s\+#.*$'
-    \ contains=@vimCommentGroup
-
 # comment inside expression
-syn match vimComment '\s\zs#.*$'ms=s+1
+syn match vimComment '\s\@1<=#.*$'ms=s+1
     \ contains=@vimCommentGroup
 
 syn match vimComment '^\s*#.*$' contains=@vimCommentGroup
 
-# Environment Variables: {{{2
+# In legacy Vim script, a literal dictionary starts with `#{`.
+# This syntax is no longer valid in Vim9.
+# Highlight it as an error.
+syn match vimDictLiteralLegacyError '#{{\@!'
 
-syn match vimEnvvar '\$\I\i*'
-syn match vimEnvvar '\${\I\i*}'
-
-# In-String Specials: {{{2
+# In-String Specials {{{1
 
 # Try to catch strings, if nothing else matches (therefore it must precede the others!)
 # vimEscapeBrace handles ["]  []"] (ie. "s don't terminate string inside [])
@@ -665,12 +830,12 @@ syn region vimString
 syn match vimString '"[^"]*\\$' contained nextgroup=vimStringCont skipnl
 syn match vimStringCont '\%(\\\\\|.\)\{-}[^\\]"' contained
 
-# Substitutions: {{{2
+# Substitutions {{{1
 
 syn cluster vimSubstList contains=
     \vimNotation,vimPatRegion,vimPatSep,vimPatSepErr,vimSubstRange,vimSubstTwoBS
 
-syn cluster vimSubstRepList contains=vimSubstSubstr,vimSubstTwoBS,vimNotation
+syn cluster vimSubstRepList contains=vimNotation,vimSubstSubstr,vimSubstTwoBS
 syn cluster vimSubstList add=vimCollection
 
 exe 'syn match vimSubst'
@@ -683,20 +848,26 @@ exe 'syn match vimSubst'
 
 # We don't recognize `(` as a delimiter.{{{
 #
-# That's  because – sometimes  – it would  cause `substitute` to  be wrongly
-# highlighted as an Ex command.  Specifically, when used as a method.
+# That's because  – sometimes  – it  would cause `s`  or `substitute`  to be
+# wrongly highlighted as an Ex command.
 #
-# Examples:
+# Example:
 #
-#     fu Func()
-#         eval substitute('aaa', 'b', 'c', '')->OtherFunc()
+#     def A()
+#         B(s)
+#     enddef
+#
+# Also, when used as a method:
+#
+#     fu A()
+#         eval substitute('aaa', 'b', 'c', '')->B()
 #     endfu
 #
-#     fu Func()
-#         call substitute('aaa', 'b', 'c', '')->OtherFunc()
+#     fu A()
+#         call substitute('aaa', 'b', 'c', '')->B()
 #     endfu
 #
-#     fu Func()
+#     fu A()
 #         return histget(':')->execute()->substitute('\n', '', '')
 #     endfu
 #
@@ -713,7 +884,7 @@ exe 'syn match vimSubst'
 #                ^       ^           ^
 #                ✔       ✔           ✔
 #}}}
-syn match vimSubst /\%(^\|[^\\"']\)\<\%(s\%[ubstitut]\|substitute(\@!\)\>[:#[:alpha:]"']\@!/
+syn match vimSubst /\%(^\|[^\\"'(]\)\<\%(s\%[ubstitut]\|substitute(\@!\)\>[:#[:alpha:]"']\@!/
     \ contained
     \ nextgroup=vimSubstPat
 
@@ -745,7 +916,7 @@ syn region vimSubstRep4
     \ oneline
 
 syn region vimCollection
-    \ start='\\\@<!\['
+    \ start='\\\@1<!\['
     \ skip='\\\['
     \ end='\]'
     \ contained
@@ -769,11 +940,11 @@ syn match vimSubstTwoBS '\\\\' contained
 syn match vimSubstFlagErr '[^< \t\r|]\+' contained contains=vimSubstFlags
 syn match vimSubstFlags '[&cegiIlnpr#]\+' contained
 
-# 'String': {{{2
+# 'String' {{{1
 
 syn match vimString /[^(,]'[^']\{-}\zs'/
 
-# Marks, Registers, Addresses, Filters: {{{2
+# Marks, Registers, Addresses, Filters {{{1
 
 syn match vimMark /'[a-zA-Z0-9]\ze[-+,!]/
     \ nextgroup=vimFilter,vimMarkNumber,vimSubst
@@ -818,32 +989,47 @@ syn match vimComFilter /|!!\=[^"]\{-}\%(|\|\ze"\|$\)/
     \ contained
     \ contains=vimOper,vimSpecFile
 
-# Complex Repeats: (`:h complex-repeat`) {{{2
+# Complex Repeats: (`:h complex-repeat`) {{{1
 
 syn match vimCmplxRepeat '[^a-zA-Z_/\\()]\@1<=q[0-9a-zA-Z"]\>'
 syn match vimCmplxRepeat '@[0-9a-z".=@:]\ze\%($\|[^a-zA-Z]\>\)'
 
-# Set command and associated set-options (vimOptions) with comment {{{2
+# Set command and associated set-options (vimOptions) with comment {{{1
 
+# The positive lookahead in the skip argument is necessary in case the last character is escaped.{{{
+#
+#     \ skip='\%(\\\\\)*\\[| \t].\@='
+#                               ^--^
+#
+# Example:
+#
+#     set showbreak=↪\_
+#                     ^
+#                     actually represent a trailing space character
+#
+# Here, without the positive lookahead, the trailing space would be skipped, and
+# the end of  the region would not be  found.  I guess `$` doesn't  work in this
+# case because of `oneline`.
+#}}}
 syn region vimSet
     \ matchgroup=vimCommand
     \ start='\<\%(setl\%[ocal]\|setg\%[lobal]\|se\%[t]\)\>'
-    \ skip='\%(\\\\\)*\\.'
-    \ end='$' end='|'
+    \ skip='\%(\\\\\)*\\[| \t]\n\@!'
+    \ end='|\|$'
     \ matchgroup=vimNotation
     \ end='<[cC][rR]>'
-    \ contains=vimSetEqual,vimOption,vimErrSetting,vimComment,vimSetString,vimSetMod
+    \ contains=vimComment,vimErrSetting,vimOption,vimSetEqual,vimSetMod,vimSetString
     \ keepend
     \ oneline
 
 syn region vimSetEqual
     \ matchgroup=Operator
-    \ start='[=:]\|[-+^]='
+    \ start='[-+^]\=='
     \ matchgroup=NONE
-    \ skip='\\\\\|\\\s'
+    \ skip='\%(\\\\\)*\\[| \t]\n\@!'
     \ end='[| \t]\|$'me=e-1
     \ contained
-    \ contains=vimCtrlChar,vimEnvvar,vimNotation,vimSetSep
+    \ contains=vimCtrlChar,vimEnvVar,vimNotation,vimSetSep
     \ oneline
 
 syn region vimSetString
@@ -856,53 +1042,14 @@ syn region vimSetString
 syn match vimSetSep '[,:]' contained
 syn match vimSetMod '&vim\=\|[!&?<]\|all&' contained
 
-# Let/Var/Const/Final: {{{2
-
-syn keyword vimLet let unl[et] var cons[t] final
-    \ nextgroup=vimVar,vimFuncVar,vimLetHereDoc
-    \ skipwhite
-
-# NOTE: In the default syntax plugin, `vimLetHereDoc` contains `vimComment` and `vim9Comment`.{{{
-#
-# That's wrong.
-#
-# It causes  any text  following a double  quote at  the start of  a line  to be
-# highlighted as a Vim comment.  But that's  not a comment; that's a part of the
-# heredoc; i.e. a string.
-#
-# Besides, we apply various styles inside comments, such as bold or italics.
-# It would be unexpected and distracting to see those styles in a heredoc.
-#}}}
-syn region vimLetHereDoc
-    \ matchgroup=vimLetHereDocStart
-    \ start='=<<\s\+\%(trim\>\)\=\s*\z(\L\S*\)'
-    \ matchgroup=vimLetHereDocStop
-    \ end='^\s*\z1\s*$'
-
-# Abbreviations: {{{2
+# Abbreviations {{{1
 
 syn keyword vimAbb
     \ ab[breviate] ca[bbrev] inorea[bbrev] cnorea[bbrev] norea[bbrev] ia[bbrev]
-    \ nextgroup=vimMapMod,vimMapLhs
+    \ nextgroup=vimMapLhs,vimMapMod
     \ skipwhite
 
-# Autocmd: {{{2
-
-syn match vimAutoEventList '\%(!\s\+\)\=\%(\a\+,\)*\a\+'
-    \ contained
-    \ contains=vimAutoEvent
-    \ nextgroup=vimAutoCmdSpace
-
-syn match vimAutoCmdSpace '\s\+' contained nextgroup=vimAutoCmdSfxList
-syn match vimAutoCmdSfxList '\S*' contained nextgroup=vimAutoCmdMod skipwhite
-
-syn keyword vimAutoCmd au[tocmd] do[autocmd] doautoa[ll]
-    \ nextgroup=vimAutoEventList
-    \ skipwhite
-
-syn match vimAutoCmdMod '\%(++\)\=\%(once\|nested\)'
-
-# Echo And Execute: -- prefer strings! {{{2
+# Echo And Execute: -- prefer strings! {{{1
 
 # `vimOper` and `vimOperParen` need to be allowed to start in a `vimEcho` region.{{{
 #
@@ -926,36 +1073,37 @@ syn region vimEcho
     \ skip='\%(\\\\\)*\\|'
     \ matchgroup=vimCmdSep
     \ end='$\||'
-    \ contains=vimComment,vimFunc,vimFuncVar,vimNumber,vimOper,vimOperParen,vimString,vimVar
     \ excludenl
     \ oneline
+    \ contains=vimCallFuncName,vimComment,vimEnvVar,vimFuncVar,vimNumber,vimOper
+    \,vimOperParen,vimString,vimVar
 
 syn region vimExecute
     \ matchgroup=vimCommand
     \ start='\<exe\%[cute]\>'
     \ skip='\%(\\\\\)*\\|'
     \ end='$\||\|<[cC][rR]>'
-    \ contains=vimFuncVar,vimIsCommand,vimOper,vimNotation,vimOperParen,vimString,vimVar
+    \ contains=vimCallFuncName,vimFuncVar,vimIsCommand,vimNotation,vimOper,vimOperParen,vimString,vimVar
     \ excludenl
     \ oneline
 
 syn match vimEchoHL 'echohl\='
-    \ nextgroup=vimGroup,vimHLGroup,vimEchoHLNone
+    \ nextgroup=vimEchoHLNone,vimGroup,vimHLGroup
     \ skipwhite
 
 syn case ignore
 syn keyword vimEchoHLNone none
 syn case match
 
-# Maps: {{{2
+# Maps {{{1
 
-syn match vimMap '\<map\>!\=\ze\s*[^(]' nextgroup=vimMapMod,vimMapLhs skipwhite
+syn match vimMap '\<map\>!\=\ze\s*[^(]' nextgroup=vimMapLhs,vimMapMod skipwhite
 
 syn keyword vimMap
     \ cm[ap] cno[remap] im[ap] ino[remap] lm[ap] ln[oremap] nm[ap] nn[oremap]
     \ no[remap] om[ap] ono[remap] smap snor[emap] tno[remap] tm[ap] vm[ap]
     \ vn[oremap] xm[ap] xn[oremap]
-    \ nextgroup=vimMapBang,vimMapMod,vimMapLhs
+    \ nextgroup=vimMapBang,vimMapLhs,vimMapMod
     \ skipwhite
 
 syn keyword vimMap
@@ -965,16 +1113,16 @@ syn keyword vimMap
 syn keyword vimUnmap
     \ cu[nmap] iu[nmap] lu[nmap] nun[map] ou[nmap] sunm[ap]
     \ tunma[p] unm[ap] unm[ap] vu[nmap] xu[nmap]
-    \ nextgroup=vimMapBang,vimMapMod,vimMapLhs
+    \ nextgroup=vimMapBang,vimMapLhs,vimMapMod
     \ skipwhite
 
 syn match vimMapLhs '\S\+'
     \ contained
-    \ contains=vimNotation,vimCtrlChar
+    \ contains=vimCtrlChar,vimNotation
     \ nextgroup=vimMapRhs
     \ skipwhite
 
-syn match vimMapBang '!' contained nextgroup=vimMapMod,vimMapLhs skipwhite
+syn match vimMapBang '!' contained nextgroup=vimMapLhs,vimMapMod skipwhite
 
 exe 'syn match vimMapMod '
     .. '/'
@@ -985,13 +1133,13 @@ exe 'syn match vimMapMod '
     .. '\)\+' .. '>'
     .. '/'
     .. ' contained'
-    .. ' contains=vimMapModKey,vimMapModErr'
-    .. ' nextgroup=vimMapMod,vimMapLhs'
+    .. ' contains=vimMapModErr,vimMapModKey'
+    .. ' nextgroup=vimMapLhs,vimMapMod'
     .. ' skipwhite'
 
 syn match vimMapRhs '.*'
     \ contained
-    \ contains=vimNotation,vimCtrlChar
+    \ contains=vimCtrlChar,vimNotation
     \ nextgroup=vimMapRhsExtend
     \ skipnl
 
@@ -1002,10 +1150,10 @@ syn keyword vimMapModKey contained
     \ buffer expr leader localleader nowait plug script sid silent unique
 syn case match
 
-# Menus: {{{2
+# Menus {{{1
 
 syn cluster vimMenuList
-    \ contains=vimMenuBang,vimMenuPriority,vimMenuName,vimMenuMod
+    \ contains=vimMenuBang,vimMenuMod,vimMenuName,vimMenuPriority
 
 syn keyword vimCommand
     \ am[enu] an[oremenu] aun[menu] cme[nu] cnoreme[nu] cunme[nu] ime[nu]
@@ -1016,7 +1164,7 @@ syn keyword vimCommand
 
 syn match vimMenuName '[^ \t\\<]\+'
     \ contained
-    \ nextgroup=vimMenuNameMore,vimMenuMap
+    \ nextgroup=vimMenuMap,vimMenuNameMore
 
 syn match vimMenuPriority '\d\+\%(\.\d\+\)*'
     \ contained
@@ -1030,7 +1178,7 @@ syn match vimMenuNameMore '\c\\\s\|<tab>\|\\\.'
 
 syn match vimMenuMod '\c<\%(script\|silent\)\+>'
     \ contained
-    \ contains=vimMapModKey,vimMapModErr
+    \ contains=vimMapModErr,vimMapModKey
     \ nextgroup=@vimMenuList
     \ skipwhite
 
@@ -1038,11 +1186,11 @@ syn match vimMenuMap '\s' contained nextgroup=vimMenuRhs skipwhite
 
 syn match vimMenuRhs '.*$'
     \ contained
-    \ contains=vimString,vimComment,vimIsCommand
+    \ contains=vimComment,vimIsCommand,vimString
 
 syn match vimMenuBang '!' contained nextgroup=@vimMenuList skipwhite
 
-# Angle-Bracket Notation: {{{2
+# Angle-Bracket Notation {{{1
 
 syn case ignore
 exe 'syn match vimNotation'
@@ -1094,14 +1242,18 @@ syn match vimNotation
 syn match vimBracket '[\\<>]' contained
 syn case match
 
-# User Function Highlighting: {{{2
-# (following Gautam Iyer's suggestion)
+# User Function Highlighting {{{1
 
-exe 'syn match vimFunc '
-    .. '/'
+# call to any kind of function (builtin + custom)
+exe 'syn match vimCallFuncName '
+    .. '/\<'
     .. '\%('
-    .. '\%([sSgGbBwWtTlL]:\|<[sS][iI][dD]>\)' .. '\='
-    .. '\%(\w\+\.\)*' .. '\I[a-zA-Z0-9_.]*'
+    # with an explicit scope, the name can start with and contain any word character
+    ..     '[gs]:\w\+'
+    .. '\|'
+    # otherwise, it must start with a head of word (i.e. word character except digit);
+    # afterward, it can contain any word character and `#` (for autoload functions)
+    ..     '\h\%(\w\|#\)*'
     .. '\)'
     # Do *not* allow whitespace between the function name and the open paren.{{{
     #
@@ -1117,24 +1269,29 @@ exe 'syn match vimFunc '
     #}}}
     .. '\ze('
     .. '/'
-    .. ' contains=vimFuncName,vimUserFunc,vimExecute'
+    .. ' contains=vimBuiltinFuncName,vimUserCallFuncName'
 
-exe 'syn match vimUserFunc '
-    .. '/'
+# call to custom function
+exe 'syn match vimUserCallFuncName '
+    .. '/\<'
     .. '\%('
-    .. '\%([sSgGbBwWtTlL]:\|<[sS][iI][dD]>\)' .. '\='
-    .. '\%(\w\+\.\)*'
-    .. '\I[a-zA-Z0-9_.]*'
+    ..     '[gs]:\w\+'
+    .. '\|'
+    # without an explicit scope, the name of the function must not start with a lowercase
+    # (that's reserved to builtin functions)
+    ..     '[A-Z_]\w*'
+    .. '\|'
+    # unless it's an autoload function
+    ..     '\h\w*#\%(\w\|#\)*'
     .. '\)'
-    .. '\|' .. '\<\u[a-zA-Z0-9.]*\>'
-    .. '\|' .. '\<if\>'
+    .. '\ze('
     .. '/'
     .. ' contained'
     .. ' contains=vimNotation'
 
-# User Command Highlighting: {{{2
+# User Command Highlighting {{{1
 
-exe 'syn match vimUsrCmd '
+exe 'syn match vimUserCommandName '
     .. '"^\s*\zs\u\%(\w*\)\@>'
     .. '\%('
     # Don't highlight a custom Vim function invoked without ":call".{{{
@@ -1190,7 +1347,7 @@ exe 'syn match vimUsrCmd '
     # Actually,  in this  simple example,  there is  no issue,  probably because
     # `Key`  is in  `vimOperParen`.   But  if the  start  of  the dictionary  is
     # far  away,  then  the  syntax  *might*  fail  to  parse  `Key`  as  inside
-    # `vimOperParen`, which can cause `Key` to be parsed as `vimUsrCmd`.
+    # `vimOperParen`, which can cause `Key` to be parsed as `vimUserCommandName`.
     # To reproduce, we  need – approximately – twice the  number assigned to
     # `:syn sync maxlines`:
     #
@@ -1205,11 +1362,11 @@ exe 'syn match vimUsrCmd '
     .. '\)\@!"'
 
 # Necessary for a custom command name to be highlighted inside a function.
-syn cluster vimFuncBodyList add=vimUsrCmd
+syn cluster vimFuncBodyList add=vimUserCommandName
 
-# Data Types: {{{2
+# Data Types {{{1
 
-# Order: This section must be sourced *after* the `vimFunc` and `vimUserFunc` rules.{{{
+# Order: This section must be sourced *after* the `vimCallFuncName` and `vimUserCallFuncName` rules.{{{
 #
 # Otherwise, a funcref return type in a function's header would sometimes not be
 # highlighted in its entirety:
@@ -1236,50 +1393,103 @@ syn cluster vimFuncBodyList add=vimUsrCmd
 #     (arg: type) => expr
 #     (): type => expr
 #}}}
-exe 'syn match vimDataType /\C'
-    # positive lookbehind
-    .. '\%(' .. ': \+' .. '\)\@<='
+exe 'syn match vimDataType /'
+    .. '\%(' .. ':\s\+' .. '\)'
     .. '\%('
                # match simple types
-    ..         '\<\%(any\|blob\|bool\|channel\|float\|job\|number\|string\|void\)\>'
-               # match composite types
-    .. '\|' .. '\<\%(dict\|list\)<[a-z<>( ,:]*>'
-               # match `func` type
-    .. '\|' .. '\<func\>[^=]*'
-    .. '\)'
+    ..         'any\|blob\|bool\|channel\|float\|func\|job\|number\|string\|void'
+    .. '\)\>'
     # positive lookahead
-    .. '\%(' .. '$\| \+#\| \+=[ ><\n]\|[),]' .. '\)\@='
+    .. '\%('
+    # the type could be at the end of a line (e.g. variable declaration without assignment)
+    ..     '$'
+    # it could be followed by an inline comment
+    ..     '\|\s\+#'
+    # it could be followed by an assignment operator (`=`, `=<<`)
+    # or by an arrow (in a lambda, after its arguments)
+    ..     '\|\s\+=[ ><\n]'
+    # it could be followed by a paren or a comma (in a function's header),
+    # or by a colon (in the case of `func`)
+    ..     '\|[),:]'
+    .. '\)\@='
     .. '/ containedin=vimFuncBody,vimOperParen'
     #                             ^----------^
     #                             for `:def` function header
 
-# Errors And Warnings: {{{2
+# Complex data types need to be handled separately.
+# First, let's deal with their leading colon.
+syn match vimDataTypeComplexColon /:\s\+\ze\%(\%(list\|dict\)<\|func(\)/
+    \ containedin=vimFuncBody,vimOperParen
+    \ nextgroup=vimDataTypeListDict,vimDataTypeFuncref
+
+# Now, we can deal with the rest.
+# But a list/dict/funcref type can contain  itself; this is too tricky to handle
+# with a  match and a  single regex.   It's much simpler  to let Vim  handle the
+# possible recursion with a region which can contain itself.
+syn region vimDataTypeListDict
+    "\ TODO(lgc): why matchgroup?
+    "\ And why is it applied *on top of* the start, while it *replaces* the end?
+    \ matchgroup=vimDataType
+    \ start=/\<\%(list\|dict\)</
+    \ end=/>/
+    "\ asserts that `list<...>` and `dict<...>` can only match if they follow `: `
+    \ contained
+    \ contains=vimDataTypeListDict
+    \ nextgroup=vimDataTypeCastComplexEnd
+
+syn region vimDataTypeFuncref
+    "\ TODO(lgc): why matchgroup?
+    \ matchgroup=vimDataType
+    \ start=/\<func(/
+    \ end=/)/
+    \ contained
+    \ contains=vimDataTypeFuncref
+    \ nextgroup=vimDataTypeCastComplexEnd
+
+# support `:h type-casting` for simple types
+exe 'syn match vimDataTypeCast /'
+    .. '<\%('
+    ..         'any\|blob\|bool\|channel\|float\|func\|job\|number\|string\|void'
+    .. '\)>'
+    .. '\%([bgtw]:\)\@='
+    .. '/ containedin=vimFuncBody,vimOperParen,vimEcho'
+
+# support `:h type-casting` for complex types
+syn match vimDataTypeCastComplexStart /<\ze\%(\%(list\|dict\)<\|func(\)/
+    \ containedin=vimFuncBody,vimOperParen
+    \ nextgroup=vimDataTypeListDict,vimDataTypeFuncref
+
+syn match vimDataTypeCastComplexEnd />/
+    \ contained
+    \ containedin=vimDataTypeListDict,vimDataTypeFuncref
+
+# Errors And Warnings {{{1
 
 syn match vimFunctionError '\s\zs[a-z0-9]\i\{-}\ze\s*('
     \ contained
-    \ contains=vimFuncKey,vimFuncBlank
+    \ contains=vimDefKey,vimFuncBlank
 
 exe 'syn match vimFunctionError '
     .. '/'
-    .. '\s\zs\%(<[sS][iI][dD]>\|[sSgGbBwWtTlL]:\)'
+    .. '\s\zs\%([gs]:\)'
     .. '\d\i\{-}\ze\s*('
     .. '/'
     .. ' contained'
-    .. ' contains=vimFuncKey,vimFuncBlank'
+    .. ' contains=vimDefKey,vimFuncBlank'
 syn match vimElseIfErr '\<else\s\+if\>'
 syn match vimBufnrWarn /\<bufnr\s*(\s*["']\.['"]\s*)/
 
 syn match vimNotFunc
     \ '\<if\>\|\<el\%[seif]\>\|\<return\>\|\<while\>'
-    \ nextgroup=vimOper,vimOperParen,vimVar,vimFunc,vimNotation
+    \ nextgroup=vimCallFuncName,vimNotation,vimOper,vimOperParen,vimVar
     \ skipwhite
 
-# Norm: {{{2
+# Norm {{{1
 
 syn match vimNorm '\<norm\%[al]\>!\=' nextgroup=vimNormCmds skipwhite
 syn match vimNormCmds '.*$' contained
 
-# Syntax: {{{2
+# Syntax {{{1
 
 # Order: This rule must be sourced *before* the one setting `vimHiGroup`.{{{
 #
@@ -1310,12 +1520,12 @@ syn match vimSynNextgroup 'nextgroup=' contained nextgroup=vimGroupList
 
 syn match vimSyntax '\<sy\%[ntax]\>'
     \ contains=vimCommand
-    \ nextgroup=vimSynType,vimComment
+    \ nextgroup=vimComment,vimSynType
     \ skipwhite
 
 syn cluster vimFuncBodyList add=vimSyntax
 
-# Syntax: case {{{2
+# Syntax: case {{{1
 
 syn keyword vimSynType contained
     \ case skipwhite
@@ -1324,13 +1534,13 @@ syn keyword vimSynType contained
 syn match vimSynCaseError '\i\+' contained
 syn keyword vimSynCase ignore match contained
 
-# Syntax: clear {{{2
+# Syntax: clear {{{1
 
 # `vimHiGroup` needs  to be in  the `nextgroup`  argument, so that  `{group}` is
 # highlighted in `syn clear {group}`.
 syn keyword vimSynType clear contained nextgroup=vimGroupList,vimHiGroup skipwhite
 
-# Syntax: cluster {{{2
+# Syntax: cluster {{{1
 
 syn keyword vimSynType cluster contained nextgroup=vimClusterName skipwhite
 
@@ -1347,20 +1557,20 @@ syn match vimGroupAdd 'add=' contained nextgroup=vimGroupList
 syn match vimGroupRem 'remove=' contained nextgroup=vimGroupList
 syn cluster vimFuncBodyList add=vimGroupAdd,vimGroupRem
 
-# Syntax: iskeyword {{{2
+# Syntax: iskeyword {{{1
 
 syn keyword vimSynType iskeyword contained nextgroup=vimIskList skipwhite
 syn match vimIskList '\S\+' contained contains=vimIskSep
 syn match vimIskSep ',' contained
 
-# Syntax: include {{{2
+# Syntax: include {{{1
 
 syn keyword vimSynType include contained nextgroup=vimGroupList skipwhite
 
-# Syntax: keyword {{{2
+# Syntax: keyword {{{1
 
 syn cluster vimSynKeyGroup
-    \ contains=vimSynNextgroup,vimSynKeyOpt,vimSynKeyContainedin
+    \ contains=vimSynKeyContainedin,vimSynKeyOpt,vimSynNextgroup
 
 syn keyword vimSynType keyword contained nextgroup=vimSynKeyRegion skipwhite
 
@@ -1379,7 +1589,7 @@ syn match vimSynKeyOpt
     \ '\%#=1\<\%(conceal\|contained\|transparent\|skipempty\|skipwhite\|skipnl\)\>'
     \ contained
 
-# Syntax: match {{{2
+# Syntax: match {{{1
 
 syn cluster vimSynMtchGroup contains=
     \vimComment,vimMtchComment,vimNotation,vimSynContains,vimSynError
@@ -1410,11 +1620,11 @@ syn match vimSynMtchOpt '\<cchar=' contained nextgroup=vimSynMtchCchar
 syn match vimSynMtchCchar '\S' contained
 syn cluster vimFuncBodyList add=vimSynMtchGroup
 
-# Syntax: off and on {{{2
+# Syntax: off and on {{{1
 
 syn keyword vimSynType enable list manual off on reset contained
 
-# Syntax: region {{{2
+# Syntax: region {{{1
 
 syn cluster vimSynRegPatGroup contains=
     \vimNotPatSep,vimNotation,vimPatRegion,vimPatSep,vimPatSepErr,vimSubstSubstr
@@ -1474,11 +1684,11 @@ syn region vimSynPatRange start='\[' skip='\\\\\|\\]' end=']' contained
 syn match vimSynNotPatRange '\\\\\|\\\[' contained
 syn match vimMtchComment '#[^#]\+$' contained
 
-# Syntax: sync {{{2
+# Syntax: sync {{{1
 
 syn keyword vimSynType sync
     \ contained
-    \ nextgroup=vimSyncC,vimSyncLines,vimSyncMatch,vimSyncError,vimSyncLinebreak,vimSyncLinecont,vimSyncRegion
+    \ nextgroup=vimSyncC,vimSyncError,vimSyncLinebreak,vimSyncLinecont,vimSyncLines,vimSyncMatch,vimSyncRegion
     \ skipwhite
 
 syn match vimSyncError '\i\+' contained
@@ -1507,21 +1717,21 @@ syn match vimSyncGroup '\h\w*'
 
 syn keyword vimSyncNone NONE contained
 
-# Additional IsCommand: here by reasons of precedence {{{2
+# Additional IsCommand: here by reasons of precedence {{{1
 
 syn match vimIsCommand '<Bar>\s*\a\+'
     \ contains=vimCommand,vimNotation
     \ transparent
 
-# Highlighting: {{{2
+# Highlighting {{{1
 
 syn cluster vimHighlightCluster
-    \ contains=vimHiLink,vimHiClear,vimHiKeyList,vimComment
+    \ contains=vimComment,vimHiClear,vimHiKeyList,vimHiLink
 
 syn match vimHiCtermError '\D\i*' contained
 
 syn match vimHighlight '\<hi\%[ghlight]\>'
-    \ nextgroup=vimHiBang,@vimHighlightCluster
+    \ nextgroup=@vimHighlightCluster,vimHiBang
     \ skipwhite
 
 syn match vimHiBang '!' contained nextgroup=@vimHighlightCluster skipwhite
@@ -1555,7 +1765,7 @@ syn match vimHiFontname '[a-zA-Z\-*]\+' contained
 syn match vimHiGuiFontname /'[a-zA-Z\-* ]\+'/ contained
 syn match vimHiGuiRgb '#\x\{6}' contained
 
-# Highlighting: hi group key=arg ... {{{2
+# Highlighting: hi group key=arg ... {{{1
 
 syn cluster vimHiCluster contains=
     \vimGroup,vimHiCTerm,vimHiCtermFgBg,vimHiCtermul,vimHiGroup,vimHiGui
@@ -1581,28 +1791,28 @@ syn match vimHiCTerm '\ccterm='he=e-1 contained nextgroup=vimHiAttribList
 
 syn match vimHiCtermFgBg '\ccterm[fb]g='he=e-1
     \ contained
-    \ nextgroup=vimHiNmbr,vimHiCtermColor,vimFgBgAttrib,vimHiCtermError
+    \ nextgroup=vimFgBgAttrib,vimHiCtermColor,vimHiCtermError,vimHiNmbr
 
 syn match vimHiCtermul '\cctermul='he=e-1
     \ contained
-    \ nextgroup=vimHiNmbr,vimHiCtermColor,vimFgBgAttrib,vimHiCtermError
+    \ nextgroup=vimFgBgAttrib,vimHiCtermColor,vimHiCtermError,vimHiNmbr
 
 syn match vimHiGui '\cgui='he=e-1 contained nextgroup=vimHiAttribList
 syn match vimHiGuiFont '\cfont='he=e-1 contained nextgroup=vimHiFontname
 
 syn match vimHiGuiFgBg '\cgui\%([fb]g\|sp\)='he=e-1
     \ contained
-    \ nextgroup=vimHiGroup,vimHiGuiFontname,vimHiGuiRgb,vimFgBgAttrib
+    \ nextgroup=vimFgBgAttrib,vimHiGroup,vimHiGuiFontname,vimHiGuiRgb
 
 syn match vimHiTermcap '\S\+' contained contains=vimNotation
 syn match vimHiNmbr '\d\+' contained
 
-# Highlight: clear {{{2
+# Highlight: clear {{{1
 
 # `skipwhite` is necessary for `{group}` to be highlighted in `hi clear {group}`.
 syn keyword vimHiClear clear contained nextgroup=vimHiGroup skipwhite
 
-# Highlight: link {{{2
+# Highlight: link {{{1
 # see tst24 (hi def vs hi) (Jul 06, 2018)
 
 exe 'syn region vimHiLink'
@@ -1618,16 +1828,15 @@ exe 'syn region vimHiLink'
 
 syn cluster vimFuncBodyList add=vimHiLink
 
-# Control Characters: {{{2
+# Control Characters {{{1
 
 syn match vimCtrlChar '[\x01-\x08\x0b\x0f-\x1f]'
 
-# Beginners - Patterns that involve ^ {{{2
+# Beginners - Patterns that involve ^ {{{1
 
-syn match vimLineComment '^[ \t:]\+#.*$'
-    \ contains=@vimCommentGroup
+syn match vimLineComment '^[ \t:]\+#.*$' contains=@vimCommentGroup
 
-# NOTE(lgc): We've tweaked the original rule.{{{
+# We've tweaked the original rule.{{{
 #
 # A title in a Vim9 comment was not highlighted.
 # https://github.com/vim/vim/issues/6599
@@ -1652,8 +1861,9 @@ syn match vimCommentTitle '#\s*\u\%(\w\|[()]\)*\%(\s\+\u\w*\)*:'hs=s+1
     \ contained
     \ contains=@vimCommentGroup
 
-syn match vimContinue '^\s*\\\s\+'
+syn match vimContinue '^\s*\\'
     \ nextgroup=vimSynContains,vimSynMtchGrp,vimSynNextgroup,vimSynReg,vimSynRegOpt
+    \ skipwhite
 
 syn region vimString
     \ start=/^\s*\\\z(['"]\)/
@@ -1663,7 +1873,7 @@ syn region vimString
     \ keepend
     \ oneline
 
-# Searches And Globals: {{{2
+# Searches And Globals {{{1
 
 syn match vimSearch '^\s*:[/?].*' contains=vimSearchDelim
 syn match vimSearchDelim '^\s*:\zs[/?]\|[/?]$' contained
@@ -1684,7 +1894,20 @@ syn region vimGlobal
     \ nextgroup=vimSubst
     \ skipwhite
 
-# Embedded Scripts:  {{{2
+# Patterns used as command arguments {{{1
+
+# Problem: A pattern can contain any text; in particular, an unbalanced paren is
+# possible.  But this breaks all the subsequent syntax highlighting.
+#
+# Solution: Make sure all patterns are highlighted as strings.
+# Let's start with a `:catch` pattern.
+#
+# NOTE: We  could  achieve  the  desired  result  with  a  single  rule,  and  a
+# lookbehind.  But it would be more costly.
+syn match vimCatch '\<catch\s\+/[^/]*/$' containedin=vimFuncBody contains=vimCatchPattern
+syn match vimCatchPattern '/.*/' contained
+
+# Embedded Scripts  {{{1
 
 unlet! b:current_syntax
 syn include @vimPythonScript syntax/python.vim
@@ -1732,32 +1955,11 @@ syn region vimLuaRegion
 
 syn cluster vimFuncBodyList add=vimLuaRegion
 
-# Synchronize (speed) {{{2
+# Synchronize (speed) {{{1
 
 syn sync maxlines=60
-# TODO(lgc): We need `silent!` to suppress a possible E403 error.{{{
-#
-# To reproduce, write this text in `/tmp/md.md`:
-# https://raw.githubusercontent.com/k-takata/minpac/master/README.md
-#
-# Then, open the `/tmp/md.md` file:
-#
-#     Error detected while processing BufRead Autocommands for "*.md"
-#         ..FileType Autocommands for "*"
-#         ..Syntax Autocommands for "*"
-#         ..function <SNR>24_SynSet[25]
-#         ..script ~/.vim/pack/mine/opt/markdown/syntax/markdown.vim[835]
-#         ..function markdown#highlightLanguages[57]
-#         ..script ~/.vim/pack/mine/opt/vim/syntax/vim.vim:
-#     line  553:
-#     E403: syntax sync: line continuations pattern specified twice
-#
-# Is  there something  wrong in  how we  syntax highlight  fenced codeblocks  in
-# markdown files?  Is there a better fix?
-#}}}
-sil! syn sync linecont '^\s\+\\'
-syn sync match vimAugroupSyncA groupthere NONE '\<aug\%[roup]\>\s\+[eE][nN][dD]'
-#}}}1
+syn sync linecont '^\s\+\\'
+syn sync match vimAugroupSyncA groupthere NONE '\<aug\%[roup]\>\s\+END'
 
 # Highlight Groups {{{1
 
@@ -1769,7 +1971,7 @@ hi link vimCommand Statement
 #
 # If you don't care about this distinction, you could get away with just:
 #
-#     hi link vimUsrCmd vimCommand
+#     hi link vimUserCommandName vimCommand
 #}}}
 # The guard makes sure the highlighting group is defined only if necessary.{{{
 #
@@ -1777,27 +1979,29 @@ hi link vimCommand Statement
 # `:syn` command), Vim has automatically created a highlight group with the same
 # name; but it's cleared:
 #
-#     vimUsrCmd      xxx cleared
+#     vimUserCommandName      xxx cleared
 #
 # That's why we don't write this:
 #
-#     if execute('hi vimUsrCmd') == ''
-#                                ^---^
-#                                  ✘
+#     if execute('hi vimUserCommandName') == ''
+#                                         ^---^
+#                                           ✘
 #}}}
-if execute('hi vimUsrCmd') =~ '\C\<cleared$'
+if execute('hi vimUserCommandName') =~ '\<cleared$'
     # TODO(lgc): If you intend  to extract the current script  into a standalone
     # plugin, move `Derive()` here (in an  `import/` subdir so that we can still
     # import it from other plugins).
     import Derive from 'lg/syntax.vim'
-    Derive('vimUsrCmd', 'vimCommand', 'term=italic cterm=italic gui=italic')
+    Derive('vimUserCallFuncName', 'Function', 'term=italic cterm=italic gui=italic')
+    Derive('vimUserCommandName', 'vimCommand', 'term=italic cterm=italic gui=italic')
+    Derive('vimUserFunctionHeader', 'Function', 'term=italic cterm=italic gui=italic')
 endif
 
 hi link vimCollClassErr vimError
 hi link vimErrSetting vimError
 hi link vimFTError vimError
 hi link vimFunctionError vimError
-hi link vimFunc vimError
+hi link vimCallFuncName vimError
 hi link vimHiAttribList vimError
 hi link vimHiCtermError vimError
 hi link vimHiKeyError vimError
@@ -1808,32 +2012,45 @@ hi link vimBufnrWarn vimWarn
 
 hi link vimAbb vimCommand
 hi link vimAddress vimMark
+hi link vimAugroupEnd Special
 hi link vimAugroupError vimError
-hi link vimAugroupKey vimCommand
 hi link vimAutoCmd vimCommand
 hi link vimAutoEvent Type
 hi link vimAutoCmdMod Special
+hi link vimBool Boolean
 hi link vimBracket Delimiter
+hi link vimCatch vimCommand
+hi link vimCatchPattern String
 hi link vimCmplxRepeat SpecialChar
 hi link vimComment Comment
 hi link vimCommentString vimString
 hi link vimCommentTitle PreProc
 hi link vimCondHL vimCommand
+hi link vimConstant Constant
 hi link vimContinue Special
 hi link vimCtrlChar SpecialChar
 hi link vimDataType Type
+hi link vimDataTypeCast vimDataType
+hi link vimDataTypeCastComplexEnd vimDataType
+hi link vimDataTypeCastComplexStart vimDataType
+hi link vimDataTypeComplexColon vimDataType
+hi link vimDataTypeFuncref vimDataType
+hi link vimDataTypeListDict vimDataType
+hi link vimDictLiteralKey Error
+hi link vimDictLiteralKeyValid String
+hi link vimDictLiteralLegacyError Error
 hi link vimEchoHLNone vimGroup
 hi link vimEchoHL vimCommand
 hi link vimElseIfErr Error
-hi link vimEnvvar PreProc
+hi link vimEnvVar vimVar
 hi link vimError Error
 hi link vimFBVar vimVar
 hi link vimFgBgAttrib vimHiAttrib
 hi link vimHiCtermul vimHiTerm
 hi link vimFTCmd vimCommand
 hi link vimFTOption vimSynType
-hi link vimFuncKey vimCommand
-hi link vimFuncName Function
+hi link vimDefKey vimCommand
+hi link vimBuiltinFuncName Function
 hi link vimFuncScope Special
 hi link vimFuncVar Identifier
 hi link vimGroupAdd vimSynOption
@@ -1856,10 +2073,11 @@ hi link vimHiStartStop vimHiTerm
 hi link vimHiTerm Type
 hi link vimHLGroup vimGroup
 hi link vimIskSep Delimiter
-hi link vimLet vimCommand
-hi link vimLetHereDoc vimString
-hi link vimLetHereDocStart Special
-hi link vimLetHereDocStop Special
+hi link vimLambdaArrow Delimiter
+hi link vimDeclare vimCommand
+hi link vimHereDoc vimString
+hi link vimHereDocStart Special
+hi link vimHereDocStop Special
 hi link vimLineComment vimComment
 hi link vimMapBang vimCommand
 hi link vimMapModKey vimFuncScope
@@ -1875,6 +2093,7 @@ hi link vimNorm vimCommand
 hi link vimNotation Special
 hi link vimNotFunc vimCommand
 hi link vimNotPatSep vimString
+hi link vimNull Constant
 hi link vimNumber Number
 hi link vimOperError Error
 hi link vimOper Operator
@@ -1939,8 +2158,6 @@ hi link vimUserAttrbKey vimOption
 hi link vimUserAttrb vimSpecial
 hi link vimUserAttrbError Error
 hi link vimUserCmdError Error
-hi link vimUserCommand vimCommand
-hi link vimUserFunc Normal
 hi link vimVar Identifier
 hi link vimWarn WarningMsg
 #}}}1

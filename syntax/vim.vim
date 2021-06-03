@@ -276,7 +276,7 @@ exe 'syn match vim9Option '
 # Variables {{{1
 
 syn keyword vim9Declare cons[t] final unl[et] var
-    \ nextgroup=vim9FuncVar,vim9HereDoc,vim9Var
+    \ nextgroup=vim9HereDoc,vim9Var
     \ skipwhite
 
 # NOTE: In the default syntax plugin, `vimLetHereDoc` contains `vimComment` and `vim9Comment`.{{{
@@ -335,10 +335,10 @@ syn keyword vim9Null null containedin=vim9FuncBody,vim9OperParen,vim9Dict
 syn cluster vim9AugroupList contains=
     \vim9Address,vim9Augroup,vim9AutoCmd,vim9BuiltinFuncName,vim9CallFuncName
     \,vim9CmplxRepeat,vim9Comment,vim9Continue,vim9CtrlChar,vim9Declare,vim9Dict
-    \,vim9EnvVar,vim9Execute,vim9Filter,vim9FuncVar,vim9FunctionError
-    \,vim9HereDoc,vim9IsCommand,vim9LegacyFunction,vim9Map,vim9Mark,vim9NotFunc
-    \,vim9Notation,vim9Number,vim9Oper,vim9OperParen,vim9Region,vim9Register
-    \,vim9Set,vim9SpecFile,vim9String,vim9Subst,vim9SynLine,vim9UserCommand
+    \,vim9EnvVar,vim9Execute,vim9Filter,vim9FunctionError,vim9HereDoc
+    \,vim9IsCommand,vim9LegacyFunction,vim9Map,vim9Mark,vim9NotFunc,vim9Notation
+    \,vim9Number,vim9Oper,vim9OperParen,vim9Region,vim9Register,vim9Set
+    \,vim9SpecFile,vim9String,vim9Subst,vim9SynLine,vim9UserCommand
     \,vim9UserFunctionHeader,@vim9DataTypeList
 
 # Actually, the case of `END` does not matter.{{{
@@ -495,8 +495,8 @@ syn keyword vim9FTOption detect indent off on plugin contained
 #}}}
 syn cluster vim9OperGroup contains=
     \vim9Comment,vim9Continue,vim9Dict,vim9EnvVar,vim9CallFuncName,vim9ScopedVar
-    \,vim9FuncVar,vim9LineComment,vim9Number,vim9Oper,vim9OperParen,vim9Register
-    \,vim9String,vim9Var
+    \,vim9LineComment,vim9Number,vim9Oper,vim9OperParen,vim9Register,vim9String
+    \,vim9Var
 
 syn match vim9Oper /\s\@1<=\%(==\|!=\|>=\|<=\|=\~\|!\~\|>\|<\|=\)[?#]\{0,2}\s\@=/
     \ nextgroup=vim9SpecFile,vim9String
@@ -618,7 +618,7 @@ syn region vim9Dict
     \ end=/}/
     \ containedin=vim9FuncBody
     \ contains=@vim9OperGroup
-    \ nextgroup=vim9FuncVar,vim9Var
+    \ nextgroup=vim9Var
 
 # in literal dictionary, highlight keys as strings
 syn match vim9DictLiteralKey /\%(^\|[ \t{]\)\@1<=[^ {]\+\ze\%(:\s\)\@=/
@@ -667,11 +667,11 @@ syn cluster vim9FuncList
 syn cluster vim9FuncBodyList contains=
     \vim9Abb,vim9Address,vim9AutoCmd,vim9CmplxRepeat,vim9Comment,vim9Continue
     \,vim9CtrlChar,vim9Echo,vim9EchoHL,vim9EnvVar,vim9Execute,vim9ScopedVar
-    \,vim9CallFuncName,vim9FuncVar,vim9UserFunctionHeader,vim9Global
-    \,vim9Highlight,vim9IsCommand,vim9LegacyFunction,vim9Declare,vim9HereDoc
-    \,vim9LineComment,vim9Map,vim9Mark,vim9Norm,vim9NotFunc,vim9Notation
-    \,vim9Number,vim9Oper,vim9OperParen,vim9Region,vim9Register,vim9Search
-    \,vim9Set,vim9SpecFile,vim9String,vim9Subst,vim9SynLine,vim9Unmap
+    \,vim9CallFuncName,vim9UserFunctionHeader,vim9Global,vim9Highlight
+    \,vim9IsCommand,vim9LegacyFunction,vim9Declare,vim9HereDoc,vim9LineComment
+    \,vim9Map,vim9Mark,vim9Norm,vim9NotFunc,vim9Notation,vim9Number,vim9Oper
+    \,vim9OperParen,vim9Region,vim9Register,vim9Search,vim9Set,vim9SpecFile
+    \,vim9String,vim9Subst,vim9SynLine,vim9Unmap
 
 exe 'syn match vim9UserFunctionHeader'
     .. ' /'
@@ -706,7 +706,6 @@ syn region vim9LegacyFuncBody
     \ end=/\<endf\%[unction]/
     \ contained
 
-syn match vim9FuncVar /a:\%(\K\k*\|\d\+\)/ contained
 syn match vim9FuncScope /\<[gs]:/ contained
 syn keyword vim9DefKey def fu[nction] contained
 syn match vim9FuncBlank /\s\+/ contained
@@ -1120,7 +1119,7 @@ syn region vim9Echo
     \ end=/$\||/
     \ excludenl
     \ oneline
-    \ contains=vim9CallFuncName,vim9Comment,vim9EnvVar,vim9FuncVar,vim9Number
+    \ contains=vim9CallFuncName,vim9Comment,vim9EnvVar,vim9Number
     \,vim9Oper,vim9OperParen,vim9String,vim9Var
 
 syn region vim9Execute
@@ -1130,7 +1129,7 @@ syn region vim9Execute
     \ end=/$\||\|<[cC][rR]>/
     \ excludenl
     \ oneline
-    \ contains=vim9CallFuncName,vim9FuncVar,vim9IsCommand,vim9Notation,vim9Oper
+    \ contains=vim9CallFuncName,vim9IsCommand,vim9Notation,vim9Oper
     \,vim9OperParen,vim9String,vim9Var
 
 syn match vim9EchoHL /echohl\=/
@@ -2087,7 +2086,6 @@ hi def link vim9FTOption vim9SynType
 hi def link vim9DefKey vim9Command
 hi def link vim9BuiltinFuncName Function
 hi def link vim9FuncScope Special
-hi def link vim9FuncVar Identifier
 hi def link vim9GroupAdd vim9SynOption
 hi def link vim9GroupName vim9Group
 hi def link vim9GroupRem vim9SynOption

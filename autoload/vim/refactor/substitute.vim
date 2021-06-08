@@ -22,7 +22,7 @@ const PAT: string =
 # Interface {{{1
 def vim#refactor#substitute#main(type: any = ''): string #{{{2
     if typename(type) == 'string' && type == ''
-        &opfunc = 'vim#refactor#substitute#main'
+        &operatorfunc = 'vim#refactor#substitute#main'
         return 'g@l'
     endif
     var view: dict<number> = winsaveview()

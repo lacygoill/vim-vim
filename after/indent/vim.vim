@@ -5,11 +5,11 @@ vim9script
 # It's  annoying  when  you try  to  insert  a  backslash  in front  of  several
 # consecutive lines, from visual-block mode.  It breaks the process.
 #}}}
-setl indk-=0\\
+setl indentkeys-=0\\
 # Don't re-indent a continuation line comment.
-exe 'setl indk-=0=\"\\\ '
+exe 'setl indentkeys-=0="\\\ '
 # don't re-indent when inserting `}`
-setl indk-==}
+setl indentkeys-==}
 # Original value:{{{
 #
 #     0{,0},0),0],:,!^F,o,O,e,=end,=},=else,=cat,=fina,=END,0\,0="\
@@ -24,4 +24,4 @@ g:vim_indent_cont = 0
 # Teardown {{{1
 
 b:undo_indent = get(b:, 'undo_indent', 'exe')
-    .. '| set indk<'
+    .. '| set indentkeys<'

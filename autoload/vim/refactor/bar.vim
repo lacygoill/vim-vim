@@ -36,7 +36,7 @@ const MAX_JOINED_LINES: number = 5
 # Interface {{{1
 def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
     if typename(type) == 'string' && type == ''
-        &opfunc = 'vim#refactor#bar#main'
+        &operatorfunc = 'vim#refactor#bar#main'
         return 'g@l'
     endif
 
@@ -47,7 +47,7 @@ def vim#refactor#bar#main(type: any = '', arg = ''): string #{{{2
     var pos: list<number> = getcurpos()
 
     var bang: bool
-    # opfunc
+    # operator function
     if typename(type) == 'string' && type != ''
         bang = true
     # Ex cmd

@@ -12,7 +12,7 @@ import IsVim9 from 'lg.vim'
 # Interface {{{1
 def vim#refactor#method#splitjoin#main(type = ''): string #{{{2
     if type == ''
-        &opfunc = 'vim#refactor#method#splitjoin#main'
+        &operatorfunc = 'vim#refactor#method#splitjoin#main'
         return 'g@l'
     endif
     var range: list<number> = GetRange()
@@ -34,7 +34,10 @@ def Split(range: list<number>) #{{{2
     var lnum1: number = range[0]
     var lnum2: number = range[1]
     var indent: string = getline('.')->matchstr('^\s*')
-    var rep: string = "\x01" .. indent .. repeat(' ', &l:sw) .. (IsVim9() ? '' : '\\ ')
+    var rep: string = "\x01"
+        .. indent
+        .. repeat(' ', &l:shiftwidth)
+        .. (IsVim9() ? '' : '\\ ')
     var new: string = getline(lnum1, lnum2)
         ->mapnew((_, v: string): list<string> =>
                     v->substitute(ARROW_PAT, rep, 'g')

@@ -90,6 +90,10 @@ com -bar -buffer -range RefTernary vim#refactor#ternary#main(<line1>, <line2>)
 nno <buffer><nowait> <c-]> <cmd>call vim#jumpToTag()<cr>
 nno <buffer><nowait> -h <cmd>call vim#getHelpurl()<cr>
 
+if expand('%:p') =~ '/syntax/\f\+\.vim$'
+    nno <buffer><nowait> gd <cmd>call vim#jumpToSyntaxDefinition()<cr>
+endif
+
 noremap <buffer><expr><nowait> [m brackets#move#regex('fu', v:false)
 noremap <buffer><expr><nowait> ]m brackets#move#regex('fu', v:true)
 
@@ -108,6 +112,8 @@ sil! repmap#make#repeatable({
 # TODO: When should we install visual mappings?
 
 nno <buffer><expr><nowait> =rb vim#refactor#bar#main()
+
+nno <buffer><nowait> =rc <cmd>call vim#refactor#syntax#reflow()<cr>
 
 # TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
 nno <buffer><nowait> =rd <cmd>RefDot<cr>
@@ -134,19 +140,19 @@ nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 xno <buffer><nowait> =rt <c-\><c-n><cmd>*RefTernary<cr>
 
 # Options {{{1
-# cms {{{2
+# commentstring {{{2
 
 if getline(1) =~ '^vim9s\%[cript]\>'
-    setl cms=#%s
-    &l:com = 'sO:# -,mO:#  ,eO:##,:#'
+    &l:commentstring = '# %s'
+    &l:comments = 'sO:# -,mO:#  ,eO:##,:#'
 endif
 
-# flp {{{2
+# formatlistpat {{{2
 
-&l:flp = '^\s*"\=\s*\%(\d\+[.)]\|[-*+]\)\s\+'
-#                      ├──────┘  ├───┘
-#                      │         └ recognize unordered lists
-#                      └ recognize numbered lists
+&l:formatlistpat = '^\s*#\=\s*\%(\d\+[.)]\|[-*+]\)\s\+'
+#                                ├──────┘  ├───┘
+#                                │         └ recognize unordered lists
+#                                └ recognize numbered lists
 # }}}1
 # Variables {{{1
 

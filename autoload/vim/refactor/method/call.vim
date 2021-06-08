@@ -9,7 +9,7 @@ const s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')
 " Interface {{{1
 fu vim#refactor#method#call#main(...) abort "{{{2
     if !a:0
-        let &opfunc = 'vim#refactor#method#call#main'
+        let &operatorfunc = 'vim#refactor#method#call#main'
         return 'g@l'
     endif
     let view = winsaveview()
@@ -33,7 +33,7 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "     endif
     "     let closing_bracket = {'<': '>', '(': ')', '[': ']', '{': '}'}[opening_bracket]
     "     call searchpair(opening_bracket, '', closing_bracket,
-    "         \ 'W', 'synID(".", col("."), 1)->synIDattr("name") =~ "\\ccomment\\|string"')
+    "         \ 'W', 'synID(".", col("."), v:true)->synIDattr("name") =~ "\\ccomment\\|string"')
     "
     " But I'm not sure we need it.
     " Maybe `vim#util#search(')')` is enough...

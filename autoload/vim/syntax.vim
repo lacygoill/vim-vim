@@ -41,7 +41,7 @@ def vim#syntax#getBuiltinFunctionNames(only_ambiguous = false): string #{{{2
     if builtin_funcnames != ''
         return builtin_funcnames
     else
-        var builtin_funclist: list<string> = getcompletion('*', 'function')
+        var builtin_funclist: list<string> = getcompletion('', 'function')
             # keep only builtin functions
             ->filter((_, v: string): bool => v[0] =~ '[a-z]' && v !~ '#')
             # remove noisy trailing parens
@@ -130,7 +130,7 @@ def vim#syntax#getEventNames(): string #{{{2
     if event_names != ''
         return event_names
     else
-        event_names = getcompletion('*', 'event')
+        event_names = getcompletion('', 'event')
             ->join(' ')
     endif
     return event_names
@@ -173,27 +173,50 @@ def vim#syntax#getOptionNames(): string #{{{2
     return option_names
 enddef
 
-def vim#syntax#getTerminalOptionNames(keyword_only = true): string #{{{2
+def vim#syntax#installTerminalOptionsRules() #{{{2
+    if has('vim_starting')
+        # We need to  delay the installation of the rules  for terminal options,
+        # because not all of them can be given by `getcompletion()` while Vim is
+        # starting.
+        au VimEnter * InstallTerminalOptionsRules()
+    else
+        InstallTerminalOptionsRules()
+    endif
+enddef
+
+def InstallTerminalOptionsRules()
+    var args: string = ' contained'
+        .. ' nextgroup=vim9MayBeOptionScoped,vim9SetEqual'
+
+    exe 'syn keyword vim9IsOption '
+        .. GetTerminalOptionNames()
+        .. args
+
+    exe 'syn match vim9IsOption '
+        .. GetTerminalOptionNames(false)
+        .. args
+enddef
+
+def GetTerminalOptionNames(keyword_only = true): string
+    # terminal options with only keyword characters
     if keyword_only
         if term_option_names != ''
             return term_option_names
         endif
-        term_option_names = getcompletion("'t_", 'help')
-            ->map((_, v: string): string => v->trim("'"))
+        term_option_names = getcompletion('t_', 'option')
             ->filter((_, v: string): bool => v =~ '^t_\w\w$')
             ->join()
         return term_option_names
 
+    # terminal options with one or several NON-keyword characters
     else
 
         if term_option_names_nonkw != ''
             return term_option_names_nonkw
         endif
-        var opts: list<string> = getcompletion("'t_", 'help')
-            ->map((_, v: string): string => v->trim("'"))
+        var opts: list<string> = getcompletion('t_', 'option')
             ->filter((_, v: string): bool => v =~ '\W')
-            + ['t_*7']
-        term_option_names_nonkw = '/' .. opts->join('\|') .. '/'
+        term_option_names_nonkw = '/\V' .. opts->join('\|') .. '/'
         return term_option_names_nonkw
     endif
 enddef

@@ -10,13 +10,13 @@ def vim#refactor#heredoc#main( #{{{2
 ): string
 
     if typename(type) == 'string' && type == ''
-        &opfunc = 'vim#refactor#heredoc#main'
+        &operatorfunc = 'vim#refactor#heredoc#main'
         return 'g@l'
     endif
     var view: dict<number> = winsaveview()
 
     var bang: bool
-    # opfunc
+    # operator function
     if typename(type) == 'string' && type != ''
         bang = true
     # Ex cmd

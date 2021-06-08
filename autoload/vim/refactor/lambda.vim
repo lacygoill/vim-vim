@@ -6,7 +6,7 @@ var loaded = true
 # Interface {{{1
 def vim#refactor#lambda#main(type: any = ''): string #{{{2
     if typename(type) == 'string' && type == ''
-        &opfunc = 'vim#refactor#lambda#main'
+        &operatorfunc = 'vim#refactor#lambda#main'
         return 'g@l'
     endif
 
@@ -56,7 +56,7 @@ enddef
 
 def vim#refactor#lambda#new(type = ''): string #{{{2
     if type == ''
-        &opfunc = 'vim#refactor#lambda#new'
+        &operatorfunc = 'vim#refactor#lambda#new'
         return 'g@l'
     endif
     searchpair('{.*->', '', '}', 'bcW')

@@ -5,14 +5,23 @@ var loaded = true
 
 import Catch from 'lg.vim'
 
+def vim#jumpToSyntaxDefinition() #{{{1
+    @/ = '^\s*'
+        .. '\%(exe\%[cute]\s\+[''"]\)\='
+        .. 'syn\%[tax]\s\+\%(keyword\|match\|region\|cluster\)\s\+'
+        .. '\zs' .. expand('<cword>') .. '\>'
+    search(@/)
+    norm! zv
+enddef
+
 def vim#jumpToTag() #{{{1
-    var isk_save: string = &l:isk
+    var iskeyword_save: string = &l:iskeyword
     var bufnr: number = bufnr('%')
-    # Some tags may contain a colon (ex: `s:some_function()`).
-    #                                      ^
-    # When  `C-]` grabs  the identifier  under  the cursor,  it only  considers
-    # characters inside 'isk'.
-    setl isk+=:
+    # Some tags may contain a colon (e.g.: `s:some_function()`).
+    #                                       ^
+    # When  `C-]` grabs  the  identifier  under the  cursor,  it only  considers
+    # characters inside 'iskeyword'.
+    setl iskeyword+=:
     try
         exe "norm! \<c-]>"
         norm! zvzz
@@ -20,11 +29,11 @@ def vim#jumpToTag() #{{{1
         Catch()
         return
     finally
-        # Why not simply `&l:isk = isk_save`?{{{
+        # Why not simply `&l:iskeyword = iskeyword_save`?{{{
         #
         # We may have jumped to another buffer.
         #}}}
-        setbufvar(bufnr, '&isk', isk_save)
+        setbufvar(bufnr, '&iskeyword', iskeyword_save)
     endtry
 enddef
 
@@ -58,7 +67,7 @@ def vim#getHelpurl() #{{{1
 enddef
 
 def vim#undoFtplugin() #{{{1
-    set cms< flp<
+    set commentstring< formatlistpat<
     unlet! b:mc_chain
 
     unmap <buffer> [m
@@ -70,6 +79,7 @@ def vim#undoFtplugin() #{{{1
     nunmap <buffer> -h
 
     nunmap <buffer> =rb
+    nunmap <buffer> =rc
     nunmap <buffer> =rd
     nunmap <buffer> =rh
     nunmap <buffer> =rl

@@ -73,11 +73,12 @@ def vim#util#put( #{{{2
     col2: number,
     linewise = false
 )
-    var cb_save: string = &cb
-    var sel_save: string = &sel
+    var clipboard_save: string = &clipboard
+    var selection_save: string = &selection
     var reg_save: dict<any> = getreginfo('"')
     try
-        set cb= sel=inclusive
+        &clipboard = ''
+        &selection = 'inclusive'
         if typename(text) =~ '^list'
             @" = text->join("\n")
         else
@@ -88,8 +89,8 @@ def vim#util#put( #{{{2
         setpos('.', [0, lnum2, col2, 0])
         norm! p
     finally
-        &cb = cb_save
-        &sel = sel_save
+        &clipboard = clipboard_save
+        &selection = selection_save
         setreg('"', reg_save)
     endtry
 enddef
@@ -156,27 +157,25 @@ def Confirm( #{{{2
     col2: number,
 ): string
 
-    var fen_save: bool = &l:fen
-    var pat: string = '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
+    var foldenable_save: bool = &l:foldenable
+    var pat: string =
+           '\%' .. lnum1 .. 'l\%' .. col1 .. 'c\_.*'
+        .. '\%' .. lnum2 .. 'l\%' .. col2 .. 'c.'
     var id: number = matchadd('IncSearch', pat, 0)
     var answer: string
     try
-        setl nofen
+        &l:foldenable = false
         echohl Question
         redraw | echo msg .. ' (y/n)?'
         echohl NONE
         while index(['y', 'n', "\e"], answer) == -1
-            var c: any = getchar()
-            if typename(c) != 'number'
-                continue
-            endif
-            answer = nr2char(c)
+            answer = getcharstr()
         endwhile
         redraw!
     catch /Vim:Interrupt/
         echohl ErrorMsg | redraw | echo 'Interrupt' | echohl NONE
     finally
-        &l:fen = fen_save
+        &l:foldenable = foldenable_save
         matchdelete(id)
     endtry
     return answer

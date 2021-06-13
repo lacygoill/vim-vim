@@ -10,7 +10,7 @@ def vim#jumpToSyntaxDefinition() #{{{1
         .. '\%(exe\%[cute]\s\+[''"]\)\='
         .. 'syn\%[tax]\s\+\%(keyword\|match\|region\|cluster\)\s\+'
         .. '\zs' .. expand('<cword>') .. '\>'
-    search(@/)
+    search(@/, 's')
     norm! zv
 enddef
 

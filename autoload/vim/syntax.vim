@@ -58,9 +58,133 @@ def vim#syntax#getCommandNames(): string #{{{2
     if command_names != ''
         return command_names
     endif
+
+    var deprecated: list<string> =<< trim END
+        append
+        change
+        insert
+        k
+        open
+        t
+    END
+    var mods: list<string> =<< trim END
+        belowright
+        botright
+        browse
+        hide
+        keepalt
+        keepjumps
+        keepmarks
+        keeppatterns
+        leftabove
+        lockmarks
+        noautocmd
+        noswapfile
+        rightbelow
+        sandbox
+        silent
+        tab
+        topleft
+        unsilent
+        verbose
+        vertical
+    END
+    var need_fix: list<string> =<< trim END
+        final
+        finally
+    END
+    # `:s` is a special case.{{{
+    #
+    # We need it to be matched with a `:syn match` rule;
+    # not with a `:syn keyword` one.
+    # Otherwise, we wouldn't be able to  correctly highlight the `s:` scope in a
+    # function's header; that's because a  `:syn keyword` rule has priority over
+    # all `:syn match` rules, regardless of the orderin which they're installed.
+    #
+    # ---
+    #
+    # Don't worry, `:s` will be still highlighted thanks to a `:syn match` rule.
+    #}}}
+    # Same thing for `:g`, `:if`, ...
+    var special: list<string> =<< trim END
+        autocmd
+        command
+        global
+        substitute
+        if
+        elseif
+        endif
+        for
+        endfor
+        try
+        catch
+        throw
+        endtry
+        while
+        endwhile
+        echo
+        echoconsole
+        echomsg
+        eval
+        execute
+        const
+        final
+        unlet
+        var
+        cmap
+        cnoremap
+        imap
+        inoremap
+        lmap
+        lnoremap
+        nmap
+        nnoremap
+        noremap
+        omap
+        onoremap
+        smap
+        snoremap
+        tnoremap
+        tmap
+        vmap
+        vnoremap
+        xmap
+        xnoremap
+        mapclear
+        smapclear
+        cmapclear
+        imapclear
+        lmapclear
+        nmapclear
+        omapclear
+        tmapclear
+        vmapclear
+        xmapclear
+        cunmap
+        iunmap
+        lunmap
+        nunmap
+        ounmap
+        sunmap
+        tunmap
+        unmap
+        unmap
+        vunmap
+        xunmap
+    END
+
+    var to_iterate_over: list<string> = getcompletion('', 'command')
+          ->filter((_, v: string): bool => v =~ '^[a-z]')
+    for cmd in deprecated + mods + need_fix + special
+        var i: number = to_iterate_over->index(cmd)
+        if i == -1
+            continue
+        endif
+        to_iterate_over->remove(i)
+    endfor
+
     var cmds: list<string>
-    for cmd in getcompletion('', 'command')
-              ->filter((_, v: string): bool => v =~ '^[a-z]')
+    for cmd in to_iterate_over
         var len: number
         for l in strcharlen(cmd)->range()->reverse()
             if l == 0
@@ -76,43 +200,6 @@ def vim#syntax#getCommandNames(): string #{{{2
         else
             cmds += [cmd[: len] .. '[' .. cmd[len + 1 :] .. ']']
         endif
-    endfor
-
-    var deprecated: list<string> =<< trim END
-        a[ppend]
-        c[hange]
-        i[nsert]
-        k
-        o[pen]
-        t
-    END
-    var need_fix: list<string> =<< trim END
-        final
-        finall[y]
-    END
-    # `:s` is a special case.{{{
-    #
-    # We need it to be matched with a `:syn match` rule;
-    # not with a `:syn keyword` one.
-    # Otherwise, we wouldn't be able to  correctly highlight the `s:` scope in a
-    # function's header; that's because a  `:syn keyword` rule has priority over
-    # all `:syn match` rules, regardless of the orderin which they're installed.
-    #
-    # ---
-    #
-    # Don't worry, `:s` will be still highlighted thanks to a `:syn match` rule.
-    #}}}
-    # Same thing for `:g`.
-    var problematic: list<string> =<< trim END
-        g[lobal]
-        s[ubstitute]
-    END
-    for cmd in deprecated + need_fix + problematic
-        var i: number = cmds->index(cmd)
-        if i == -1
-            continue
-        endif
-        cmds->remove(i)
     endfor
 
     var missing: list<string> =<< trim END

@@ -64,7 +64,7 @@ def Join() #{{{2
         var range: string = ':.+,' .. lastlnum
         exe range .. 's/^\s*\\\s*//'
     endif
-    :'[-,']j!
+    :'[-,'] j!
 enddef
 #}}}1
 # Utilities {{{1

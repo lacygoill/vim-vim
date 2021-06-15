@@ -117,7 +117,7 @@ nno <buffer><nowait> =rc <cmd>call vim#refactor#syntax#reflow()<cr>
 
 # TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
 nno <buffer><nowait> =rd <cmd>RefDot<cr>
-xno <buffer><nowait> =rd <c-\><c-n><cmd>*RefDot<cr>
+xno <buffer><nowait> =rd <c-\><c-n><cmd>* RefDot<cr>
 
 nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
 nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
@@ -133,11 +133,11 @@ nno <buffer><expr><nowait> =rm vim#refactor#method#call#main()
 nno <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
 
 nno <buffer><nowait> =rq <cmd>RefQuote<cr>
-xno <buffer><nowait> =rq <c-\><c-n><cmd>*RefQuote<cr>
+xno <buffer><nowait> =rq <c-\><c-n><cmd>* RefQuote<cr>
 
 nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 
-xno <buffer><nowait> =rt <c-\><c-n><cmd>*RefTernary<cr>
+xno <buffer><nowait> =rt <c-\><c-n><cmd>* RefTernary<cr>
 
 # Options {{{1
 # commentstring {{{2

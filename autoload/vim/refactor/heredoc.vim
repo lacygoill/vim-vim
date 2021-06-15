@@ -164,7 +164,7 @@ def BreakBar(lnum: number, indent: string) #{{{2
     #
     # and what follows the bar would interfere when Vim looks for the `END` marker.
     #}}}
-    exe 'keepj keepp :' .. lnum .. 's/\s*|\s*/\r' .. indent .. '/e'
+    exe 'keepj keepp :' .. lnum .. ' s/\s*|\s*/\r' .. indent .. '/e'
 enddef
 
 def GetItems(lnum1: number, lnum3: number): list<string> #{{{2

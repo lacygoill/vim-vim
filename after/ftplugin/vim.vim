@@ -46,7 +46,7 @@ com -bang -bar -buffer RefMethod vim#refactor#method#main(<bang>0)
 
 # RefQuote {{{2
 
-com -bar -buffer -range=% RefQuote <line1>,<line2>s/"\(.\{-}\)"/'\1'/gce
+com -bar -buffer -range=% RefQuote :<line1>,<line2> s/"\(.\{-}\)"/'\1'/gce
 
 # RefSubstitute {{{2
 
@@ -112,8 +112,6 @@ sil! repmap#make#repeatable({
 # TODO: When should we install visual mappings?
 
 nno <buffer><expr><nowait> =rb vim#refactor#bar#main()
-
-nno <buffer><nowait> =rc <cmd>call vim#refactor#syntax#reflow()<cr>
 
 # TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
 nno <buffer><nowait> =rd <cmd>RefDot<cr>

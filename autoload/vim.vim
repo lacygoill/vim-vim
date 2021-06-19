@@ -79,7 +79,6 @@ def vim#undoFtplugin() #{{{1
     nunmap <buffer> -h
 
     nunmap <buffer> =rb
-    nunmap <buffer> =rc
     nunmap <buffer> =rd
     nunmap <buffer> =rh
     nunmap <buffer> =rl

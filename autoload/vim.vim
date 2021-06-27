@@ -44,8 +44,10 @@ def vim#getHelpurl() #{{{1
     if expand('%:p') !~ '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
         return
     endif
-    var fname: string = expand('%:p')->fnamemodify(':t')
-    var tag: string = getline('.')->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
+    var fname: string = expand('%:p')
+        ->fnamemodify(':t')
+    var tag: string = getline('.')
+        ->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
     if &filetype == 'help'
         close
     endif
@@ -53,7 +55,7 @@ def vim#getHelpurl() #{{{1
     var value: string = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
         tag,
         fname,
-        tag,
+        tag->substitute(':', '%3A', 'g'),
     )
     setreg('h', value, 'a')
     getreg('h', true, true)

@@ -58,13 +58,13 @@ def Join() #{{{2
     search('^\%(\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a\)\@!', 'bcW')
     var lastlnum: number = search(pat .. '.*\n\%(' .. pat .. '\)\@!', 'cnW')
     if isvim9
-        var range: string = ':.+,' .. lastlnum
-        exe range .. 's/^\s*//'
+        var range: string = ':.+1,' .. lastlnum
+        execute range .. 'substitute/^\s*//'
     else
-        var range: string = ':.+,' .. lastlnum
-        exe range .. 's/^\s*\\\s*//'
+        var range: string = ':.+1,' .. lastlnum
+        execute range .. 'substitute/^\s*\\\s*//'
     endif
-    :'[-,'] j!
+    :'[-1,'] join!
 enddef
 #}}}1
 # Utilities {{{1

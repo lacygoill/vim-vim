@@ -83,7 +83,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     var reg_save: dict<any> = getreginfo('"')
     @" = assignment->join("\n")
     try
-        exe 'norm! ' .. lnum1 .. 'G' .. 'V' .. lnum2 .. 'Gp'
+        execute 'normal! ' .. lnum1 .. 'G' .. 'V' .. lnum2 .. 'Gp'
     finally
         setreg('"', reg_save)
     endtry

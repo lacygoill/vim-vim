@@ -38,36 +38,36 @@ def vim#refactor#general#main( #{{{1
     bang: bool
 )
     var range: string = ':' .. lnum1 .. ',' .. lnum2
-    var modifiers: string = 'keepj keepp '
+    var modifiers: string = 'keepjumps keeppatterns '
     var view: dict<number> = winsaveview()
 
     var substitutions: dict<dict<string>> = {
-        au:    {pat: '^\s*\zsaut\%[ocmd]\ze!\=\%( \|$\)', rep: 'au'},
-        lower: {pat: '\C<\%(C-\a\|CR\|SID\|Plug\)>', rep: '\L\0'},
-        com:   {pat: '^\s*\zscomm\%[and]!\= ', rep: 'com '},
-        echom: {pat: 'echomsg\= ', rep: 'echom '},
-        exe:   {pat: 'exec\%[ute] ', rep: 'exe '},
-        fu:    {pat: '^\s*\zsfun\%[ction]!\= ', rep: 'fu '},
-        endfu: {pat: '^\s*\zsendf\%[unction]\s*$', rep: 'endfu'},
-        sil:   {pat: '<\@1<!sile\%[nt]\(!\| \)', rep: 'sil\1'},
-        setl:  {pat: 'setlo\%[cal] ', rep: 'setl '},
-        keepj: {pat: 'keepju\%[mps] ', rep: 'keepj '},
-        keepp: {pat: 'keeppa\%[tterns] ', rep: 'keepp '},
-        nno:   {pat: '\([nvxoict]\)nor\%[emap] ', rep: '\1no '},
-        noa:   {pat: 'noau\%[tocmd] ', rep: 'noa '},
-        norm:  {pat: 'normal\=! ', rep: 'norm! '},
-        abort: {pat: '^\%(.*)\s*abort\)\@!\s*fu\%[nction]!\=.*)'
-                  .. '\zs\ze\%(\s*"{{' .. '{\d*\)\=',
-                rep: ' abort'},
+        autocmd:      {pat: '^\s*\zsau\%[tocm]\ze!\=\%( \|$\)', rep: 'autocmd'},
+        lower:        {pat: '\C<\%(C-\a\|CR\|SID\|Plug\)>', rep: '\L\0'},
+        command:      {pat: '^\s*\zscom\%[man]!\= ', rep: 'command '},
+        echomsg:      {pat: 'echom\%[sg] ', rep: 'echomsg '},
+        execute:      {pat: 'exe\%[cut] ', rep: 'execute '},
+        function:     {pat: '^\s*\zsfu\%[nction]!\= ', rep: 'function '},
+        endfunction:  {pat: '^\s*\zsendf\%[unction]\s*$', rep: 'endfunction'},
+        silent:       {pat: '<\@1<!sil\%[en]\(!\| \)', rep: 'silent\1'},
+        setlocal:     {pat: 'setl\%[ocal] ', rep: 'setlocal '},
+        keepjumps:    {pat: 'keepj\%[umps] ', rep: 'keepjumps '},
+        keeppatterns: {pat: 'keepp\%[atterns] ', rep: 'keeppatterns '},
+        nno:          {pat: '\([nvxoict]\)no\%[remap] ', rep: '\1noremap '},
+        noautocmd:    {pat: 'noa\%[utocmd] ', rep: 'noautocmd '},
+        normal:       {pat: 'norm\%[al]\(!\| \)', rep: 'normal\1'},
+        abort:        {pat: '^\%(.*)\s*abort\)\@!\s*fu\%[nction]!\=.*)'
+                         .. '\zs\ze\%(\s*"{{' .. '{\d*\)\=',
+                       rep: ' abort'},
     }
 
-    exe 'sil! ' .. modifiers .. 'norm! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
+    execute 'silent! ' .. modifiers .. 'normal! ' .. lnum1 .. 'G=' .. lnum2 .. 'G'
     for sbs in values(substitutions)
-        var cmd: string = modifiers .. range .. 's/' .. sbs.pat .. '/' .. sbs.rep .. '/ge'
+        var cmd: string = modifiers .. range .. 'substitute/' .. sbs.pat .. '/' .. sbs.rep .. '/ge'
         if bang
-            exe 'sil ' .. cmd
+            execute 'silent ' .. cmd
         else
-            exe cmd .. 'c'
+            execute cmd .. 'c'
         endif
     endfor
 
@@ -81,10 +81,10 @@ def vim#refactor#general#main( #{{{1
             ->sort()
             ->join('')
         .. ' '
-    exe 'sil ' .. range .. 's/' .. pat .. '/\=Rep()/ge'
+    execute 'silent ' .. range .. 'substitute/' .. pat .. '/\=Rep()/ge'
 
     # make sure all buffer-local mappings use `<nowait>`
-    exe 'sil ' .. range .. 's'
+    execute 'silent ' .. range .. 's'
         .. '/' .. PAT_MAP .. '\s\+'
             # look for `<buffer>` (might be followed by `<expr>`)
             .. '<buffer>\%(<expr>\)\='

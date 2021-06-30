@@ -98,34 +98,34 @@ def Break(bang: bool) #{{{2
         #         echo 'true'
         #     endif
         #}}}
-        exe 'keepj keepp s/' .. PAT_BAR .. '/\r/ge'
+        execute 'keepjumps keeppatterns substitute/' .. PAT_BAR .. '/\r/ge'
     elseif word =~ '^\Cau\%[tocmd]$'
         # Perform this transformation:{{{
         #
-        #     au User test if 1 | echo 'do sth' | endif
+        #     autocmd User test if 1 | echo 'do sth' | endif
         #
         #     →
         #
-        #     au User test if 1
+        #     autocmd User test if 1
         #         \ | echo 'do sth'
         #         \ | endif
         #}}}
-        exe 'sil keepj keepp s/' .. PAT_BAR .. '/\="\r\\ | "/ge'
+        execute 'silent keepjumps keeppatterns substitute/' .. PAT_BAR .. '/\="\<CR>\\ | "/ge'
     else
         return
     endif
     var range: string = ':' .. (line("'[") + 1) .. ',' .. line("']")
-    exe range .. 'norm! =='
+    execute range .. 'normal! =='
 enddef
 
 def Join(bang: bool) #{{{2
     var line: string = getline('.')
     var word: string = line->matchstr('^\s*\zs\w\+')
         ->Normalize()
-    if index(['au', 'if', 'try'], word) == -1 || line =~ '\C\send\%(if\|try\)\s*$'
+    if index(['autocmd', 'if', 'try'], word) == -1 || line =~ '\C\send\%(if\|try\)\s*$'
         return
     endif
-    var mods: string = 'keepj keepp'
+    var mods: string = 'keepjumps keeppatterns'
     var lnum1: number = line('.')
     var range: string
     # Perform this transformation:{{{
@@ -148,18 +148,18 @@ def Join(bang: bool) #{{{2
             return
         endif
         range = ':' .. lnum1 .. ',' .. lnum2
-        exe mods .. ' ' .. range .. '-s/$/ |/'
+        execute mods .. ' ' .. range .. '-1 substitute/$/ |/'
     # Perform this transformation:{{{
     #
-    #     au User test if 1
+    #     autocmd User test if 1
     #         \ | do sth
     #         \ | endif
     #
     #     →
     #
-    #     au User test if 1 | do sth | endif
+    #     autocmd User test if 1 | do sth | endif
         #}}}
-    elseif word == 'au'
+    elseif word == 'autocmd'
         var lnum2: number = search('^\s*\\\s*|\s*\Cend\%(if\|try\)\s*$', 'nW')
         if lnum2 - lnum1 + 1 > MAX_JOINED_LINES
             return
@@ -168,16 +168,16 @@ def Join(bang: bool) #{{{2
             return
         endif
         range = lnum1 .. ',' .. lnum2
-        exe mods .. ' ' .. range .. '-s/$/ |/'
-        exe mods .. ' ' .. range .. 's/^\s*\\\s*|\s*//'
+        execute mods .. ' ' .. range .. '-1 substitute/$/ |/'
+        execute mods .. ' ' .. range .. ' substitute/^\s*\\\s*|\s*//'
     endif
-    exe mods .. ' ' .. range .. 'j'
+    execute mods .. ' ' .. range .. ' join'
 enddef
 #}}}1
 # Utilities {{{1
 def Normalize(word: string): string #{{{2
-    return word =~ '^\Cau\%[tocmd]$'
-        ? 'au'
+    return word =~ '^\Cau\%[tocm]$'
+        ? 'autocmd'
         : word
 enddef
 

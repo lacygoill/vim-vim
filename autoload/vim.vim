@@ -11,7 +11,7 @@ def vim#jumpToSyntaxDefinition() #{{{1
         .. 'syn\%[tax]\s\+\%(keyword\|match\|region\|cluster\)\s\+'
         .. '\zs' .. expand('<cword>') .. '\>'
     search(@/, 's')
-    norm! zv
+    normal! zv
 enddef
 
 def vim#jumpToTag() #{{{1
@@ -21,10 +21,10 @@ def vim#jumpToTag() #{{{1
     #                                       ^
     # When  `C-]` grabs  the  identifier  under the  cursor,  it only  considers
     # characters inside 'iskeyword'.
-    setl iskeyword+=:
+    setlocal iskeyword+=:
     try
-        exe "norm! \<c-]>"
-        norm! zvzz
+        execute "normal! \<C-]>"
+        normal! zvzz
     catch
         Catch()
         return
@@ -40,7 +40,7 @@ enddef
 def vim#getHelpurl() #{{{1
     var winid: number = win_getid()
     # use our custom `K` which is smarter than the builtin one
-    norm K
+    normal K
     if expand('%:p') !~ '^' .. $VIMRUNTIME .. '/doc/.*.txt$'
         return
     endif
@@ -52,7 +52,7 @@ def vim#getHelpurl() #{{{1
         close
     endif
     win_gotoid(winid)
-    var value: string = printf("[:h %s](https://vimhelp.org/%s.html#%s)\n",
+    var value: string = printf("[:help %s](https://vimhelp.org/%s.html#%s)\n",
         tag,
         fname,
         tag->substitute(':', '%3A', 'g'),
@@ -77,7 +77,7 @@ def vim#undoFtplugin() #{{{1
     unmap <buffer> [M
     unmap <buffer> ]M
 
-    nunmap <buffer> <c-]>
+    nunmap <buffer> <C-]>
     nunmap <buffer> -h
 
     nunmap <buffer> =rb
@@ -94,14 +94,14 @@ def vim#undoFtplugin() #{{{1
     xunmap <buffer> =rq
     xunmap <buffer> =rt
 
-    delc RefBar
-    delc RefDot
-    delc RefHeredoc
-    delc RefLambda
-    delc RefMethod
-    delc RefQuote
-    delc RefSubstitute
-    delc RefTernary
-    delc Refactor
+    delcommand RefBar
+    delcommand RefDot
+    delcommand RefHeredoc
+    delcommand RefLambda
+    delcommand RefMethod
+    delcommand RefQuote
+    delcommand RefSubstitute
+    delcommand RefTernary
+    delcommand Refactor
 enddef
 

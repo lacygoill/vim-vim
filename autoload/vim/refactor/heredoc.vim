@@ -89,7 +89,7 @@ enddef
 def PrintHelp() #{{{2
     var help: list<string> =<< trim END
         Usage: RefHeredoc[!] [-help] [-notrim] [marker]
-        Refactor current list assignment into a heredoc (see `:h :let-heredoc`).
+        Refactor current list assignment into a heredoc (see `:help :let-heredoc`).
 
           -help    print this help
           -notrim  do not write the optional trim argument
@@ -111,7 +111,7 @@ enddef
 
 def Error(msg: string) #{{{2
     echohl ErrorMsg
-    echom msg
+    echomsg msg
     echohl NONE
 enddef
 
@@ -139,7 +139,7 @@ enddef
 def SearchClosingBracket(): number #{{{2
     var s: number = vim#util#search('=[ \t\n\\]*\[', 'e')
     if s > 0
-        norm! %
+        normal! %
     endif
     return s
 enddef
@@ -164,12 +164,12 @@ def BreakBar(lnum: number, indent: string) #{{{2
     #
     # and what follows the bar would interfere when Vim looks for the `END` marker.
     #}}}
-    exe 'keepj keepp :' .. lnum .. ' s/\s*|\s*/\r' .. indent .. '/e'
+    execute 'keepjumps keeppatterns :' .. lnum .. ' substitute/\s*|\s*/\r' .. indent .. '/e'
 enddef
 
 def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
     var lines: list<string> = getline(lnum1, lnum3)
-        # remove possible comments inside the list (`:h line-continuation-comment`)
+        # remove possible comments inside the list (`:help line-continuation-comment`)
         ->filter((_, v: string): bool => v !~ '^\s*"\\ ')
     var list_value: string = join(lines)
     var pat: string = '[,[]\s*\\\=\s*\([''"]\)\zs.\{-}\ze\1\s*\\\=[,\]]'
@@ -206,7 +206,7 @@ def GetNewAssignment( #{{{2
             :     indent .. v
         )
     if notrim
-        assignment->map((_, v: string): string => v->trim(" \t"))
+        assignment->map((_, v: string): string => v->trim(" \<Tab>"))
     endif
     return assignment
 enddef

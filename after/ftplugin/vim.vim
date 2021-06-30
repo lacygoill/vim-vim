@@ -14,11 +14,11 @@ vim9script
 # Commands {{{1
 # Refactor {{{2
 
-com -bang -bar -buffer -range=% Refactor vim#refactor#general#main(<line1>, <line2>, <bang>0)
+command -bang -bar -buffer -range=% Refactor vim#refactor#general#main(<line1>, <line2>, <bang>0)
 
 # RefBar {{{2
 
-com -bang -bar -buffer -nargs=? -complete=custom,vim#refactor#bar#complete
+command -bang -bar -buffer -nargs=? -complete=custom,vim#refactor#bar#complete
     \ RefBar vim#refactor#bar#main(<bang>0, <q-args>)
 
 # RefDot {{{2
@@ -29,28 +29,28 @@ com -bang -bar -buffer -nargs=? -complete=custom,vim#refactor#bar#complete
 #     a.b     →  a..b
 #     a .. b  →  a..b
 #}}}
-com -bang -bar -buffer -range=% RefDot vim#refactor#dot#main(<bang>0, <line1>, <line2>)
+command -bang -bar -buffer -range=% RefDot vim#refactor#dot#main(<bang>0, <line1>, <line2>)
 
 # RefHeredoc {{{2
 
-com -bang -bar -buffer -nargs=* -complete=custom,vim#refactor#heredoc#complete
+command -bang -bar -buffer -nargs=* -complete=custom,vim#refactor#heredoc#complete
     \ RefHeredoc vim#refactor#heredoc#main(<bang>0, <q-args>)
 
 # RefLambda {{{2
 
-com -bang -bar -buffer RefLambda vim#refactor#lambda#main(<bang>0)
+command -bang -bar -buffer RefLambda vim#refactor#lambda#main(<bang>0)
 
 # RefMethod {{{2
 
-com -bang -bar -buffer RefMethod vim#refactor#method#main(<bang>0)
+command -bang -bar -buffer RefMethod vim#refactor#method#main(<bang>0)
 
 # RefQuote {{{2
 
-com -bar -buffer -range=% RefQuote :<line1>,<line2> s/"\(.\{-}\)"/'\1'/gce
+command -bar -buffer -range=% RefQuote :<line1>,<line2> substitute/"\(.\{-}\)"/'\1'/gce
 
 # RefSubstitute {{{2
 
-com -bang -bar -buffer RefSubstitute vim#refactor#substitute#main#main(<bang>0)
+command -bang -bar -buffer RefSubstitute vim#refactor#substitute#main#main(<bang>0)
 
 # RefTernary {{{2
 # Usage  {{{3
@@ -82,25 +82,25 @@ com -bang -bar -buffer RefSubstitute vim#refactor#substitute#main#main(<bang>0)
 
 # Code  {{{3
 
-com -bar -buffer -range RefTernary vim#refactor#ternary#main(<line1>, <line2>)
+command -bar -buffer -range RefTernary vim#refactor#ternary#main(<line1>, <line2>)
 #}}}2
 #}}}1
 # Mappings {{{1
 
-nno <buffer><nowait> <c-]> <cmd>call vim#jumpToTag()<cr>
-nno <buffer><nowait> -h <cmd>call vim#getHelpurl()<cr>
+nnoremap <buffer><nowait> <C-]> <Cmd>call vim#jumpToTag()<CR>
+nnoremap <buffer><nowait> -h <Cmd>call vim#getHelpurl()<CR>
 
 if expand('%:p') =~ '/syntax/\f\+\.vim$'
-    nno <buffer><nowait> gd <cmd>call vim#jumpToSyntaxDefinition()<cr>
+    nnoremap <buffer><nowait> gd <Cmd>call vim#jumpToSyntaxDefinition()<CR>
 endif
 
-noremap <buffer><expr><nowait> [m brackets#move#regex('fu', v:false)
-noremap <buffer><expr><nowait> ]m brackets#move#regex('fu', v:true)
+noremap <buffer><expr><nowait> [m brackets#move#regex('function', v:false)
+noremap <buffer><expr><nowait> ]m brackets#move#regex('function', v:true)
 
-noremap <buffer><expr><nowait> [M brackets#move#regex('endfu', v:false)
-noremap <buffer><expr><nowait> ]M brackets#move#regex('endfu', v:true)
+noremap <buffer><expr><nowait> [M brackets#move#regex('endfunction', v:false)
+noremap <buffer><expr><nowait> ]M brackets#move#regex('endfunction', v:true)
 
-sil! repmap#make#repeatable({
+silent! repmap#make#repeatable({
     mode: '',
     buffer: true,
     from: expand('<sfile>:p') .. ':' .. expand('<slnum>'),
@@ -111,14 +111,14 @@ sil! repmap#make#repeatable({
 
 # TODO: When should we install visual mappings?
 
-nno <buffer><expr><nowait> =rb vim#refactor#bar#main()
+nnoremap <buffer><expr><nowait> =rb vim#refactor#bar#main()
 
 # TODO: should we turn those into operators (same thing for `=rq` and maybe `=rt`)?
-nno <buffer><nowait> =rd <cmd>RefDot<cr>
-xno <buffer><nowait> =rd <c-\><c-n><cmd>* RefDot<cr>
+nnoremap <buffer><nowait> =rd <Cmd>RefDot<CR>
+xnoremap <buffer><nowait> =rd <C-\><C-N><Cmd>:* RefDot<CR>
 
-nno <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
-nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
+nnoremap <buffer><expr><nowait> =rh vim#refactor#heredoc#main()
+nnoremap <buffer><expr><nowait> =rl vim#refactor#lambda#main()
 # TODO: Merge `=rL` with `=rl`.{{{
 #
 # When pressing `=rl` on an eval string, it should be refactored into a legacy lambda.
@@ -126,16 +126,16 @@ nno <buffer><expr><nowait> =rl vim#refactor#lambda#main()
 #
 # You'll need to merge `#new()` with `#main()`.
 #}}}
-nno <buffer><expr><nowait> =rL vim#refactor#lambda#new()
-nno <buffer><expr><nowait> =rm vim#refactor#method#call#main()
-nno <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
+nnoremap <buffer><expr><nowait> =rL vim#refactor#lambda#new()
+nnoremap <buffer><expr><nowait> =rm vim#refactor#method#call#main()
+nnoremap <buffer><expr><nowait> =r- vim#refactor#method#splitjoin#main()
 
-nno <buffer><nowait> =rq <cmd>RefQuote<cr>
-xno <buffer><nowait> =rq <c-\><c-n><cmd>* RefQuote<cr>
+nnoremap <buffer><nowait> =rq <Cmd>RefQuote<CR>
+xnoremap <buffer><nowait> =rq <C-\><C-N><Cmd>:* RefQuote<CR>
 
-nno <buffer><expr><nowait> =rs vim#refactor#substitute#main()
+nnoremap <buffer><expr><nowait> =rs vim#refactor#substitute#main()
 
-xno <buffer><nowait> =rt <c-\><c-n><cmd>* RefTernary<cr>
+xnoremap <buffer><nowait> =rt <C-\><C-N><Cmd>:* RefTernary<CR>
 
 # Options {{{1
 # commentstring {{{2
@@ -161,12 +161,12 @@ b:mc_chain =<< trim END
     tags
     ulti
     abbr
-    c-n
+    C-n
     dict
 END
 
 # Teardown {{{1
 
-b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe')
+b:undo_ftplugin = get(b:, 'undo_ftplugin', 'execute')
     .. '| call vim#undoFtplugin()'
 

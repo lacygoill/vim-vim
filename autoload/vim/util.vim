@@ -14,13 +14,13 @@ def vim#util#search( #{{{2
     try
         if !syntax_was_enabled
             Warn('enabling syntax to search pattern; might take some time...')
-            syn enable
+            syntax enable
         endif
         return search(pat, flags .. 'cW',
             0, 0, function(Skip, [syntomatch]))
     finally
         if !syntax_was_enabled
-            syn off
+            syntax off
         endif
     endtry
     return 0
@@ -85,9 +85,9 @@ def vim#util#put( #{{{2
             @" = text
         endif
         setpos('.', [0, lnum1, col1, 0])
-        exe 'norm!' .. (linewise ? 'V' : 'v')
+        execute 'normal!' .. (linewise ? 'V' : 'v')
         setpos('.', [0, lnum2, col2, 0])
-        norm! p
+        normal! p
     finally
         &clipboard = clipboard_save
         &selection = selection_save
@@ -99,7 +99,7 @@ enddef
 def Warn(msg: string) #{{{2
     # Sometimes, enabling syntax highlighting takes a few seconds.
     echohl WarningMsg
-    echom msg
+    echomsg msg
     echohl NONE
 enddef
 
@@ -143,7 +143,7 @@ def Finish(view: dict<number>, msg = ''): bool #{{{2
     redraw
     if msg != ''
         echohl ErrorMsg
-        echom msg
+        echomsg msg
         echohl NONE
     endif
     return false
@@ -168,7 +168,7 @@ def Confirm( #{{{2
         echohl Question
         redraw | echo msg .. ' (y/n)?'
         echohl NONE
-        while index(['y', 'n', "\e"], answer) == -1
+        while index(['y', 'n', "\<Esc>"], answer) == -1
             answer = getcharstr()
         endwhile
         redraw!

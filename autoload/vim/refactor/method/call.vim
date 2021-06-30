@@ -7,7 +7,7 @@ const s:FUNCTION_NAMES = getcompletion('[a-z]', 'function')
     \ ->filter({_, v -> v =~# '^[a-z][^#]*\%((\|()\)$'})
 
 " Interface {{{1
-fu vim#refactor#method#call#main(...) abort "{{{2
+function vim#refactor#method#call#main(...) abort "{{{2
     if !a:0
         let &operatorfunc = 'vim#refactor#method#call#main'
         return 'g@l'
@@ -22,7 +22,7 @@ fu vim#refactor#method#call#main(...) abort "{{{2
         echohl NONE
         call winrestview(view)
     endif
-    norm! v
+    normal! v
     " TODO: Do we need to write a `vim#util#jump_to_closing_bracket()` function?{{{
     "
     " If so, here's the code:
@@ -39,9 +39,9 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     " Maybe `vim#util#search(')')` is enough...
     "}}}
     call vim#util#jump_to_closing_bracket()
-    sil norm! y
-    "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1 : 2] | norm! v
-    "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1 : 2] | norm! y
+    silent normal! y
+    "     let s2 = s:search_closing_quote() | let [lnum2, col2] = getcurpos()[1 : 2] | normal! v
+    "     let s1 = s:search_opening_quote() | let [lnum1, col1] = getcurpos()[1 : 2] | normal! y
 
     let bang = typename(a:1) == 'number' ? a:1 : v:true
     "     if !vim#util#weCanRefactor(
@@ -66,5 +66,5 @@ fu vim#refactor#method#call#main(...) abort "{{{2
     "         \ lnum1, col1,
     "         \ lnum2, col2,
     "         \ )
-endfu
+endfunction
 "}}}1

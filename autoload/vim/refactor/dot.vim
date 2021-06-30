@@ -53,8 +53,8 @@ def vim#refactor#dot#main(
     #}}}
 
     var range: string = ':' .. lnum1 .. ',' .. lnum2
-    exe range .. 's/' .. pat .. '/ .. /ge' .. (bang ? '' : 'c')
+    execute range .. 'substitute/' .. pat .. '/ .. /ge' .. (bang ? '' : 'c')
     # `.=` assignment → `..=`
-    exe range .. 's/\s\zs\.=\ze\s/..=/ge' .. (bang ? '' : 'c')
+    execute range .. 'substitute/\s\zs\.=\ze\s/..=/ge' .. (bang ? '' : 'c')
 enddef
 

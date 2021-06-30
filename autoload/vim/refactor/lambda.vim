@@ -19,13 +19,13 @@ def vim#refactor#lambda#main(type: any = ''): string #{{{2
     var lnum2: number
     var col2: number
     [lnum2, col2] = getcurpos()[1 : 2]
-    norm! v
+    normal! v
 
     var s1: number = SearchOpeningQuote()
     var lnum1: number
     var col1: number
     [lnum1, col1] = getcurpos()[1 : 2]
-    norm! y
+    normal! y
 
     var bang: bool = typename(type) == 'bool' ? type : true
     if !vim#util#weCanRefactor(
@@ -100,7 +100,7 @@ def SearchClosingQuote(): number #{{{2
         return 0
     endif
     var pos: list<number> = getcurpos()
-    norm! %
+    normal! %
     if getcurpos() == pos
         return 0
     endif

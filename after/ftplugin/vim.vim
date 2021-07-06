@@ -12,10 +12,6 @@ vim9script
 #}}}
 
 # Commands {{{1
-# Refactor {{{2
-
-command -bang -bar -buffer -range=% Refactor vim#refactor#general#main(<line1>, <line2>, <bang>0)
-
 # RefBar {{{2
 
 command -bang -bar -buffer -nargs=? -complete=custom,vim#refactor#bar#complete
@@ -94,20 +90,20 @@ if expand('%:p') =~ '/syntax/\f\+\.vim$'
     nnoremap <buffer><nowait> gd <Cmd>call vim#jumpToSyntaxDefinition()<CR>
 endif
 
-noremap <buffer><expr><nowait> [m brackets#move#regex('function', v:false)
-noremap <buffer><expr><nowait> ]m brackets#move#regex('function', v:true)
+map <buffer><nowait> ]m <Plug>(next-function-start)
+map <buffer><nowait> [m <Plug>(prev-function-start)
+noremap <buffer><expr> <Plug>(next-function-start) brackets#move#regex('def')
+noremap <buffer><expr> <Plug>(prev-function-start) brackets#move#regex('def', v:false)
 
-noremap <buffer><expr><nowait> [M brackets#move#regex('endfunction', v:false)
-noremap <buffer><expr><nowait> ]M brackets#move#regex('endfunction', v:true)
+map <buffer><nowait> ]M <Plug>(next-function-end)
+map <buffer><nowait> [M <Plug>(prev-function-end)
+noremap <buffer><expr> <Plug>(next-function-end) brackets#move#regex('enddef')
+noremap <buffer><expr> <Plug>(prev-function-end) brackets#move#regex('enddef', v:false)
 
-silent! repmap#make#repeatable({
-    mode: '',
-    buffer: true,
-    from: expand('<sfile>:p') .. ':' .. expand('<slnum>'),
-    motions: [
-        {bwd: '[m', fwd: ']m'},
-        {bwd: '[M', fwd: ']M'},
-    ]})
+silent! submode#enter('functions-start', 'nx', 'br', ']m', '<Plug>(next-function-start)')
+silent! submode#enter('functions-start', 'nx', 'br', '[m', '<Plug>(prev-function-start)')
+silent! submode#enter('functions-end', 'nx', 'br', ']M', '<Plug>(next-function-end)')
+silent! submode#enter('functions-end', 'nx', 'br', '[M', '<Plug>(prev-function-end)')
 
 # TODO: When should we install visual mappings?
 

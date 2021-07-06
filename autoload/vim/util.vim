@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 # Interface {{{1
 def vim#util#search( #{{{2
     pat: string,
@@ -66,7 +63,8 @@ def vim#util#weCanRefactor( #{{{2
 enddef
 
 def vim#util#put( #{{{2
-    text: any, # TODO(Vim9): string|list<string>
+    # string|list<string>
+    text: any,
     lnum1: number,
     col1: number,
     lnum2: number,
@@ -115,8 +113,8 @@ def ContainsPos( #{{{2
         return col0 >= (col1 - 1) && col0 <= (col2 - 1)
     else
         return (lnum0 > lnum1 && lnum0 < lnum2)
-            \ || (lnum0 == lnum1 && col0 >= (col1 - 1))
-            \ || (lnum0 == lnum2 && col0 <= (col2 - 1))
+            || (lnum0 == lnum1 && col0 >= (col1 - 1))
+            || (lnum0 == lnum2 && col0 <= (col2 - 1))
     endif
 enddef
 

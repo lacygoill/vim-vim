@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 # Interface {{{1
 def vim#refactor#lambda#main(type: any = ''): string #{{{2
     if typename(type) == 'string' && type == ''
@@ -64,12 +61,12 @@ def vim#refactor#lambda#new(type = ''): string #{{{2
     searchpair('{', '', '}', 'W')
     # delete "}"
     getline('.')
-        ->substitute('.*\zs\%' .. col('.') .. 'c.', '', '')
+        ->substitute('.*\zs\%.c.', '', '')
         ->setline('.')
     setpos('.', start)
     # replace "{" with "("
     getline('.')
-        ->substitute('.*\zs\%' .. col('.') .. 'c.', '(', '')
+        ->substitute('.*\zs\%.c.', '(', '')
         ->setline('.')
     # replace "->" with "=>"
     getline('.')

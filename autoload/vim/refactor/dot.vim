@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 def vim#refactor#dot#main(
     bang: bool,
     lnum1: number,

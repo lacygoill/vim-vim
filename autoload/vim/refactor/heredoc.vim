@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 # Interface {{{1
 def vim#refactor#heredoc#main( #{{{2
     type: any = '',
@@ -181,7 +178,7 @@ def GetItems(lnum1: number, lnum3: number): list<string> #{{{2
     var Rep: func = (m: list<string>) => items->add(Item(m))[0]
     list_value->substitute(pat, Rep, 'g')
     return items
-        ->map((_, v: string): string =>
+        ->map((_, v: string) =>
                   v != ''
                 ?     repeat(' ', shiftwidth()) .. v
                 :     v
@@ -206,7 +203,7 @@ def GetNewAssignment( #{{{2
             :     indent .. v
         )
     if notrim
-        assignment->map((_, v: string): string => v->trim(" \<Tab>"))
+        assignment->map((_, v: string) => v->trim(" \<Tab>"))
     endif
     return assignment
 enddef

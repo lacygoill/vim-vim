@@ -1,10 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
-import IsVim9 from 'lg.vim'
-
 # TODO: add support for some not-too-complex ranges
 # Update: Nope.  It's too slow.
 # Try to replace `foo` with `bar` in our vimrc.  It's about 20 times slower with
@@ -96,8 +91,7 @@ def GetNewSubstitution(old: string): string #{{{2
     # TODO: use the  method  call  operator to  refactor  the new  substitution
     # command to make it more readable; make sure to update the tests
     var lnum: string = {'': "'.'", '-': "line('.') - 1"}[range]
-    var format: string = (IsVim9() ? '' : 'call ')
-        .. "getline(%s)->substitute('%s', '%s', '%s')->setline(%s)"
+    var format: string = "getline(%s)->substitute('%s', '%s', '%s')->setline(%s)"
     var new: string = printf(format, lnum, pat, rep, flags, lnum)
     return new
 enddef

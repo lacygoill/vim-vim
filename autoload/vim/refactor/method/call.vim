@@ -14,8 +14,8 @@ function vim#refactor#method#call#main(...) abort "{{{2
     endif
     let view = winsaveview()
 
-    call vim#util#search('\%' .. col('.') .. 'c\%' .. line('.') .. 'l\S*\zs(')
-    let funcname = getline('.')->matchstr('\S*\%' .. col('.') .. 'c')
+    call vim#util#search('\%.c\%.l\S*\zs(')
+    let funcname = getline('.')->matchstr('\S*\%.c')
     if match(s:FUNCTION_NAMES, '^\V' .. funcname .. '\m\%((\|()\)') == -1
         echohl ErrorMsg
         echo 'no builtin function under the cursor'

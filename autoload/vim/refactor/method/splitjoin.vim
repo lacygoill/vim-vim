@@ -1,13 +1,8 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 # the negative lookbehind tries  to prevent a match when the arrow  is used in a
 # legacy lambda
 const ARROW_PAT: string = '\S\zs\ze\%({\s*\%(\%(\S\+\s*,\)\=\s*\S\+\)\=\s*\)\@<!->\a'
-
-import IsVim9 from 'lg.vim'
 
 # Interface {{{1
 def vim#refactor#method#splitjoin#main(type = ''): string #{{{2
@@ -37,7 +32,6 @@ def Split(range: list<number>) #{{{2
     var rep: string = "\x01"
         .. indent
         .. repeat(' ', &l:shiftwidth)
-        .. (IsVim9() ? '' : '\\ ')
     var new: string = getline(lnum1, lnum2)
         ->mapnew((_, v: string): list<string> =>
                     v->substitute(ARROW_PAT, rep, 'g')
@@ -53,32 +47,18 @@ def Split(range: list<number>) #{{{2
 enddef
 
 def Join() #{{{2
-    var isvim9: bool = IsVim9()
-    var pat: string = '^\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a'
-    search('^\%(\s*' .. (isvim9 ? '' : '\\\s*') .. '->\a\)\@!', 'bcW')
+    var pat: string = '^\s*->\a'
+    search('^\%(\s*->\a\)\@!', 'bcW')
     var lastlnum: number = search(pat .. '.*\n\%(' .. pat .. '\)\@!', 'cnW')
-    if isvim9
-        var range: string = ':.+1,' .. lastlnum
-        execute range .. 'substitute/^\s*//'
-    else
-        var range: string = ':.+1,' .. lastlnum
-        execute range .. 'substitute/^\s*\\\s*//'
-    endif
+    var range: string = ':.+1,' .. lastlnum
+    execute range .. 'substitute/^\s*//'
     :'[-1,'] join!
 enddef
 #}}}1
 # Utilities {{{1
 def GetRange(): list<number> #{{{2
-    var patfirst: string
-    var patlast: string
-    var is_vim9: bool = IsVim9()
-    if is_vim9
-        patfirst = '^\%(\s*->\a\)\@!.*\n\s*->\a'
-        patlast = '^\s*->\a.*\n\%(\s*->\a\)\@!'
-    else
-        patfirst = '^\%(\s*\\\s*->\a\)\@!.*\n\s*\\\s*->\a'
-        patlast = '^\s*\\\s*->\a.*\n\%(\s*\\\s*->\a\)\@!'
-    endif
+    var patfirst: string = '^\%(\s*->\a\)\@!.*\n\s*->\a'
+    var patlast: string = '^\s*->\a.*\n\%(\s*->\a\)\@!'
     var firstlnum: number = search(patfirst, 'bcnW')
     var lastlnum: number = search(patlast, 'cnW')
 
@@ -87,7 +67,7 @@ def GetRange(): list<number> #{{{2
     # we did find a possible start and  end, but the range is invalid because it
     # contains a line which doesn't start with a method call
     || getline(firstlnum, lastlnum)
-        ->match('^\%(\s*' .. (is_vim9 ? '' : '\\\s*') .. '->\a\)\@!', 0, 2) >= 0
+        ->match('^\%(\s*->\a\)\@!', 0, 2) >= 0
 
         if getline('.')->match(ARROW_PAT) >= 0
             var curlnum: number = line('.')

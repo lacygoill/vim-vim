@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 import Catch from 'lg.vim'
 
 def vim#jumpToSyntaxDefinition() #{{{1
@@ -47,7 +44,7 @@ def vim#getHelpurl() #{{{1
     var fname: string = expand('%:p')
         ->fnamemodify(':t')
     var tag: string = getline('.')
-        ->matchstr('\%' .. col('.') .. 'c\*\zs[^*]*')
+        ->matchstr('\%.c\*\zs[^*]*')
     if &filetype == 'help'
         close
     endif
@@ -102,6 +99,5 @@ def vim#undoFtplugin() #{{{1
     delcommand RefQuote
     delcommand RefSubstitute
     delcommand RefTernary
-    delcommand Refactor
 enddef
 

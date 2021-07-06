@@ -1,8 +1,5 @@
 vim9script noclear
 
-if exists('loaded') | finish | endif
-var loaded = true
-
 # Interface {{{1
 def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
     search('^\s*\<\%(let\|var\|const\|return\)\>', 'cW', lnum2)
@@ -78,7 +75,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
 
     # make sure our new block is indented like the original one
     var indent_block: string = getline(lnum1)->matchstr('^\s*')
-    assignment->map((_, v: string): string => indent_block .. v)
+    assignment->map((_, v: string) => indent_block .. v)
 
     var reg_save: dict<any> = getreginfo('"')
     @" = assignment->join("\n")

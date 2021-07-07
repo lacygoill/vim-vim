@@ -57,7 +57,7 @@ def vim#refactor#ternary#main(lnum1: number, lnum2: number) #{{{2
         return
     endif
 
-    for i in range(1, n_tests - 1)
+    for i: number in range(1, n_tests - 1)
         assignment += ['    \ ?     ' .. values[i - 1]]
                     + ['    \ : ' .. tests[i]]
     endfor

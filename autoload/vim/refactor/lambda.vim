@@ -93,7 +93,7 @@ def SearchClosingQuote(): number #{{{2
     #
     # Then, the current logic is correct, and `=rl` works as expected.
     #}}}
-    if vim#util#search('\C\<\%(map\|filter\)(', 'be') == 0
+    if vim#util#search('\C\<\%(map\%(new\)\=\|filter\)(', 'be') == 0
         return 0
     endif
     var pos: list<number> = getcurpos()

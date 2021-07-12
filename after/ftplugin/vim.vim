@@ -100,10 +100,10 @@ map <buffer><nowait> [M <Plug>(prev-function-end)
 noremap <buffer><expr> <Plug>(next-function-end) brackets#move#regex('enddef')
 noremap <buffer><expr> <Plug>(prev-function-end) brackets#move#regex('enddef', v:false)
 
-silent! submode#enter('functions-start', 'nx', 'br', ']m', '<Plug>(next-function-start)')
-silent! submode#enter('functions-start', 'nx', 'br', '[m', '<Plug>(prev-function-start)')
-silent! submode#enter('functions-end', 'nx', 'br', ']M', '<Plug>(next-function-end)')
-silent! submode#enter('functions-end', 'nx', 'br', '[M', '<Plug>(prev-function-end)')
+silent! execute submode#enter('functions-start', 'nx', 'br', ']m', '<Plug>(next-function-start)')
+silent! execute submode#enter('functions-start', 'nx', 'br', '[m', '<Plug>(prev-function-start)')
+silent! execute submode#enter('functions-end', 'nx', 'br', ']M', '<Plug>(next-function-end)')
+silent! execute submode#enter('functions-end', 'nx', 'br', '[M', '<Plug>(prev-function-end)')
 
 # TODO: When should we install visual mappings?
 
